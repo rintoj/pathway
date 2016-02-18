@@ -1,8 +1,9 @@
-@import 'bootstrap';
+@import 'materialize';
+@import 'fonts';
 
 html {
   body {
-    margin: 90px 0 50px;
+    font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
 
@@ -18,10 +19,6 @@ html {
   display: block;
   padding: .435rem .8rem;
   text-transform: capitalize;
-}
-
-.todo-item-input {
-  @extend .form-control;
 }
 
 .todo-item-select {
@@ -46,7 +43,7 @@ html {
 
   &.completed {
     .todo-item-text {
-      color: $gray-lighter;
+      // color: $gray-lighter;
       text-decoration: line-through;
     }
   }
