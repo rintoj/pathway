@@ -3,9 +3,9 @@
 // @import 'node_modules/materialize-css/sass/components/prefixer';
 @import 'node_modules/materialize-css/sass/components/mixins';
 @import 'node_modules/materialize-css/sass/components/color';
-// Variables;
-@import 'node_modules/materialize-css/sass/components/variables';
-@import '_variables';
+// Variables
+//@import 'node_modules/materialize-css/sass/components/variables';
+@import 'scss/variables';
 // Reset
 @import 'node_modules/materialize-css/sass/components/normalize';
 // components
@@ -41,18 +41,17 @@
   font-weight: 400;
   src: url('../fonts/material-design-icons/Material-Design-Icons.ttf');
 }
+
 .material-icons {
+  display: inline-block;
+  text-transform: none;
   font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
   font-size: 24px;
+  font-style: normal;
+  font-weight: normal;
   line-height: 1;
   letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
   white-space: nowrap;
   word-wrap: normal;
   direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
 }

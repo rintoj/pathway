@@ -1,18 +1,20 @@
 import {Component, View} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router';
 
+import {HeaderComponent} from './header/header.component';
 import {TodoComponent} from './todo/todo.component';
 import {AboutComponent} from './about/about.component';
 
 @Component({
-	selector: 'app',
-	providers: [
-		ROUTER_PROVIDERS
-	]
+  selector: 'pw-app',
+  providers: [
+    ROUTER_PROVIDERS
+  ]
 })
 @View({
-	directives: [ROUTER_DIRECTIVES],
-	template: `
+  directives: [HeaderComponent, ROUTER_DIRECTIVES],
+  template: `
+		<pw-header></pw-header>
 		<div>
 			<ul class="nav nav-pills">
 				<li class="nav-item"><a class="nav-link" [routerLink]="['Todo']">Todo</a></li>
@@ -24,8 +26,8 @@ import {AboutComponent} from './about/about.component';
 	`
 })
 @RouteConfig([
-	{ path: '/todo', name: 'Todo', component: TodoComponent, useAsDefault: true },
-	{ path: '/about', name: 'About', component: AboutComponent }
+  { path: '/todo', name: 'Todo', component: TodoComponent, useAsDefault: true },
+  { path: '/about', name: 'About', component: AboutComponent }
 ])
 export class AppComponent {
 	/**
@@ -38,5 +40,5 @@ export class AppComponent {
 	 * ```
 	 * @deprecated This is an example of the `deprecated` annotation tag.
 	 */
-	public title = 'Angular 2 Seed';
+  public title = 'Angular 2 Seed';
 }

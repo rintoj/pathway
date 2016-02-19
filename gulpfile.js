@@ -73,7 +73,7 @@ function clean() {
 }
 
 function scss() {
-	return gulp.src('src/**/*.{scss,sass}', { base: 'src/scss' })
+	return gulp.src('src/**/*.{scss,sass}', { base: 'src' })
 		.pipe(plugins.sassLint({ config: '.sass-lint.yml' }))
 		.pipe(plugins.sassLint.format())
 		.pipe(plugins.sassLint.failOnError())
@@ -161,7 +161,7 @@ function assets() {
 }
 
 function index() {
-	var css = ['build/css/*'];
+	var css = ['build/css/**/*'];
 	var libs = ['build/libs/*'];
 
 	if (env.isDev) {
@@ -252,8 +252,8 @@ function protractorRun() {
 
 function watch() {
 	gulp.watch('src/scripts/**/*.{ts,css,html}', gulp.series(tsSrc, 'unit'));
-	gulp.watch('src/scss/**/*.scss', scss);
-	gulp.watch('src/css/**/*.css', css);
+	gulp.watch('src/**/*.scss', scss);
+	gulp.watch('src/**/*.css', css);
 	gulp.watch('src/index.html', index);
 	gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
 }
