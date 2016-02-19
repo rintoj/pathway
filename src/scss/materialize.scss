@@ -5,6 +5,7 @@
 @import 'node_modules/materialize-css/sass/components/color';
 // Variables;
 @import 'node_modules/materialize-css/sass/components/variables';
+@import '_variables';
 // Reset
 @import 'node_modules/materialize-css/sass/components/normalize';
 // components
@@ -38,7 +39,7 @@
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url(../fonts/material-design-icons/Material-Design-Icons.ttf);
+  src: url('../fonts/material-design-icons/Material-Design-Icons.ttf');
 }
 .material-icons {
   font-family: 'Material Icons';
@@ -55,4 +56,3 @@
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
-@import '_variables';

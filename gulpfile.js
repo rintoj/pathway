@@ -37,7 +37,7 @@ gulp.task(clean);
 
 gulp.task('build', gulp.series(
 	clean,
-	gulp.parallel(scss, tsSrc),
+	gulp.parallel(scss, css, tsSrc),
 	assets,
 	index,
 	typedoc
@@ -82,6 +82,12 @@ function scss() {
 		.pipe(plugins.sass())
 		.pipe(plugins.if(env.isDev, plugins.sourcemaps.write()))
 		.pipe(plugins.size({ title: 'sass' }))
+		.pipe(gulp.dest('build/css'))
+		.pipe(plugins.connect.reload());
+}
+
+function css() {
+	return gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', { base: 'src/css' })
 		.pipe(gulp.dest('build/css'))
 		.pipe(plugins.connect.reload());
 }
@@ -247,6 +253,7 @@ function protractorRun() {
 function watch() {
 	gulp.watch('src/scripts/**/*.{ts,css,html}', gulp.series(tsSrc, 'unit'));
 	gulp.watch('src/scss/**/*.scss', scss);
+	gulp.watch('src/css/**/*.css', css);
 	gulp.watch('src/index.html', index);
 	gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
 }
