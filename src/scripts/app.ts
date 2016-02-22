@@ -15,14 +15,12 @@ import {AboutComponent} from './about/about.component';
   directives: [HeaderComponent, ROUTER_DIRECTIVES],
   template: `
 		<pw-header></pw-header>
-		<div>
-			<ul class="nav nav-pills">
-				<li class="nav-item"><a class="nav-link" [routerLink]="['Todo']">Todo</a></li>
-				<li class="nav-item"><a class="nav-link" [routerLink]="['About']">About</a></li>
-			</ul>
-			<hr>
+		<main>
 			<router-outlet></router-outlet>
-		</div>
+		</main>
+		<footer>
+			Pathway™ - Powered by Angular 2. © 2016 Copyright rintoj (Rinto Jose).
+		</footer>
 	`
 })
 @RouteConfig([

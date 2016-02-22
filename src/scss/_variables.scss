@@ -1,11 +1,18 @@
 /*** Colors ***/
-$primary-color: color('teal', 'darken-1') !default;
+$primary-color: color('orange', 'darken-1') !default;
 $primary-color-light: lighten($primary-color, 15%) !default;
 $primary-color-dark: darken($primary-color, 15%) !default;
 $secondary-color: color('teal', 'lighten-1') !default;
 $success-color: color('green', 'base') !default;
 $error-color: color('red', 'base') !default;
 $link-color: color('light-blue', 'darken-1') !default;
+/*** Custom color ***/
+$light-color: color('grey', 'lighten-1') !default;
+$lighter-color: color('grey', 'lighten-2') !default;
+$lightest-color: color('grey', 'lighten-3') !default;
+/*** Header Color ***/
+$header-color: $primary-color;
+$header-bg-color: $lightest-color;
 /*** Badges ***/
 $badge-bg-color: $secondary-color !default;
 /*** Buttons ***/
@@ -117,7 +124,8 @@ $h4-fontsize: 2.28rem !default;
 $h5-fontsize: 1.64rem !default;
 $h6-fontsize: 1rem !default;
 // Footer
-$footer-bg-color: $primary-color !default;
+$footer-color: $light-color !default;
+$footer-bg-color: none !default;
 // Flowtext
 $range: $large-screen - $small-screen !default;
 $intervals: 20 !default;

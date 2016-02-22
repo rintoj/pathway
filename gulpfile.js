@@ -39,7 +39,11 @@ gulp.task('build', gulp.series(
 	clean,
 	gulp.parallel(scss, css, tsSrc),
 	assets,
-	index,
+	index
+));
+
+gulp.task("builddoc", gulp.series(
+	cleandocs,
 	typedoc
 ));
 
@@ -70,6 +74,10 @@ gulp.task('e2e', gulp.series(
 
 function clean() {
 	return del(['docs', 'coverage', 'build', '.karma', '.protractor']);
+}
+
+function cleandocs() {
+	return del(['docs']);
 }
 
 function scss() {
@@ -251,7 +259,7 @@ function protractorRun() {
 }
 
 function watch() {
-	gulp.watch('src/scripts/**/*.{ts,css,html}', gulp.series(tsSrc, 'unit'));
+	gulp.watch('src/scripts/**/*.{ts,css,html}', tsSrc); // gulp.series(tsSrc, 'unit'));
 	gulp.watch('src/**/*.scss', scss);
 	gulp.watch('src/**/*.css', css);
 	gulp.watch('src/index.html', index);

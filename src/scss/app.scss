@@ -1,12 +1,33 @@
-@import 'scss/fonts', 'scss/materialize';
+@import 'scss/materialize';
 
 html {
   body,
   div,
   span,
   p {
-    font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-		font-size: 1.05em;
+    margin: 0;
+    padding: 0;
+    display: block-inline;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.05em;
+  }
+
+  pw-app {
+    margin: 0;
+    padding: 0;
+
+    main {
+      height: 100%;
+    }
+
+    footer {
+      color: $footer-color;
+      font-size: 0.8em;
+      text-align: center;
+      vertical-align: middle;
+      width: 100%;
+      padding: 12px;
+      border-top: 1px solid $lightest-color;
+    }
   }
 }
-@import 'scripts/header/header';
