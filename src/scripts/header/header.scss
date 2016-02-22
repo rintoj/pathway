@@ -1,17 +1,66 @@
+@import 'scss/base';
+
 pw-header {
   nav {
-    padding: 10px;
+    @include shadow(5);
+    padding: 12px 20px;
     height: auto;
+    background: $primary-color;
+  }
 
-    .title {
-      font-size: 1.6em;
-			font-weight: 100;
+  .title {
+    font-size: 1.8em;
+    font-weight: 100;
 
-      img,
-      span {
-        vertical-align: middle;
-        margin: 0 2px;
-      }
+    img,
+    span {
+      color: $shadow-color-lighter;
+      vertical-align: middle;
+      margin: 0 2px;
+    }
+  }
+
+  .fa {
+    color: $shadow-color-lighter;
+
+    &.disabled {
+      color: $disabled-color;
+      cursor: not-allowed;
+    }
+
+    &:hover {
+      color: lighten($disabled-color, 10%);
+    }
+  }
+
+  .dropdown {
+    .dropdown-btn {
+      outline: none;
+      border-radius: 3px;
+      font-size: 0.9em;
+      padding: 2px 5px;
+      background-color: $shadow-color-lighter;
+      color: $shadow-color-dark;
+    }
+
+    .dropdown-menu {
+      @include shadow(6);
+      background-color: $shadow-color-lighter;
+      color: $shadow-color-dark;
+    }
+
+    .fa {
+      margin: 0 5px;
+      color: $shadow-color-dark;
+    }
+  }
+
+  .right {
+    margin: 10px 15px;
+
+    .fa {
+      font-size: 1.5em;
+      margin: 0 10px;
     }
   }
 }

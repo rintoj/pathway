@@ -149,7 +149,7 @@ function tsSrc() {
 }
 
 function assets() {
-	var images = gulp.src('src/images/**/*.{png,jpg,gif}')
+	var images = gulp.src('src/images/**/*.{png,jpg,gif,svg}')
 		.pipe(plugins.size({ title: 'images' }))
 		.pipe(gulp.dest('build/images'));
 

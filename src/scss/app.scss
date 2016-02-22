@@ -1,33 +1,57 @@
-@import 'scss/materialize';
-
+@import 'scss/bootstrap';
+@import 'scss/base';
+// @import 'scss/material-design/material_design';
 html {
   body,
   div,
   span,
-  p {
+  p,
+  button {
     margin: 0;
     padding: 0;
-    display: block-inline;
     font-family: 'Roboto', sans-serif;
-    font-size: 1.05em;
+    font-size: 1.02em;
+    color: $text-color;
+    outline: none;
   }
 
-  pw-app {
-    margin: 0;
-    padding: 0;
+  button {
+    outline: none;
 
-    main {
-      height: 100%;
+    &:active {
+      outline: none;
+    }
+  }
+
+  a {
+    &:active {
+      color: $text-color;
+      text-decoration: none;
     }
 
-    footer {
-      color: $footer-color;
-      font-size: 0.8em;
-      text-align: center;
-      vertical-align: middle;
-      width: 100%;
-      padding: 12px;
-      border-top: 1px solid $lightest-color;
+    &:hover {
+      color: lighten($text-color, 10%);
+      text-decoration: none;
+      cursor: pointer;
     }
+  }
+}
+
+pw-app {
+  margin: 0;
+  padding: 0;
+
+  main {
+    height: 100%;
+  }
+
+  footer {
+    color: $secondary-color;
+    font-size: 0.8em;
+    text-align: center;
+    vertical-align: middle;
+    width: 100%;
+    padding: 12px;
+    border-top: 1px solid $lightest-color;
   }
 }

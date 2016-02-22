@@ -13,7 +13,7 @@ import {TruncatePipe} from '../shared/pipes/truncate.pipe';
 	template: `
 		<div class="row todo-item" [ngClass]="{ completed: todo.completed }">
 			<div class="col-xs-1">
-				<input type="checkbox" class="todo-item-select" [(ngModel)]="todo.completed" (click)="update(todo)">
+				<input type="checkbox" class="filled-in" [(ngModel)]="todo.completed" (click)="update(todo)">
 			</div>
 
 			<div class="col-xs-8">
@@ -27,7 +27,7 @@ import {TruncatePipe} from '../shared/pipes/truncate.pipe';
 			</div>
 
 			<div class="col-xs-3">
-				<button class="todo-item-delete" (click)="delete(todo)">Delete</button>
+				<button class="btn btn-default waves-effect waves-light" (click)="delete(todo)">Delete</button>
 			</div>
 		</div>
 	`
