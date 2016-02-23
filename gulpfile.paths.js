@@ -10,8 +10,7 @@ let baseLibs = [
 	'node_modules/angular2/bundles/http.dev.js',
 	'node_modules/lodash/index.js',
 	'node_modules/jquery/dist/jquery.js',
-	'node_modules/bootstrap/dist/js/bootstrap.min.js',
-	'node_modules/daemonite-material/js/base.min.js'
+	'node_modules/bootstrap/dist/js/bootstrap.min.js'
 ];
 
 module.exports = {

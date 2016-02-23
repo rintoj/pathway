@@ -1,6 +1,6 @@
 @import 'scss/bootstrap';
 @import 'scss/base';
-// @import 'scss/material-design/material_design';
+
 html {
   body,
   div,
@@ -40,9 +40,12 @@ html {
 pw-app {
   margin: 0;
   padding: 0;
+  min-width: 300px;
+  display: block;
 
   main {
     height: 100%;
+    padding: 25px;
   }
 
   footer {
