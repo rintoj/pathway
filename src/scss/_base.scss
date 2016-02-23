@@ -28,6 +28,7 @@ $pink: #e91e63;
 $yellow: #ff9800;
 $blue-grey: #607d8b;
 $grey: #9e9e9e;
+$transparent-bg-color-dark: rgba(0, 0, 0, 0.62);
 
 @mixin shadow($depth, $inset: '') {
   $top: 0;
@@ -171,8 +172,8 @@ $grey: #9e9e9e;
     padding: 0 8px;
     content: attr(tooltip);
     position: absolute;
-    background: rgba(0, 0, 0, 0.62);
-    color: white;
+    background: $transparent-bg-color-dark;
+    color: $highlight-text-color;
     font-size: 0.7em;
     left: 50%;
     bottom: 10px;
@@ -182,12 +183,12 @@ $grey: #9e9e9e;
     white-space: nowrap;
     height: 0;
     overflow: hidden;
-  }
 
-  &:hover:after {
-    opacity: 1;
-    height: 22px;
-    bottom: -2px;
+    &:hover {
+      opacity: 1;
+      height: 22px;
+      bottom: -2px;
+    }
   }
 }
 
