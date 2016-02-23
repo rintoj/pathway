@@ -1,0 +1,194 @@
+@import 'scss/base';
+
+pw-projectlog {
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+
+  .actions {
+    .fa {
+      font-size: 1.32em;
+      margin: 0;
+      padding: 0;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+
+      &:hover {
+        background-color: $shadow-color-light;
+      }
+    }
+
+    .fa-check {
+      &.selected {
+        &:before {
+          content: '\f00d';
+        }
+      }
+    }
+  }
+
+  .list {
+    border: 1px solid $lightest-color;
+    border-radius: 3px;
+
+    &.loading {
+      .loader {
+        border: 1px solid $lightest-color;
+        padding: 15px;
+        height: 75px;
+      }
+    }
+  }
+
+  .list-item {
+    padding: 15px;
+    overflow: hidden;
+    transition: background 0.1s ease-in-out, transform 0.3s ease-in-out, margin 0.3s ease-in-out;
+    cursor: pointer;
+    background: $text-color-lightest;
+
+    &:not(:first-child) {
+      border-top: 1px solid $lightest-color;
+    }
+
+    & > div {
+      vertical-align: top;
+      margin: 0 5px;
+      display: inline-block;
+    }
+
+    .avatar {
+      background: $primary-color;
+      color: $text-color-lightest;
+      line-height: 45px;
+      border-radius: 50%;
+      font-size: 1.5em;
+      vertical-align: middle;
+      width: 45px;
+      height: 45px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      margin: 0 10px;
+      transition: background 0.1s ease-in-out;
+
+      &:before {
+        opacity: 0;
+        transition: opacity, transform 0.1s ease-in-out;
+        content: '\f00c';
+        position: absolute;
+        color: $text-color-lightest;
+        left: 25%;
+        transform: rotateZ(-90deg);
+      }
+    }
+
+    .content {
+      width: calc(100% - 85px);
+    }
+
+    .id {
+      display: inline-block;
+      color: $highlight-color;
+      margin-right: 10px;
+      font-weight: bold;
+      vertical-align: top;
+    }
+
+    .heading {
+      font-weight: bold;
+      display: inline-block;
+      width: calc(100% - 130px);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .status {
+      text-align: center;
+      display: inline-block;
+      padding: 2px 5px;
+      color: $lightest-color;
+      border-radius: 3px;
+      width: 60px;
+      font-size: 0.8em;
+      line-height: 18px;
+      vertical-align: top;
+    }
+
+    .text {
+      color: $text-color-light;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-height: 25px;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .action-bar {
+      display: block;
+      width: 100%;
+      clear: both;
+      margin: 0 0 0 75px;
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
+
+      .fa {
+        font-size: 1.32em;
+        margin: 0 10px;
+        color: $shadow-color-dark;
+      }
+    }
+
+    &.loader {
+      height: 0;
+      padding: 0;
+      transition: height 0.3s ease-in-out, padding 0.3s ease-in-out;
+      border: 0;
+
+      & > div {
+        margin: 0 auto;
+        display: block;
+      }
+    }
+
+    &.open {
+      @include shadow(5);
+      border: 1px solid $lightest-color;
+      margin: 0 0 10px;
+      transform: scale(1.01);
+
+      .text {
+        white-space: inherit;
+        max-height: 500px;
+        transition: max-height 0.3s ease-in;
+      }
+
+      .action-bar {
+        max-height: 500px;
+        margin: 20px 0 0 75px;
+        padding: 20px 0 0;
+        display: block;
+        border-top: 1px solid $lightest-color;
+      }
+    }
+  }
+
+  .selected-item {
+    background: $shadow-color-light;
+
+    .avatar {
+      background: darken($primary-color, 30%);
+      color: darken($primary-color, 30%);
+
+      &:before {
+        transform: rotateZ(0deg);
+        opacity: 1;
+      }
+    }
+  }
+}
