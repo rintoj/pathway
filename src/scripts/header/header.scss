@@ -12,7 +12,7 @@ pw-header {
     transition: height 0.2s 0.1s ease-in-out;
     height: 50px;
 
-    @media(max-width: 767px) {
+    @media(max-width: $small-device) {
       &.open {
         transition: height 0.2s 0s ease-in-out;
         height: 135px;
@@ -59,7 +59,7 @@ pw-header {
     transition: opacity 0.2s ease-in-out;
     display: block;
 
-    @media(max-width: 767px) {
+    @media(max-width: $small-device) {
       opacity: 0;
       clear: both;
       width: 100%;
@@ -76,7 +76,7 @@ pw-header {
     &.open {
       transition: opacity 0.2s 0.2s ease-in-out;
 
-      @media(max-width: 767px) {
+      @media(max-width: $small-device) {
         opacity: 1;
       }
     }

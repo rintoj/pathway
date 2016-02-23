@@ -18,6 +18,8 @@ $lightest-color: #efefef;
 $highlight-color: #ff4500;
 $highlight-text-color: #fff;
 $disabled-color: #afafaf;
+// media sizes
+$small-device: 768px;
 
 @mixin shadow($depth, $inset: '') {
   $top: 0;
@@ -57,7 +59,7 @@ $disabled-color: #afafaf;
 .visible-sm {
   display: none;
 
-  @media(max-width: 767px) {
+  @media(max-width: $small-device) {
     display: inline-block;
   }
 }
@@ -65,7 +67,7 @@ $disabled-color: #afafaf;
 .visible-lg {
   display: none;
 
-  @media(min-width: 768px) {
+  @media(min-width: $small-device + 1) {
     display: inline-block;
   }
 }
