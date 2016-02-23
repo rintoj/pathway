@@ -63,12 +63,12 @@ pw-projectlog {
     .avatar {
       background: $primary-color;
       color: $text-color-lightest;
-      line-height: 45px;
+      line-height: 50px;
       border-radius: 50%;
       font-size: 1.5em;
       vertical-align: middle;
-      width: 45px;
-      height: 45px;
+      width: 50px;
+      height: 50px;
       text-align: center;
       cursor: pointer;
       position: relative;
@@ -93,7 +93,7 @@ pw-projectlog {
     .id {
       display: inline-block;
       color: $highlight-color;
-      margin-right: 10px;
+      width: 70px;
       font-weight: bold;
       vertical-align: top;
     }
@@ -108,12 +108,11 @@ pw-projectlog {
     }
 
     .status {
-      text-align: center;
+      text-align: left;
       display: inline-block;
-      padding: 2px 5px;
-      color: $lightest-color;
+      padding: 2px 0;
       border-radius: 3px;
-      width: 60px;
+      width: 70px;
       font-size: 0.8em;
       line-height: 18px;
       vertical-align: top;

@@ -8,14 +8,21 @@ import {LoaderComponent} from '../loader/loader.component';
 @View({
   directives: [LoaderComponent],
   template: `
+
+		<!-- action buttons -->
 		<div class="actions">
 			<a class="fa fa-plus" tooltip="Add story"></a>
 			<a class="fa fa-trash" tooltip="Delete stories" (click)="deleteSelected()"></a>
 			<a class="fa fa-check" tooltip="Toggle selection" (click)="toggleAll()" [class.selected]="selectAllOn"></a>
 			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="loading=!loading"></a>
 		</div>
+
 		<div class="separator"></div>
+
+		<!-- the list -->
 		<div class="list" [class.loading]="loading">
+
+			<!-- the list item-->
 			<div class="list-item" *ngFor="#item of logs" [class.selected-item]="item.selected" [class.open]="item.open"
 			 (click)="toggleCurrent(item)">
 				<div class="avatar fa" (click)="toggleSelection(item, $event)">{{item.title.substr(0, 1).toUpperCase()}}</div>
@@ -23,20 +30,25 @@ import {LoaderComponent} from '../loader/loader.component';
 					<div class="heading-row">
 						<div class="id">{{item.id}}</div>
 						<div class="heading">{{item.title}}</div>
-						<div class="status" [class.grey]="item.status==='done'" [class.green]="item.status==='doing'"
-						 [class.yellow]="item.status==='new'">{{item.status}}</div>
 					</div>
-					<div class="text">{{item.description}}</div>
+					<div class="text">
+					<div class="status" [class.grey-text]="item.status==='done'" [class.green-text]="item.status==='doing'"
+					 [class.yellow-text]="item.status==='new'">{{item.status}}</div>
+
+					{{item.description}}</div>
 				</div>
 				<div class="action-bar">
 					<a class="fa fa-edit"></a>
 					<a class="fa fa-trash"></a>
 				</div>
-			</div>
+			</div> <!-- end of list item -->
+
+			<!-- list loader -->
 			<div class="list-item loader">
 				<pw-loader></pw-loader>
 			</div>
-		</div>
+
+		</div> <!-- end of list -->
 	`
 })
 export class ProjectlogComponent {
