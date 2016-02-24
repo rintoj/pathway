@@ -23,10 +23,16 @@ var env = {
 	NODE_ENV: process.env.NODE_ENV,
 	PORT: process.env.PORT,
 
-	get isDev() { return this.NODE_ENV === 'development'; },
-	get isProd() { return this.NODE_ENV === 'production'; },
+	get isDev() {
+		return this.NODE_ENV === 'development';
+	},
+	get isProd() {
+		return this.NODE_ENV === 'production';
+	},
 
-	get paths() { return this.isDev ? paths.dev : paths.prod; }
+	get paths() {
+		return this.isDev ? paths.dev : paths.prod;
+	}
 };
 
 /**
@@ -68,6 +74,8 @@ gulp.task('e2e', gulp.series(
 	protractorClean
 ));
 
+gulp.task('index', index);
+
 /**
  * Definitions
  */
@@ -81,21 +89,32 @@ function cleandocs() {
 }
 
 function scss() {
-	return gulp.src('src/**/*.{scss,sass}', { base: 'src' })
-		.pipe(plugins.sassLint({ config: '.sass-lint.yml' }))
+	return gulp.src('src/**/*.{scss,sass}', {
+			base: 'src'
+		})
+		.pipe(plugins.sassLint({
+			config: '.sass-lint.yml'
+		}))
 		.pipe(plugins.sassLint.format())
 		.pipe(plugins.sassLint.failOnError())
-		.pipe(plugins.rename({ dirname: '' }))
+		.pipe(plugins.rename({
+			dirname: ''
+		}))
 		.pipe(plugins.if(env.isDev, plugins.sourcemaps.init()))
 		.pipe(plugins.sass())
 		.pipe(plugins.if(env.isDev, plugins.sourcemaps.write()))
-		.pipe(plugins.size({ title: 'sass' }))
+		.pipe(plugins.size({
+			title: 'sass'
+		}))
+		.pipe(plugins.if(env.isProd, plugins.concat('app.css')))
 		.pipe(gulp.dest('build/css'))
 		.pipe(plugins.connect.reload());
 }
 
 function css() {
-	return gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', { base: 'src/css' })
+	return gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', {
+			base: 'src/css'
+		})
 		.pipe(gulp.dest('build/css'))
 		.pipe(plugins.connect.reload());
 }
@@ -116,8 +135,12 @@ function ts(filesRoot, filesGlob, filesDest, project) {
 	var result = gulp.src([...filesGlob, ...paths.typings])
 		.pipe(plugins.tslint())
 		.pipe(plugins.tslint.report('verbose'))
-		.pipe(plugins.preprocess({ context: env }))
-		.pipe(plugins.inlineNg2Template({ useRelativePaths: true }))
+		.pipe(plugins.preprocess({
+			context: env
+		}))
+		.pipe(plugins.inlineNg2Template({
+			useRelativePaths: true
+		}))
 		.pipe(plugins.if(env.isDev, plugins.sourcemaps.init()))
 		.pipe(plugins.typescript(project));
 
@@ -128,7 +151,9 @@ function ts(filesRoot, filesGlob, filesDest, project) {
 		.pipe(plugins.if(env.isDev, plugins.sourcemaps.write({
 			sourceRoot: path.join(__dirname, '/', filesRoot)
 		})))
-		.pipe(plugins.size({ title }))
+		.pipe(plugins.size({
+			title
+		}))
 		.pipe(gulp.dest(filesDest))
 		.pipe(plugins.connect.reload());
 }
@@ -150,37 +175,51 @@ function tsSrc() {
 
 function assets() {
 	var images = gulp.src('src/images/**/*.{png,jpg,gif,svg}')
-		.pipe(plugins.size({ title: 'images' }))
+		.pipe(plugins.size({
+			title: 'images'
+		}))
 		.pipe(gulp.dest('build/images'));
 
 	var fonts = gulp.src('src/fonts/**/*.{eot,ttf,otf,woff}')
-		.pipe(plugins.size({ title: 'fonts' }))
+		.pipe(plugins.size({
+			title: 'fonts'
+		}))
 		.pipe(gulp.dest('build/fonts'));
 
-	var libs = gulp.src(env.paths.libs.js, { base: '.' })
+	var libs = gulp.src(env.paths.libs.js, {
+			base: '.'
+		})
 		.pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
 		.pipe(plugins.if(env.isProd, plugins.uglify({
 			mangle: false
 		})))
-		.pipe(plugins.size({ title: 'libs' }))
+		.pipe(plugins.size({
+			title: 'libs'
+		}))
 		.pipe(gulp.dest('build/libs'));
 
 	return merge(images, fonts, libs);
 }
 
 function index() {
-	var css = ['build/css/**/*'];
-	var libs = ['build/libs/*'];
+	var css = ['./build/css/**/*'];
+	var libs = ['./build/libs/*'];
 
 	if (env.isDev) {
 		libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
 	}
 
-	var source = gulp.src([...css, ...libs], { read: false });
+	var source = gulp.src([...css, ...libs], {
+		read: false
+	});
 
 	return gulp.src('src/index.html')
-		.pipe(plugins.inject(source, { ignorePath: 'build' }))
-		.pipe(plugins.preprocess({ context: env }))
+		.pipe(plugins.inject(source, {
+			ignorePath: 'build'
+		}))
+		.pipe(plugins.preprocess({
+			context: env
+		}))
 		.pipe(gulp.dest('build'))
 		.pipe(plugins.connect.reload());
 }
@@ -224,7 +263,7 @@ function karmaRemapCoverage() {
 				json: 'coverage/json/coverage-ts.json',
 				html: 'coverage/html-report'
 			}
-	}));
+		}));
 }
 
 function protractorClean() {
@@ -255,7 +294,9 @@ function protractorRun() {
 		.pipe(plugins.protractor.protractor({
 			configFile: 'protractor.conf.js'
 		}))
-		.on('error', e => { throw e })
+		.on('error', e => {
+			throw e
+		})
 }
 
 function watch() {
@@ -263,6 +304,7 @@ function watch() {
 	gulp.watch('src/**/*.scss', scss);
 	gulp.watch('src/**/*.css', css);
 	gulp.watch('src/index.html', index);
+	gulp.watch('src/scripts/js/**/*.js', gulp.series(assets, index));
 	gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
 }
 

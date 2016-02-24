@@ -161,6 +161,12 @@ pw-projectlog {
       margin: 0 0 10px;
       transform: scale(1.01);
 
+      .heading {
+        display: block;
+        width: 100%;
+        white-space: inherit;
+      }
+
       .text {
         white-space: inherit;
         max-height: 500px;

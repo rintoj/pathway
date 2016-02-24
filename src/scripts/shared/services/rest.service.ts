@@ -5,56 +5,54 @@ import {Injectable} from 'angular2/core';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
 
 export class RestOptions extends BaseRequestOptions {
-	constructor() {
-		super();
-		this.url = '//jsonplaceholder.typicode.com';
-		this.headers.append('Content-Type', 'application/json');
-	}
+  constructor() {
+    super();
+    this.url = '//jsonplaceholder.typicode.com';
+    this.headers.append('Content-Type', 'application/json');
+  }
 }
 
 @Injectable()
 export class RestService {
-	constructor(
-		private http: Http,
-		private restOptions: RestOptions
-	) {}
 
-	create(path: string, body: Object): Observable<Response> {
-		return this.request(path, RequestMethod.Post, body);
-	}
+  constructor(private http: Http, private restOptions: RestOptions) { }
 
-	read(path: string, search?: Object): Observable<Response> {
-		return this.request(path, RequestMethod.Get, null, search);
-	}
+  create(path: string, body: Object): Observable<Response> {
+    return this.request(path, RequestMethod.Post, body);
+  }
 
-	update(path: string, body: Object): Observable<Response> {
-		return this.request(path, RequestMethod.Put, body);
-	}
+  read(path: string, search?: Object): Observable<Response> {
+    return this.request(path, RequestMethod.Get, null, search);
+  }
 
-	delete(path: string): Observable<Response> {
-		return this.request(path, RequestMethod.Delete);
-	}
+  update(path: string, body: Object): Observable<Response> {
+    return this.request(path, RequestMethod.Put, body);
+  }
 
-	private request(path: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
-		let options = new RequestOptions(this.restOptions.merge({
-			method: method,
-			url: this.restOptions.url + path,
-			body: JSON.stringify(body),
-			search: this.serialize(search)
-		}));
+  delete(path: string): Observable<Response> {
+    return this.request(path, RequestMethod.Delete);
+  }
 
-		return this.http.request(new Request(options));
-	}
+  private request(path: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
+    let options = new RequestOptions(this.restOptions.merge({
+      method: method,
+      url: this.restOptions.url + path,
+      body: JSON.stringify(body),
+      search: this.serialize(search)
+    }));
 
-	private serialize(obj: Object): string {
-		var str = [];
+    return this.http.request(new Request(options));
+  }
 
-		for (let p in obj) {
-			if (obj.hasOwnProperty(p)) {
-				str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-			}
-		}
+  private serialize(obj: Object): string {
+    var str = [];
 
-		return str.join('&');
-	}
+    for (let p in obj) {
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+      }
+    }
+
+    return str.join('&');
+  }
 }

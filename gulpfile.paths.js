@@ -9,8 +9,8 @@ let baseLibs = [
 	'node_modules/angular2/bundles/router.dev.js',
 	'node_modules/angular2/bundles/http.dev.js',
 	'node_modules/lodash/index.js',
-	'node_modules/jquery/dist/jquery.js',
-	'node_modules/bootstrap/dist/js/bootstrap.min.js'
+	'node_modules/pouchdb/dist/pouchdb.min.js',
+	'src/scripts/js/test.js'
 ];
 
 module.exports = {

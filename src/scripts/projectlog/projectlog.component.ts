@@ -83,7 +83,7 @@ export class ProjectlogComponent {
         status: 'new'
       }, {
         id: '02334',
-        selected: true,
+        selected: false,
         title: 'User must be able to see login page when trying to relogin after logout',
         description: 'The navigation drawer on the right is a live demo of a temporary navigation drawer.' +
         ' Temporary navigation drawers can toggle open or closed. Closed by default, the drawer opens temporarily' +
