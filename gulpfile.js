@@ -215,7 +215,8 @@ function index() {
 
 	return gulp.src('src/index.html')
 		.pipe(plugins.inject(source, {
-			ignorePath: 'build'
+			ignorePath: 'build',
+			addRootSlash: false
 		}))
 		.pipe(plugins.preprocess({
 			context: env
