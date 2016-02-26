@@ -18,12 +18,12 @@ export class BulkRestService {
 
   constructor(private http: Http) { }
 
-  uploadSampleData() {
+  uploadSampleData(callback: Function) {
     this.read('//localhost:8080/sample-data.json')
       .subscribe((data: any) => {
       this.upload('//localhost:9200/pathway/projectlog/_bulk', data)
-        .subscribe((x: any) => console.log(x));
-    });
+        .subscribe(() => callback(true), () => callback(false));
+    }, () => callback(false));
   }
 
   upload(path: string, body: Array<any>): Observable<any> {
@@ -45,6 +45,15 @@ export class BulkRestService {
 
   read(path: string, search?: Object): Observable<any> {
     return this.request(path, RequestMethod.Get, null, search).map((res: Response) => res.json());
+  }
+
+  clearData(callback: Function) {
+    this.request('//localhost:9200/pathway', RequestMethod.Delete, null, null)
+      .map((res: Response) => res.json())
+      .subscribe(
+      () => { callback(true); },
+      () => { callback(false); }
+      );
   }
 
   private request(path: string, method: RequestMethod, body?: string, search?: Object): Observable<Response> {

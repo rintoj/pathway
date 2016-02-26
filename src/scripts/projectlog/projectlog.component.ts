@@ -2,15 +2,14 @@ import {Component, View} from 'angular2/core';
 import {Projectlog} from './projectlog';
 import {ProjectlogService} from './projectlog.service';
 import {LoaderComponent} from '../loader/loader.component';
-import {DialogComponent} from '../dialog/dialog.component';
-import {BulkRestService} from '../shared/services/bulk-rest.service';
+import {UploaderComponent} from '../uploader/uploader.component';
 
 @Component({
   selector: 'pw-projectlog',
-  providers: [ProjectlogService, BulkRestService]
+  providers: [ProjectlogService]
 })
 @View({
-  directives: [LoaderComponent, DialogComponent],
+  directives: [LoaderComponent, UploaderComponent],
   template: `
 
 		<!-- action buttons -->
@@ -57,11 +56,7 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
 
 		</div> <!-- end of list -->
 
-		<pw-dialog [title]="'Data Setup Wizard'" [showTitle]="true" [show]="showPopup" (autoHide)="showPopup = false">
-			<div class="dialog-message">
-				WOW!
-			</div>
-		</pw-dialog>
+		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 	`
 })
 export class ProjectlogComponent {
@@ -71,9 +66,9 @@ export class ProjectlogComponent {
   private currentItem: Projectlog;
   private loading: boolean;
   private status: any;
-  private showPopup: boolean = false;
+  private showUploader: boolean = false;
 
-  constructor(private service: ProjectlogService, private bulkService: BulkRestService) {
+  constructor(private service: ProjectlogService) {
     this.loading = false;
     this.logs = [];
     this.status = {};
@@ -84,7 +79,7 @@ export class ProjectlogComponent {
   }
 
   showUploadPopup() {
-    this.showPopup = true;
+    this.showUploader = true;
   }
 
   toggleAll() {

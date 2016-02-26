@@ -1,0 +1,23 @@
+@import 'scss/variables';
+
+pw-uploader {
+  li {
+    text-align: left;
+    margin: 20px;
+  }
+
+  .status-message {
+    font-size: 1.2em;
+    margin: 10px;
+    color: $primary-color-dark;
+
+    .fa {
+      font-size: 1.5em;
+      margin: 0 5px;
+    }
+
+    &.error-message {
+      color: $accent-color;
+    }
+  }
+}

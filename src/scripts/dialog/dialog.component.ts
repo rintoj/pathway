@@ -12,11 +12,6 @@ import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 					<div class="dialog-content">
 						<ng-content></ng-content>
 					</div>
-
-					<div class="dialog-footer">
-							<div class="dialog-button dialog-primary-button dialog-disabled-button"><i class="fa fa-magic"></i> Create</div>
-							<div class="dialog-button dialog-cancel-button" (click)="hide()"><i class="fa fa-times"></i> Cancel</div>
-					</div>
 			</div>
 		</div>
 	`

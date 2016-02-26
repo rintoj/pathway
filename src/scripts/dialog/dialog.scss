@@ -1,4 +1,4 @@
-@import 'scss/base';
+@import 'scss/variables';
 
 pw-dialog {
   .dialog {
@@ -24,7 +24,7 @@ pw-dialog {
       height: 50%;
       border-radius: 5px;
       overflow: hidden;
-      min-height: 250px;
+      min-height: 150px;
       width: 95%;
       transition: top 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04), opacity 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04);
 
@@ -44,55 +44,25 @@ pw-dialog {
         overflow: hidden;
 
         .dialog-message {
-          margin: auto 20%;
+          margin: 8%;
           text-align: center;
-          color: $secondary-text-color;
-          line-height: 25px;
           vertical-align: middle;
-          top: 50%;
-          transform: translateY(-50%);
           position: relative;
           display: block;
         }
       }
 
       .dialog-footer {
+        left: 0;
         bottom: 0;
         width: 100%;
         position: absolute;
         overflow: hidden;
         background: $divider-color-light;
         padding: 8px;
-      }
 
-      .dialog-button {
-        @include shadow(1);
-        display: inline-block;
-        padding: 10px 15px;
-        background: $primary-color;
-        color: $primary-color-text;
-        margin: 10px;
-        border-radius: 4px;
-        float: right;
-        cursor: pointer;
-        min-width: 120px;
-        text-align: center;
-
-        &:active {
-          &:not(.dialog-disabled-button) {
-            @include shadow(0);
-          }
-        }
-
-        &.dialog-primary-button {
-          background: $accent-color;
-        }
-
-        &.dialog-disabled-button {
-          &:hover {
-            cursor: not-allowed;
-            background: $divider-color;
-          }
+        .btn {
+          float: right;
         }
       }
     }
