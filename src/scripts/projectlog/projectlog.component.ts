@@ -2,7 +2,7 @@ import {Component, View} from 'angular2/core';
 import {Projectlog} from './projectlog';
 import {ProjectlogService} from './projectlog.service';
 import {LoaderComponent} from '../loader/loader.component';
-import {PopupComponent} from '../popup/popup.component';
+import {DialogComponent} from '../dialog/dialog.component';
 import {BulkRestService} from '../shared/services/bulk-rest.service';
 
 @Component({
@@ -10,7 +10,7 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
   providers: [ProjectlogService, BulkRestService]
 })
 @View({
-  directives: [LoaderComponent, PopupComponent],
+  directives: [LoaderComponent, DialogComponent],
   template: `
 
 		<!-- action buttons -->
@@ -57,11 +57,11 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
 
 		</div> <!-- end of list -->
 
-		<pw-popup [show]="showPopup" (autoHide)="showPopup = false">
+		<pw-dialog [title]="'Data Setup Wizard'" [showTitle]="true" [show]="showPopup" (autoHide)="showPopup = false">
 			<div class="dialog-message">
 				WOW!
 			</div>
-		</pw-popup>
+		</pw-dialog>
 	`
 })
 export class ProjectlogComponent {

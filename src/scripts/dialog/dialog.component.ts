@@ -1,16 +1,14 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-import {LoaderComponent} from '../loader/loader.component';
 
 @Component({
-  selector: 'pw-popup'
+  selector: 'pw-dialog'
 })
 @View({
-  directives: [LoaderComponent],
   template: `
-		<div class="dialog" [class.open]="show">
+		<div class="dialog" [class.open]="show" [class.no-title]="!showTitle">
 			<div class="overlay" (click)="hide()"></div>
 			<div class="dialog-body">
-					<div class="dialog-header">Create TCS dreamUP&trade; App</div>
+					<div class="dialog-header">{{title}}</div>
 					<div class="dialog-content">
 						<ng-content></ng-content>
 					</div>
@@ -23,10 +21,12 @@ import {LoaderComponent} from '../loader/loader.component';
 		</div>
 	`
 })
-export class PopupComponent {
+export class DialogComponent {
 
-  @Input() private show: boolean;
-  @Output() private autoHide = new EventEmitter();
+  @Input() show: boolean;
+  @Input() title: string = null;
+  @Input() showTitle: boolean = false;
+  @Output() autoHide = new EventEmitter();
 
   constructor() {
     this.show = true;

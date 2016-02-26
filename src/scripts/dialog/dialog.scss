@@ -1,6 +1,6 @@
 @import 'scss/base';
 
-pw-popup {
+pw-dialog {
   .dialog {
     .overlay {
       content: ' ';
@@ -91,8 +91,19 @@ pw-popup {
         &.dialog-disabled-button {
           &:hover {
             cursor: not-allowed;
+            background: $divider-color;
           }
         }
+      }
+    }
+
+    &.no-title {
+      .dialog-header {
+        display: none;
+      }
+
+      .dialog-content {
+        height: calc(100% - 80px);
       }
     }
 
