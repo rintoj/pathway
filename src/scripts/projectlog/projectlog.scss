@@ -15,9 +15,11 @@ pw-projectlog {
       height: 50px;
       line-height: 50px;
       text-align: center;
+      transition: background-color 0.1s ease-out;
 
       &:hover {
-        background-color: $shadow-color-light;
+        background-color: $accent-color;
+        color: $primary-color-text;
       }
     }
 
@@ -31,12 +33,12 @@ pw-projectlog {
   }
 
   .list {
-    border: 1px solid $lightest-color;
+    border: 1px solid $primary-color-text;
     border-radius: 3px;
 
     &.loading {
       .loader {
-        border: 1px solid $lightest-color;
+        border: 1px solid $primary-color-text;
         padding: 15px;
         height: 75px;
       }
@@ -48,10 +50,10 @@ pw-projectlog {
     overflow: hidden;
     transition: background 0.1s ease-in-out, transform 0.3s ease-in-out, margin 0.3s ease-in-out;
     cursor: pointer;
-    background: $text-color-lightest;
+    background: lighten($primary-color-light, 12%);
 
     &:not(:first-child) {
-      border-top: 1px solid $lightest-color;
+      border-top: 1px solid $primary-color-text;
     }
 
     & > div {
@@ -62,7 +64,7 @@ pw-projectlog {
 
     .avatar {
       background: $primary-color;
-      color: $text-color-lightest;
+      color: $divider-color;
       line-height: 50px;
       border-radius: 50%;
       font-size: 1.5em;
@@ -80,7 +82,7 @@ pw-projectlog {
         transition: opacity, transform 0.1s ease-in-out;
         content: '\f00c';
         position: absolute;
-        color: $text-color-lightest;
+        color: $divider-color;
         left: 25%;
         transform: rotateZ(-90deg);
       }
@@ -92,7 +94,7 @@ pw-projectlog {
 
     .id {
       display: inline-block;
-      color: $highlight-color;
+      color: $accent-color;
       width: 70px;
       font-weight: bold;
       vertical-align: top;
@@ -119,7 +121,7 @@ pw-projectlog {
     }
 
     .text {
-      color: $text-color-light;
+      color: $secondary-text-color;
       text-overflow: ellipsis;
       overflow: hidden;
       max-height: 25px;
@@ -139,7 +141,7 @@ pw-projectlog {
       .fa {
         font-size: 1.32em;
         margin: 0 10px;
-        color: $shadow-color-dark;
+        color: $primary-text-color;
       }
     }
 
@@ -157,7 +159,7 @@ pw-projectlog {
 
     &.open {
       @include shadow(5);
-      border: 1px solid $lightest-color;
+      border: 1px solid $primary-color-text;
       margin: 0 0 10px;
       transform: scale(1.01);
 
@@ -178,13 +180,13 @@ pw-projectlog {
         margin: 20px 0 0 75px;
         padding: 20px 0 0;
         display: block;
-        border-top: 1px solid $lightest-color;
+        border-top: 1px solid $primary-color-text;
       }
     }
   }
 
   .selected-item {
-    background: $shadow-color-light;
+    background: $secondary-text-color;
 
     .avatar {
       background: darken($primary-color, 30%);

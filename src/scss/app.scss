@@ -93,7 +93,7 @@
 }
 
 .separator {
-  border-top: 1px solid $lightest-color;
+  border-top: 1px solid $divider-color-light;
   margin: 20px 0;
   padding: 0;
 }
@@ -104,8 +104,8 @@
   &:after {
     content: attr(badge);
     font-size: 9px;
-    background: $highlight-color;
-    color: $highlight-text-color;
+    background: $accent-color;
+    color: $primary-color-text;
     border-radius: 50%;
     position: absolute;
     top: -50%;
@@ -131,12 +131,12 @@
   position: relative;
 
   &:after {
-    transition: height 0.1s 0.2s ease-in-out, bottom 0.1s 0.2s ease-in-out;
+    transition: opacity 0.1s 0.3s ease-in, bottom 0.1s 0.3s ease-in;
     padding: 0 8px;
     content: attr(tooltip);
     position: absolute;
-    background: $transparent-bg-color-dark;
-    color: $highlight-text-color;
+    background: $primary-text-color;
+    color: $primary-color-text;
     font-size: 0.7em;
     left: 50%;
     bottom: 10px;
@@ -146,8 +146,11 @@
     white-space: nowrap;
     height: 0;
     overflow: hidden;
+    opacity: 0;
+  }
 
-    &:hover {
+  &:hover {
+    &:after {
       opacity: 1;
       height: 22px;
       bottom: -2px;
@@ -177,7 +180,7 @@ html {
     padding: 0;
     font-family: 'Roboto', sans-serif;
     font-size: 1em;
-    color: $text-color;
+    color: $primary-text-color;
     outline: none;
   }
 
@@ -191,13 +194,14 @@ html {
   }
 
   a {
+    color: $primary-color-dark;
+
     &:active {
-      color: $text-color;
       text-decoration: none;
     }
 
     &:hover {
-      color: lighten($text-color, 10%);
+      color: lighten($primary-text-color, 10%);
       text-decoration: none;
       cursor: pointer;
     }
@@ -216,12 +220,12 @@ pw-app {
   }
 
   footer {
-    color: $secondary-color;
+    color: $divider-color;
     font-size: 0.8em;
     text-align: center;
     vertical-align: middle;
     width: 100%;
     padding: 12px;
-    border-top: 1px solid $lightest-color;
+    border-top: 1px solid $divider-color-light;
   }
 }

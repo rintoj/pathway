@@ -2,6 +2,7 @@ import {Component, View} from 'angular2/core';
 import {Projectlog} from './projectlog';
 import {ProjectlogService} from './projectlog.service';
 import {LoaderComponent} from '../loader/loader.component';
+import {PopupComponent} from '../popup/popup.component';
 import {BulkRestService} from '../shared/services/bulk-rest.service';
 
 @Component({
@@ -9,7 +10,7 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
   providers: [ProjectlogService, BulkRestService]
 })
 @View({
-  directives: [LoaderComponent],
+  directives: [LoaderComponent, PopupComponent],
   template: `
 
 		<!-- action buttons -->
@@ -18,6 +19,7 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
 			<a class="fa fa-trash" tooltip="Delete stories" (click)="deleteSelected()"></a>
 			<a class="fa fa-check" tooltip="Toggle selection" (click)="toggleAll()" [class.selected]="selectAllOn"></a>
 			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="loading=!loading"></a>
+			<a class="fa fa-upload" tooltip="Upload sample data" (click)="showUploadPopup()"></a>
 		</div>
 
 		<div class="separator"></div>
@@ -54,6 +56,12 @@ import {BulkRestService} from '../shared/services/bulk-rest.service';
 			</div>
 
 		</div> <!-- end of list -->
+
+		<pw-popup [show]="showPopup" (autoHide)="showPopup = false">
+			<div class="dialog-message">
+				WOW!
+			</div>
+		</pw-popup>
 	`
 })
 export class ProjectlogComponent {
@@ -63,6 +71,7 @@ export class ProjectlogComponent {
   private currentItem: Projectlog;
   private loading: boolean;
   private status: any;
+  private showPopup: boolean = false;
 
   constructor(private service: ProjectlogService, private bulkService: BulkRestService) {
     this.loading = false;
@@ -71,16 +80,11 @@ export class ProjectlogComponent {
   }
 
   create() {
+    console.log('Create is yet to be implemented');
+  }
 
-  	this.bulkService.uploadSampleData();
-
-    // var projectlog: Projectlog = {
-    //   id: null,
-    //   title: 'Sample projectlog',
-    //   description: 'This is a sample project log',
-    //   status: 'new'
-    // };
-    // this.service.create(projectlog);
+  showUploadPopup() {
+    this.showPopup = true;
   }
 
   toggleAll() {

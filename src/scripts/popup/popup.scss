@@ -1,0 +1,119 @@
+@import 'scss/base';
+
+pw-popup {
+  .dialog {
+    .overlay {
+      content: ' ';
+      position: fixed;
+      background: $transparent-color-dark;
+      width: 2000%;
+      height: 2000%;
+      left: -1000%;
+      top: -1000%;
+      z-index: 200;
+      transition: opacity 0.6s ease, height 0.0s 0.0s ease;
+    }
+
+    .dialog-body {
+      @include shadow(5);
+      @include align-middle;
+      position: fixed;
+      z-index: 201;
+      background: $primary-color-text;
+      max-width: 800px;
+      height: 50%;
+      border-radius: 5px;
+      overflow: hidden;
+      min-height: 250px;
+      width: 95%;
+      transition: top 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04), opacity 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04);
+
+      > * {
+        padding: 20px;
+      }
+
+      .dialog-header {
+        @include shadow(1);
+        background: $primary-color;
+        color: $primary-color-text;
+        font-size: 19px;
+      }
+
+      .dialog-content {
+        height: calc(100% - 178px);
+        overflow: hidden;
+
+        .dialog-message {
+          margin: auto 20%;
+          text-align: center;
+          color: $secondary-text-color;
+          line-height: 25px;
+          vertical-align: middle;
+          top: 50%;
+          transform: translateY(-50%);
+          position: relative;
+          display: block;
+        }
+      }
+
+      .dialog-footer {
+        bottom: 0;
+        width: 100%;
+        position: absolute;
+        overflow: hidden;
+        background: $divider-color-light;
+        padding: 8px;
+      }
+
+      .dialog-button {
+        @include shadow(1);
+        display: inline-block;
+        padding: 10px 15px;
+        background: $primary-color;
+        color: $primary-color-text;
+        margin: 10px;
+        border-radius: 4px;
+        float: right;
+        cursor: pointer;
+        min-width: 120px;
+        text-align: center;
+
+        &:active {
+          &:not(.dialog-disabled-button) {
+            @include shadow(0);
+          }
+        }
+
+        &.dialog-primary-button {
+          background: $accent-color;
+        }
+
+        &.dialog-disabled-button {
+          &:hover {
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+
+    &:not(.open) {
+      .overlay {
+        opacity: 0;
+        height: 0;
+        transition: opacity 0.3s 0.1s ease, height 0.0s 0.3s ease;
+      }
+
+      .dialog-body {
+        top: 150%;
+        height: 0;
+        transition: top 0.2s cubic-bezier(0.38, 0.1, 1, 1), opacity 0.2s cubic-bezier(0.38, 0.1, 1, 1), height 0.0s 0.6s ease;
+      }
+
+      &.from-top {
+        .dialog-body {
+          top: -150%;
+        }
+      }
+    }
+  }
+}

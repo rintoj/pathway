@@ -26,23 +26,23 @@ pw-header {
 
     img,
     span {
-      color: $shadow-color-lighter;
+      color: $primary-color-text;
       vertical-align: middle;
       margin: 0 2px;
     }
   }
 
   .fa {
-    color: $shadow-color-lighter;
+    color: $primary-color-text;
     vertical-align: middle;
 
     &.disabled {
-      color: $disabled-color;
+      color: $divider-color;
       cursor: not-allowed;
     }
 
     &:hover {
-      color: lighten($disabled-color, 10%);
+      color: lighten($divider-color, 10%);
     }
   }
 
@@ -88,21 +88,21 @@ pw-header {
       border-radius: 3px;
       font-size: 0.9em;
       padding: 2px 5px;
-      background-color: $shadow-color-lighter;
+      background-color: $primary-color-text;
       margin-right: 10px;
-      color: $shadow-color-dark;
+      color: $secondary-text-color;
     }
 
     .dropdown-menu {
       @include shadow(6);
-      background-color: $shadow-color-lighter;
-      color: $shadow-color-dark;
+      background-color: $primary-color-text;
+      color: $secondary-text-color;
     }
 
     .fa {
       margin: 0 5px;
       font-size: 1em;
-      color: $shadow-color-dark;
+      color: $secondary-text-color;
     }
   }
 }
