@@ -17,7 +17,7 @@ import {UploaderComponent} from '../uploader/uploader.component';
 			<a class="fa fa-plus" tooltip="Add story" (click)="create()"></a>
 			<a class="fa fa-trash" tooltip="Delete stories" (click)="deleteSelected()"></a>
 			<a class="fa fa-check" tooltip="Toggle selection" (click)="toggleAll()" [class.selected]="selectAllOn"></a>
-			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="loading=!loading"></a>
+			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="refresh()"></a>
 			<a class="fa fa-upload" tooltip="Upload sample data" (click)="showUploadPopup()"></a>
 		</div>
 
@@ -61,7 +61,7 @@ import {UploaderComponent} from '../uploader/uploader.component';
 })
 export class ProjectlogComponent {
 
-  private logs: Array<Projectlog>;
+  private logs: Projectlog[];
   private selectAllOn: boolean = false;
   private currentItem: Projectlog;
   private loading: boolean;
@@ -74,8 +74,17 @@ export class ProjectlogComponent {
     this.status = {};
   }
 
+  ngOnInit() {
+    this.service.store.subscribe((data: any) => { this.logs = data; console.error(data); });
+  }
+
   create() {
     console.log('Create is yet to be implemented');
+  }
+
+  refresh() {
+    this.loading = true;
+    this.service.fetch().complete(() => this.loading = false);
   }
 
   showUploadPopup() {
