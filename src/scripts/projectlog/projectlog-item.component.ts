@@ -11,8 +11,8 @@ interface ItemStatus {
   selector: 'pw-projectlog-item',
   providers: [ProjectlogService],
   host: {
-    '[class.selected-item]': 'item.ui.selected',
     '[class.open]': 'item.ui.open',
+    '[class.selected-item]': 'item.ui.selected',
     '(click)': 'toggleOpen($event)'
   }
 })
@@ -70,13 +70,13 @@ export class ProjectlogItemComponent {
   toggleOpen(event: any) {
     event.stopPropagation();
     this.item.ui.open = !this.item.ui.open;
-		this.update.next(this.item);
+    this.update.next(this.item);
   }
 
   toggleSelection(event: any) {
     event.stopPropagation();
     this.item.ui.selected = !this.item.ui.selected;
-		this.update.next(this.item);
+    this.update.next(this.item);
   }
 
 }

@@ -41,13 +41,11 @@ export class ProjectlogService {
     return page;
   }
 
-  fetch(page?: Page<any>): Promise<any> {
+  fetch(page?: Page<any>, sortAsc: boolean = true): Promise<any> {
     var defer = PromiseWrapper.completer();
 
-    console.log(page ? page.currentIndex() : undefined);
-
     this.rest.read(`${this.url}/_search`, (page === undefined) ? undefined : page.currentIndex(), {
-      'sort': { 'index': { 'order': 'asc' } }
+      'sort': { 'index': { 'order': sortAsc ? 'asc' : 'desc' } }
     })
       .map((response: Response) => this.mapResponse(response, page))
       .subscribe(

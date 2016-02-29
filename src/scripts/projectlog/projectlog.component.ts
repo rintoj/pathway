@@ -23,12 +23,13 @@ import {InfiniteScroller} from '../shared/directives/scroller/infinite-scroller'
 			<a class="fa fa-check" tooltip="Toggle selection" (click)="toggleAll()" [class.selected]="selectAllOn"></a>
 			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="refresh()"></a>
 			<a class="fa fa-upload" tooltip="Upload sample data" (click)="showUploadPopup()"></a>
+			<a class="fa fa-sort-numeric-asc" [class.desc]="!sortAsc" tooltip="Sort" (click)="toggleSort()"></a>
 		</div>
 
 		<div class="separator"></div>
 
 		<!-- the list -->
-		<div class="list" [class.loading]="loading" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
+		<div class="list" [class.loading]="loading" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
 
 			<!-- the list item-->
 			<pw-projectlog-item *ngFor="#item of logs" [item]="item" (update)="onItemUpdate($event)">
@@ -52,6 +53,7 @@ export class ProjectlogComponent {
   private logs: Projectlog[];
   private selectedCount: number = 0;
   private selectAllOn: boolean = false;
+  private sortAsc: boolean = true;
   private loading: boolean;
   private error: string;
   private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 0);
@@ -74,7 +76,7 @@ export class ProjectlogComponent {
   refresh() {
     this.loading = true;
     this.error = undefined;
-    this.processResponse(this.service.fetch());
+    this.processResponse(this.service.fetch(undefined, this.sortAsc));
   }
 
   processResponse(promise: Promise<Page<Projectlog[]>>) {
@@ -98,9 +100,7 @@ export class ProjectlogComponent {
       if (nextPage !== undefined) {
         this.loading = true;
         this.error = undefined;
-        this.processResponse(this.service.fetch(nextPage));
-      } else {
-        console.warn('No more pages');
+        this.processResponse(this.service.fetch(nextPage, this.sortAsc));
       }
     }
   }
@@ -114,17 +114,17 @@ export class ProjectlogComponent {
     for (var item of this.logs) {
       item.ui.selected = this.selectAllOn;
     }
-		this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+    this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+  }
+
+  toggleSort() {
+    this.sortAsc = !this.sortAsc;
+    this.refresh();
   }
 
   onItemUpdate(item: Projectlog) {
     this.selectedCount += item.ui.selected ? 1 : -1;
     this.selectAllOn = this.selectedCount === this.logs.length;
-  }
-
-  onScroll() {
-    console.warn('Loading next page');
-    this.nextPage();
   }
 
   deleteSelected() {
