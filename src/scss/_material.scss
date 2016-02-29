@@ -97,6 +97,13 @@
   padding: 0;
 }
 
+.error-message {
+  color: $red;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 30px;
+}
+
 .btn {
   @include shadow(1);
   display: inline-block;

@@ -146,7 +146,7 @@ pw-projectlog {
 
     .action-bar {
       display: block;
-      width: 100%;
+      width: calc(100% - 85px);
       clear: both;
       margin: 0 0 0 75px;
       padding: 0;
@@ -196,12 +196,12 @@ pw-projectlog {
         margin: 20px 0 0 75px;
         padding: 20px 0 0;
         display: block;
-        border-top: 1px solid $primary-color-text;
+        border-top: 1px solid $divider-color-light;
       }
     }
 
     &.selected-item {
-      background: lighten($primary-color-light, 5%);
+      background: lighten($primary-color-light, 10%);
 
       .avatar {
         background: darken($primary-color, 30%);

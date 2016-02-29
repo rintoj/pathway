@@ -1,4 +1,4 @@
-import {Component, View, Input} from 'angular2/core';
+import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 import {Projectlog} from './projectlog';
 import {ProjectlogService} from './projectlog.service';
 
@@ -11,8 +11,8 @@ interface ItemStatus {
   selector: 'pw-projectlog-item',
   providers: [ProjectlogService],
   host: {
-    '[class.selected-item]': 'status.selected',
-    '[class.open]': 'status.open',
+    '[class.selected-item]': 'item.ui.selected',
+    '[class.open]': 'item.ui.open',
     '(click)': 'toggleOpen($event)'
   }
 })
@@ -20,7 +20,7 @@ interface ItemStatus {
   template: `
 		<!-- the list item-->
 		<div class="avatar fa" (click)="toggleSelection($event)">{{item.title.substr(0, 1).toUpperCase()}}</div>
-		
+
 		<div class="content">
 			<div class="heading-row">
 				<div class="heading">{{item.title}}</div>
@@ -45,23 +45,36 @@ interface ItemStatus {
 })
 export class ProjectlogItemComponent {
 
-  @Input() item: Projectlog;
-  @Input() status: ItemStatus;
+  _item: Projectlog;
+  @Output() update: EventEmitter<Projectlog> = new EventEmitter();
 
   constructor(private service: ProjectlogService) {
-    this.status = {
-      open: false,
-      selected: false
-    };
+
+  }
+
+  get item(): Projectlog {
+    return this._item;
+  }
+
+  @Input() set item(item: Projectlog) {
+    this._item = item;
+    if (this._item.ui === undefined) {
+      this._item.ui = {
+        selected: false,
+        open: false
+      };
+    }
   }
 
   toggleOpen(event: any) {
     event.stopPropagation();
-    this.status.open = !this.status.open;
+    this.item.ui.open = !this.item.ui.open;
+		this.update.next(this.item);
   }
 
   toggleSelection(event: any) {
     event.stopPropagation();
-    this.status.selected = !this.status.selected;
+    this.item.ui.selected = !this.item.ui.selected;
+		this.update.next(this.item);
   }
 }
