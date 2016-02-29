@@ -9,35 +9,41 @@ interface ItemStatus {
 
 @Component({
   selector: 'pw-projectlog-item',
-  providers: [ProjectlogService]
+  providers: [ProjectlogService],
+  host: {
+    '[class.selected-item]': 'status.selected',
+    '[class.open]': 'status.open',
+    '(click)': 'toggleOpen($event)'
+  }
 })
 @View({
   template: `
 		<!-- the list item-->
-		<div class="list-item"
-				[class.selected-item]="status.selected"
-				[class.open]="status.open"
-				(click)="toggleCurrent($event)">
-			<div class="avatar fa" (click)="toggleSelection($event)">{{item.title.substr(0, 1).toUpperCase()}}</div>
-			<div class="content">
-				<div class="heading-row">
-					<div class="id">{{item.id}}</div>
-					<div class="heading">{{item.title}}</div>
-				</div>
-				<div class="text">
+		<div class="avatar fa" (click)="toggleSelection($event)">{{item.title.substr(0, 1).toUpperCase()}}</div>
+		
+		<div class="content">
+			<div class="heading-row">
+				<div class="heading">{{item.title}}</div>
+			</div>
+
+			<div class="text">
+				<div class="separator"></div>
 				<div class="status" [class.grey-text]="item.status==='done'" [class.green-text]="item.status==='doing'"
 				 [class.yellow-text]="item.status==='new'">{{item.status}}</div>
+			 	<div class="id">{{item.id}}</div>
 
-				{{item.description}}</div>
+				<div class="separator"></div>
+
+				{{item.description}}
 			</div>
-			<div class="action-bar">
-				<a class="fa fa-edit"></a>
-				<a class="fa fa-trash"></a>
-			</div>
-		</div> <!-- end of list item -->
+		</div>
+		<div class="action-bar">
+			<a class="fa fa-edit"></a>
+			<a class="fa fa-trash"></a>
+		</div>
 	`
 })
-export class ProjectlogComponent {
+export class ProjectlogItemComponent {
 
   @Input() item: Projectlog;
   @Input() status: ItemStatus;

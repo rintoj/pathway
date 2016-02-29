@@ -1,6 +1,7 @@
 import {Component, View} from 'angular2/core';
 import {Projectlog} from './projectlog';
 import {ProjectlogService} from './projectlog.service';
+import {ProjectlogItemComponent} from './projectlog-item.component';
 import {LoaderComponent} from '../loader/loader.component';
 import {UploaderComponent} from '../uploader/uploader.component';
 
@@ -9,7 +10,7 @@ import {UploaderComponent} from '../uploader/uploader.component';
   providers: [ProjectlogService]
 })
 @View({
-  directives: [LoaderComponent, UploaderComponent],
+  directives: [ProjectlogItemComponent, LoaderComponent, UploaderComponent],
   template: `
 
 		<!-- action buttons -->
@@ -27,27 +28,7 @@ import {UploaderComponent} from '../uploader/uploader.component';
 		<div class="list" [class.loading]="loading">
 
 			<!-- the list item-->
-			<div class="list-item" *ngFor="#item of logs"
-					[class.selected-item]="status[item.id].selected"
-					[class.open]="status[item.id].open"
-					(click)="toggleCurrent(item)">
-				<div class="avatar fa" (click)="toggleSelection(item, $event)">{{item.title.substr(0, 1).toUpperCase()}}</div>
-				<div class="content">
-					<div class="heading-row">
-						<div class="id">{{item.id}}</div>
-						<div class="heading">{{item.title}}</div>
-					</div>
-					<div class="text">
-					<div class="status" [class.grey-text]="item.status==='done'" [class.green-text]="item.status==='doing'"
-					 [class.yellow-text]="item.status==='new'">{{item.status}}</div>
-
-					{{item.description}}</div>
-				</div>
-				<div class="action-bar">
-					<a class="fa fa-edit"></a>
-					<a class="fa fa-trash"></a>
-				</div>
-			</div> <!-- end of list item -->
+			<pw-projectlog-item *ngFor="#item of logs" [item]="item"></pw-projectlog-item>
 
 			<!-- list loader -->
 			<div class="list-item loader">
@@ -84,7 +65,7 @@ export class ProjectlogComponent {
 
   refresh() {
     this.loading = true;
-    this.service.fetch().complete(() => this.loading = false);
+    this.service.fetch().then(() => this.loading = false, () => this.loading = false);
   }
 
   showUploadPopup() {

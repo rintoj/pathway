@@ -15,7 +15,7 @@ pw-projectlog {
       height: 50px;
       line-height: 50px;
       text-align: center;
-      transition: background-color 0.1s ease-out;
+      transition: background-color 0.1s ease;
 
       &:hover {
         background-color: $accent-color;
@@ -28,6 +28,21 @@ pw-projectlog {
         &:before {
           content: '\f00d';
         }
+      }
+    }
+  }
+
+  .list-item {
+    &.loader {
+      height: 0;
+      padding: 0;
+      transition: height 0.2s ease, padding 0.2s ease;
+      border: 0;
+      overflow: hidden;
+
+      & > div {
+        margin: 0 auto;
+        display: block;
       }
     }
   }
@@ -45,15 +60,15 @@ pw-projectlog {
     }
   }
 
-  .list-item {
+  pw-projectlog-item {
     padding: 15px;
     overflow: hidden;
-    transition: background 0.1s ease-in-out, transform 0.3s ease-in-out, margin 0.3s ease-in-out;
+    transition: background 0.1s ease, transform 0.2s ease, margin 0.2s ease;
     cursor: pointer;
-    background: lighten($primary-color-light, 12%);
+    display: block;
 
     &:not(:first-child) {
-      border-top: 1px solid $primary-color-text;
+      border-top: 1px solid $divider-color-light;
     }
 
     & > div {
@@ -64,7 +79,7 @@ pw-projectlog {
 
     .avatar {
       background: $primary-color;
-      color: $divider-color;
+      color: $primary-color-text;
       line-height: 50px;
       border-radius: 50%;
       font-size: 1.5em;
@@ -75,14 +90,14 @@ pw-projectlog {
       cursor: pointer;
       position: relative;
       margin: 0 10px;
-      transition: background 0.1s ease-in-out;
+      transition: background 0.1s ease;
 
       &:before {
         opacity: 0;
-        transition: opacity, transform 0.1s ease-in-out;
+        transition: opacity 0.1s ease, transform 0.1s ease;
         content: '\f00c';
         position: absolute;
-        color: $divider-color;
+        color: $primary-color-text;
         left: 25%;
         transform: rotateZ(-90deg);
       }
@@ -93,17 +108,18 @@ pw-projectlog {
     }
 
     .id {
-      display: inline-block;
+      display: none;
       color: $accent-color;
-      width: 70px;
+      margin-right: 10px;
       font-weight: bold;
-      vertical-align: top;
+      vertical-align: middle;
+      font-size: 0.8em;
     }
 
     .heading {
       font-weight: bold;
       display: inline-block;
-      width: calc(100% - 130px);
+      width: 100%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
@@ -117,7 +133,7 @@ pw-projectlog {
       width: 70px;
       font-size: 0.8em;
       line-height: 18px;
-      vertical-align: top;
+      vertical-align: middle;
     }
 
     .text {
@@ -125,7 +141,7 @@ pw-projectlog {
       text-overflow: ellipsis;
       overflow: hidden;
       max-height: 25px;
-      transition: max-height 0.3s ease-out;
+      transition: max-height 0.2s ease;
     }
 
     .action-bar {
@@ -136,7 +152,7 @@ pw-projectlog {
       padding: 0;
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
+      transition: max-height 0.2s ease, padding 0.2s ease, margin 0.2s ease;
 
       .fa {
         font-size: 1.32em;
@@ -145,23 +161,23 @@ pw-projectlog {
       }
     }
 
-    &.loader {
-      height: 0;
-      padding: 0;
-      transition: height 0.3s ease-in-out, padding 0.3s ease-in-out;
-      border: 0;
-
-      & > div {
-        margin: 0 auto;
-        display: block;
-      }
+    .separator {
+      display: none;
     }
 
     &.open {
       @include shadow(5);
-      border: 1px solid $primary-color-text;
-      margin: 0 0 10px;
+      margin: 20px 0;
       transform: scale(1.01);
+      border: 1px solid $divider-color-light;
+
+      .id {
+        display: inline-block;
+      }
+
+      .separator {
+        display: block;
+      }
 
       .heading {
         display: block;
@@ -172,7 +188,7 @@ pw-projectlog {
       .text {
         white-space: inherit;
         max-height: 500px;
-        transition: max-height 0.3s ease-in;
+        transition: max-height 0.2s ease;
       }
 
       .action-bar {
@@ -183,18 +199,18 @@ pw-projectlog {
         border-top: 1px solid $primary-color-text;
       }
     }
-  }
 
-  .selected-item {
-    background: $secondary-text-color;
+    &.selected-item {
+      background: lighten($primary-color-light, 5%);
 
-    .avatar {
-      background: darken($primary-color, 30%);
-      color: darken($primary-color, 30%);
+      .avatar {
+        background: darken($primary-color, 30%);
+        color: darken($primary-color, 30%);
 
-      &:before {
-        transform: rotateZ(0deg);
-        opacity: 1;
+        &:before {
+          transform: rotateZ(0deg);
+          opacity: 1;
+        }
       }
     }
   }

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {Response} from 'angular2/http';
 import {RestService} from '../shared/services/rest.service';
 import {Projectlog} from './projectlog';
-import {PromiseWrapper} from 'angular2/src/facade/promise';
+import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -27,19 +27,24 @@ export class ProjectlogService {
   }
 
   private mapResponse(response: Response): Projectlog[] {
-    return response.json().hits.hits.map((item: any) => { return item._source; });
+    return response.json().hits.hits.map((item: any) => {
+      item._source.id = item._id;
+      return item._source;
+    });
   }
 
-  fetch(): any {
-    var completer = PromiseWrapper.completer();
-    completer.promise.then((x: any) => console.log(x), (err: any) => console.error(err));
+  fetch(): Promise<any> {
+    var defer = PromiseWrapper.completer();
 
-    return this.rest.read(`${this.url}/_search`)
+    this.rest.read(`${this.url}/_search`)
       .map(this.mapResponse)
       .subscribe((data: Projectlog[]) => {
-      	this.data = data;
-      	this.publish();
-    	});
+      this.data = data;
+      this.publish();
+      defer.resolve(this.data);
+    }, defer.reject);
+
+    return defer.promise;
   }
 
   create(projectlog: Projectlog): ProjectlogService {
