@@ -75,6 +75,7 @@ gulp.task('e2e', gulp.series(
 ));
 
 gulp.task('index', index);
+gulp.task('assets', assets);
 
 /**
  * Definitions
@@ -186,6 +187,12 @@ function assets() {
 		}))
 		.pipe(gulp.dest('build/fonts'));
 
+	var data = gulp.src('src/**/*.{json}')
+		.pipe(plugins.size({
+			title: 'data'
+		}))
+		.pipe(gulp.dest('build/data'));
+
 	var libs = gulp.src(env.paths.libs.js, {
 			base: '.'
 		})
@@ -198,7 +205,7 @@ function assets() {
 		}))
 		.pipe(gulp.dest('build/libs'));
 
-	return merge(images, fonts, libs);
+	return merge(images, fonts, libs, data);
 }
 
 function index() {
@@ -305,7 +312,7 @@ function watch() {
 	gulp.watch('src/**/*.scss', scss);
 	gulp.watch('src/**/*.css', css);
 	gulp.watch('src/index.html', index);
-	gulp.watch('src/scripts/js/**/*.js', gulp.series(assets, index));
+	gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,js}', gulp.series(assets, index));
 	gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
 }
 

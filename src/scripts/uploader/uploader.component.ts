@@ -31,7 +31,7 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 							<i class="fa fa-exclamation-triangle"></i>
 								Upload failed due to an unknown error!
 						</div>
-						Please try again later. Make sure elasticsearch is running, 
+						Please try again later. Make sure elasticsearch is running,
 						<b><a href="{{serverUrl}}" target="_blank">{{serverUrl}}</a></b> and
 						<b><a href="{{sampleDataUrl}}" target="_blank">{{sampleDataUrl}}</a></b> are accessible!
 					</span>
