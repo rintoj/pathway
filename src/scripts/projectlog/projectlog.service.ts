@@ -4,9 +4,11 @@ import {Response} from 'angular2/http';
 import {RestService} from '../shared/services/rest.service';
 import {Projectlog} from './projectlog';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
+import {Page} from '../shared/services/pagination';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/concat';
 
 @Injectable()
 export class ProjectlogService {
@@ -15,6 +17,7 @@ export class ProjectlogService {
   private url: string = 'projectlog';
   private data: Projectlog[];
   private observer: any;
+  private defaultPageSize: number = 10;
 
   constructor(private rest: RestService) {
     this.store = new Observable((observer: any) => this.observer = observer).share();
@@ -22,27 +25,59 @@ export class ProjectlogService {
   }
 
   private publish(): ProjectlogService {
+    console.warn(this.data);
     this.observer.next(this.data);
     return this;
   }
 
-  private mapResponse(response: Response): Projectlog[] {
-    return response.json().hits.hits.map((item: any) => {
+  private mapResponse(response: Response, page: Page<any>): Page<Projectlog[]> {
+    var json = response.json();
+
+    page = page ? page : new Page<Projectlog[]>(json.hits.total, this.defaultPageSize);
+    page.data = json.hits.hits.map((item: any) => {
       item._source.id = item._id;
       return item._source;
     });
+
+    return page;
   }
 
-  fetch(): Promise<any> {
+  // fetch(): Promise<any> {
+  //   var defer = PromiseWrapper.completer();
+  //
+  //   this.rest.read(`${this.url}/_search`)
+  //     .map(this.mapResponse)
+  //     .subscribe(
+  //
+  //     (data: Page<Projectlog[]>) => {
+  //       this.data = data.data;
+  //       this.publish();
+  //       defer.resolve(data);
+  //     },
+  //
+  //     defer.reject);
+  //
+  //   return defer.promise;
+  // }
+
+  fetch(page?: Page<any>): Promise<any> {
     var defer = PromiseWrapper.completer();
 
-    this.rest.read(`${this.url}/_search`)
-      .map(this.mapResponse)
-      .subscribe((data: Projectlog[]) => {
-      this.data = data;
-      this.publish();
-      defer.resolve(this.data);
-    }, defer.reject);
+    this.rest.read(`${this.url}/_search`, (page === undefined) ? undefined : page.currentIndex())
+      .map((response: Response) => this.mapResponse(response, page))
+      .subscribe(
+
+      (data: Page<Projectlog[]>) => {
+        if (page !== undefined) {
+          this.data = this.data.concat(data.data);
+        } else {
+          this.data = data.data;
+        }
+        this.publish();
+        defer.resolve(data);
+      },
+
+      defer.reject);
 
     return defer.promise;
   }

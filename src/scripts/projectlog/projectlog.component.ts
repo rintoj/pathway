@@ -4,6 +4,8 @@ import {ProjectlogService} from './projectlog.service';
 import {ProjectlogItemComponent} from './projectlog-item.component';
 import {LoaderComponent} from '../loader/loader.component';
 import {UploaderComponent} from '../uploader/uploader.component';
+import {Page} from '../shared/services/pagination';
+import {Promise} from 'angular2/src/facade/promise';
 
 @Component({
   selector: 'pw-projectlog',
@@ -39,7 +41,7 @@ import {UploaderComponent} from '../uploader/uploader.component';
 		</div> <!-- end of list -->
 
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
-
+		<div class="btn btn-pill" (click)="nextPage()">Load next page</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 	`
 })
@@ -49,6 +51,7 @@ export class ProjectlogComponent {
   private selectAllOn: boolean = false;
   private loading: boolean;
   private error: string;
+  private page: Page<Projectlog[]>;
   private showUploader: boolean = false;
 
   constructor(private service: ProjectlogService) {
@@ -57,7 +60,7 @@ export class ProjectlogComponent {
   }
 
   ngOnInit() {
-    this.service.store.subscribe((data: any) => this.logs = data);
+    this.service.store.subscribe((data: Projectlog[]) => this.logs = data);
 	 }
 
   create() {
@@ -67,10 +70,35 @@ export class ProjectlogComponent {
   refresh() {
     this.loading = true;
     this.error = undefined;
-    this.service.fetch().then(() => this.loading = false, () => {
-      this.loading = false;
-      this.error = 'Unexpected error occured! Contact administrator.';
-    });
+    this.processResponse(this.service.fetch());
+  }
+
+  processResponse(promise: Promise<Page<Projectlog[]>>) {
+    promise.then(
+
+      (page: Page<Projectlog[]>) => {
+        this.loading = false;
+        this.page = page;
+      },
+
+      (error: any) => {
+        this.loading = false;
+        this.error = 'Unexpected error occured! Contact administrator.';
+        console.error(error);
+      });
+  }
+
+  nextPage() {
+    if (this.page !== undefined) {
+      var nextPage: Page<Projectlog[]> = this.page.next();
+      if (nextPage !== undefined) {
+        this.loading = true;
+        this.error = undefined;
+        this.processResponse(this.service.fetch(nextPage));
+      } else {
+        console.warn('No more pages');
+      }
+    }
   }
 
   showUploadPopup() {
