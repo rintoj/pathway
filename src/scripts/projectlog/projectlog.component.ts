@@ -6,13 +6,14 @@ import {LoaderComponent} from '../loader/loader.component';
 import {UploaderComponent} from '../uploader/uploader.component';
 import {Page} from '../shared/services/pagination';
 import {Promise} from 'angular2/src/facade/promise';
+import {InfiniteScroller} from '../shared/directives/scroller/infinite-scroller';
 
 @Component({
   selector: 'pw-projectlog',
   providers: [ProjectlogService]
 })
 @View({
-  directives: [ProjectlogItemComponent, LoaderComponent, UploaderComponent],
+  directives: [ProjectlogItemComponent, LoaderComponent, UploaderComponent, InfiniteScroller],
   template: `
 
 		<!-- action buttons -->
@@ -27,10 +28,10 @@ import {Promise} from 'angular2/src/facade/promise';
 		<div class="separator"></div>
 
 		<!-- the list -->
-		<div class="list" [class.loading]="loading">
+		<div class="list" [class.loading]="loading" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
 
 			<!-- the list item-->
-			<pw-projectlog-item *ngFor="#item of logs" [item]="item" (update)="onItemUpdate()">
+			<pw-projectlog-item *ngFor="#item of logs" [item]="item" (update)="onItemUpdate($event)">
 			</pw-projectlog-item>
 
 			<!-- list loader -->
@@ -41,17 +42,19 @@ import {Promise} from 'angular2/src/facade/promise';
 		</div> <!-- end of list -->
 
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
-		<div class="btn btn-pill" (click)="nextPage()">Load next page</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
+
+		<div class="foot-note">{{logs.length}} of {{page.totalItems}}</div>
 	`
 })
 export class ProjectlogComponent {
 
   private logs: Projectlog[];
+  private selectedCount: number = 0;
   private selectAllOn: boolean = false;
   private loading: boolean;
   private error: string;
-  private page: Page<Projectlog[]>;
+  private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 0);
   private showUploader: boolean = false;
 
   constructor(private service: ProjectlogService) {
@@ -61,6 +64,7 @@ export class ProjectlogComponent {
 
   ngOnInit() {
     this.service.store.subscribe((data: Projectlog[]) => this.logs = data);
+    this.refresh();
 	 }
 
   create() {
@@ -110,17 +114,17 @@ export class ProjectlogComponent {
     for (var item of this.logs) {
       item.ui.selected = this.selectAllOn;
     }
+		this.selectedCount = this.selectAllOn ? this.logs.length : 0;
   }
 
-  onItemUpdate() {
-    for (var item of this.logs) {
-      if (item.ui.selected === false) {
-        this.selectAllOn = false;
-        return;
-      }
-    }
+  onItemUpdate(item: Projectlog) {
+    this.selectedCount += item.ui.selected ? 1 : -1;
+    this.selectAllOn = this.selectedCount === this.logs.length;
+  }
 
-    this.selectAllOn = true;
+  onScroll() {
+    console.warn('Loading next page');
+    this.nextPage();
   }
 
   deleteSelected() {

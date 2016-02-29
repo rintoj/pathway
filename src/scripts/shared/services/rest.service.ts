@@ -21,7 +21,10 @@ export class RestService {
     return this.request(path, RequestMethod.Post, body);
   }
 
-  read(path: string, search?: Object): Observable<Response> {
+  read(path: string, search?: Object, data?: Object): Observable<Response> {
+    if (data) {
+      return this.request(path, RequestMethod.Post, data, search);
+    }
     return this.request(path, RequestMethod.Get, null, search);
   }
 

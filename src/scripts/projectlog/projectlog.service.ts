@@ -8,7 +8,7 @@ import {Page} from '../shared/services/pagination';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/concat';
+import 'rxjs/add/operator/merge';
 
 @Injectable()
 export class ProjectlogService {
@@ -24,8 +24,7 @@ export class ProjectlogService {
     this.data = [];
   }
 
-  private publish(): ProjectlogService {
-    console.warn(this.data);
+  private publish(data: Projectlog[]): ProjectlogService {
     this.observer.next(this.data);
     return this;
   }
@@ -42,28 +41,14 @@ export class ProjectlogService {
     return page;
   }
 
-  // fetch(): Promise<any> {
-  //   var defer = PromiseWrapper.completer();
-  //
-  //   this.rest.read(`${this.url}/_search`)
-  //     .map(this.mapResponse)
-  //     .subscribe(
-  //
-  //     (data: Page<Projectlog[]>) => {
-  //       this.data = data.data;
-  //       this.publish();
-  //       defer.resolve(data);
-  //     },
-  //
-  //     defer.reject);
-  //
-  //   return defer.promise;
-  // }
-
   fetch(page?: Page<any>): Promise<any> {
     var defer = PromiseWrapper.completer();
 
-    this.rest.read(`${this.url}/_search`, (page === undefined) ? undefined : page.currentIndex())
+    console.log(page ? page.currentIndex() : undefined);
+
+    this.rest.read(`${this.url}/_search`, (page === undefined) ? undefined : page.currentIndex(), {
+      'sort': { 'index': { 'order': 'asc' } }
+    })
       .map((response: Response) => this.mapResponse(response, page))
       .subscribe(
 
@@ -73,7 +58,7 @@ export class ProjectlogService {
         } else {
           this.data = data.data;
         }
-        this.publish();
+        this.publish(data.data);
         defer.resolve(data);
       },
 
@@ -82,21 +67,21 @@ export class ProjectlogService {
     return defer.promise;
   }
 
-  create(projectlog: Projectlog): ProjectlogService {
-    this.data.unshift(projectlog);
-    this.rest.create(this.url, projectlog).map((res: Response) => res.json()).subscribe(() => this.publish());
-    return this;
-  }
+  // create(projectlog: Projectlog): ProjectlogService {
+  //   this.data.unshift(projectlog);
+  //   this.rest.create(this.url, projectlog).map((res: Response) => res.json()).subscribe(this.publish);
+  //   return this;
+  // }
 
   // update(projectlog: Projectlog): void {
   //   this.rest.update(`${this.url}/${projectlog.id}`, projectlog)
   //     .subscribe(() => console.log('updated!'));
   // }
 
-  delete(projectlog: Projectlog): ProjectlogService {
-    this.data.splice(this.data.indexOf(projectlog), 1);
-    this.rest.delete(`${this.url}/${projectlog.id}`).map((res: Response) => res.json())
-      .subscribe(() => this.publish());
-    return this;
-  }
+  // delete(projectlog: Projectlog): ProjectlogService {
+  //   this.data.splice(this.data.indexOf(projectlog), 1);
+  //   this.rest.delete(`${this.url}/${projectlog.id}`).map((res: Response) => res.json())
+  //     .subscribe(this.publish);
+  //   return this;
+  // }
 }

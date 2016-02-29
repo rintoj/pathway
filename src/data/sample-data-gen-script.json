@@ -1,0 +1,14 @@
+[
+  '{{repeat(1001, 1001)}}',
+  {
+    _id: '{{objectId()}}',
+    index: '{{index()}}',
+    title: '{{lorem(3, "sentences")}}',
+    description: '{{lorem(1, "paragraphs")}}',
+    status: function (tags) {
+      var status = ['hold', 'done', 'new', 'doing', 'doing', 'new'];
+      return status[tags.integer(0, status.length - 1)];
+    },
+    createdDate: '{{date(new Date(2014, 0, 1), new Date(), "YYYY-MM-ddThh:mm:ss Z")}}'
+  }
+]

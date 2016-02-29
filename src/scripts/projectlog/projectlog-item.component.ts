@@ -28,6 +28,7 @@ interface ItemStatus {
 
 			<div class="text">
 				<div class="separator"></div>
+				<div class="status">{{item.index}}</div>
 				<div class="status" [class.grey-text]="item.status==='done'" [class.green-text]="item.status==='doing'"
 				 [class.yellow-text]="item.status==='new'">{{item.status}}</div>
 			 	<div class="id">{{item.id}}</div>
@@ -77,4 +78,5 @@ export class ProjectlogItemComponent {
     this.item.ui.selected = !this.item.ui.selected;
 		this.update.next(this.item);
   }
+
 }

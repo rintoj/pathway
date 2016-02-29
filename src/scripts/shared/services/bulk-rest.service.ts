@@ -42,6 +42,8 @@ export class BulkRestService {
       payload += '\n' + JSON.stringify(item);
     }
 
+	  payload += '\n';
+
     return this.request(path, RequestMethod.Post, payload).map((res: Response) => res.json());
   }
 

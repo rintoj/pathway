@@ -6,6 +6,7 @@ export interface ProjectlogUIItem {
 
 export interface Projectlog {
   id: string;
+	index?: number;
   title: string;
   description?: string;
   status: string;
