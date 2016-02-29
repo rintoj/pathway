@@ -2,6 +2,7 @@ import 'rxjs/add/operator/map';
 
 import {Observable} from 'rxjs';
 import {Injectable} from 'angular2/core';
+import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
 
 export class BulkRestOptions extends BaseRequestOptions {
@@ -18,12 +19,13 @@ export class BulkRestService {
 
   constructor(private http: Http) { }
 
-  uploadSampleData(callback: Function) {
-    this.read('//localhost:8080/sample-data.json')
-      .subscribe((data: any) => {
-      this.upload('//localhost:9200/pathway/projectlog/_bulk', data)
-        .subscribe(() => callback(true), () => callback(false));
-    }, () => callback(false));
+  uploadSampleData(dataUrl: string, uploadUrl: string, callback?: Function): Promise<any> {
+    var defer = PromiseWrapper.completer();
+
+    this.read(dataUrl)
+      .subscribe((data: any) => this.upload(uploadUrl, data).subscribe(defer.resolve, defer.reject), defer.reject);
+
+    return defer.promise;
   }
 
   upload(path: string, body: Array<any>): Observable<any> {
@@ -47,13 +49,14 @@ export class BulkRestService {
     return this.request(path, RequestMethod.Get, null, search).map((res: Response) => res.json());
   }
 
-  clearData(callback: Function) {
-    this.request('//localhost:9200/pathway', RequestMethod.Delete, null, null)
+  clearData(url: string): Promise<any> {
+    var defer = PromiseWrapper.completer();
+
+    this.request(url, RequestMethod.Delete, null, null)
       .map((res: Response) => res.json())
-      .subscribe(
-      () => { callback(true); },
-      () => { callback(false); }
-      );
+      .subscribe(defer.resolve, defer.reject);
+
+    return defer.promise;
   }
 
   private request(path: string, method: RequestMethod, body?: string, search?: Object): Observable<Response> {

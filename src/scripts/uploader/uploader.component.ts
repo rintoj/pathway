@@ -100,7 +100,7 @@ export class UploaderComponent {
 
   serverUrl: string = 'http://localhost:9200';
   searchUrl: string = this.serverUrl + '/pathway/projectlog/_search';
-  sampleDataUrl: string = 'http://localhost:8080/sample-data.json';
+  sampleDataUrl: string = 'http://localhost:8080/data/sample-data.json';
 
   constructor(private bulkService: BulkRestService) {
     this.show = true;
@@ -108,16 +108,14 @@ export class UploaderComponent {
 
   upload() {
     this.status = UploadStatus.UPLOADING;
-    this.bulkService.uploadSampleData((success: boolean) => {
-      this.status = success ? UploadStatus.UPLOADED : UploadStatus.UPLOAD_FAILED;
-    });
+    this.bulkService.uploadSampleData(this.sampleDataUrl, `${this.serverUrl}/pathway/projectlog/_bulk`)
+      .then(() => this.status = UploadStatus.UPLOADED, () => this.status = UploadStatus.UPLOAD_FAILED);
   }
 
   clear() {
     this.status = UploadStatus.CLEARING;
-    this.bulkService.clearData((success: boolean) => {
-      this.status = success ? UploadStatus.CLEARED : UploadStatus.CLEAR_FAILED;
-    });
+    this.bulkService.clearData(`${this.serverUrl}/pathway`)
+      .then(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
   }
 
   close() {

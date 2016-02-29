@@ -187,7 +187,7 @@ function assets() {
 		}))
 		.pipe(gulp.dest('build/fonts'));
 
-	var data = gulp.src('src/**/*.{json}')
+	var data = gulp.src('src/data/**/*.json')
 		.pipe(plugins.size({
 			title: 'data'
 		}))
