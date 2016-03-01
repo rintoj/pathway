@@ -2,19 +2,18 @@ import {Component, View} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router';
 import {HTTP_PROVIDERS} from 'angular2/http';
 
-import {HeaderComponent} from './header/header.component';
-import {ProjectlogComponent} from './projectlog/projectlog.component';
-import {AboutComponent} from './about/about.component';
+import {HeaderComponent} from './component/header/header.component';
+import {ProjectlogComponent} from './component/projectlog/projectlog.component';
 
-import {RestOptions, RestService} from './shared/services/rest.service';
+import {RestOptions, RestService} from './services/rest.service';
 
 @Component({
   selector: 'pw-app',
   providers: [
     ROUTER_PROVIDERS,
-		HTTP_PROVIDERS,
-		RestOptions,
-		RestService
+    HTTP_PROVIDERS,
+    RestOptions,
+    RestService
   ]
 })
 @View({
@@ -30,8 +29,7 @@ import {RestOptions, RestService} from './shared/services/rest.service';
 	`
 })
 @RouteConfig([
-  { path: '/log', name: 'Projectlog', component: ProjectlogComponent, useAsDefault: true },
-  { path: '/about', name: 'About', component: AboutComponent }
+  { path: '/', name: 'Projectlog', component: ProjectlogComponent, useAsDefault: true }
 ])
 export class AppComponent {
 

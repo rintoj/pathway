@@ -1,5 +1,5 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-import {Projectlog} from './projectlog';
+import {Projectlog} from '../../state/projectlog';
 import {ProjectlogService} from './projectlog.service';
 
 interface ItemStatus {

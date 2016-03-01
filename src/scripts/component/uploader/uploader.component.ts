@@ -1,7 +1,7 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 import {DialogComponent} from '../dialog/dialog.component';
 import {LoaderComponent} from '../loader/loader.component';
-import {BulkRestService} from '../shared/services/bulk-rest.service';
+import {BulkRestService} from '../../services/bulk-rest.service';
 
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
