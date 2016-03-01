@@ -16,6 +16,7 @@
     "bootstrap": "4.0.0-alpha.2",
     "es6-promise": "3.0.2",
     "es6-shim": "0.33.3",
+    "immutable": "^3.7.6",
     "jquery": "^2.2.0",
     "lodash": "3.10.1",
     "pouchdb": "^5.2.1",

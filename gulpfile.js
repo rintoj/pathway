@@ -133,9 +133,13 @@ function typedoc() {
 function ts(filesRoot, filesGlob, filesDest, project) {
 	var title = arguments.callee.caller.name;
 
-	var result = gulp.src([...filesGlob, ...paths.typings])
+	// var result = gulp.src([...filesGlob, ...paths.typings])
+	var filesGlobal = gulp.src([...filesGlob])
 		.pipe(plugins.tslint())
 		.pipe(plugins.tslint.report('verbose'))
+
+
+	var result = merge(filesGlobal, gulp.src([...paths.typings]))
 		.pipe(plugins.preprocess({
 			context: env
 		}))
