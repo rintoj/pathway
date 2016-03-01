@@ -1,5 +1,5 @@
 
-export interface ProjectlogUIItem {
+export interface ProjectlogUIState {
   selected: boolean;
   open: boolean;
 }
@@ -10,5 +10,5 @@ export interface Projectlog {
   title: string;
   description?: string;
   status: string;
-  ui?: ProjectlogUIItem;
+  uiState?: ProjectlogUIState;
 }

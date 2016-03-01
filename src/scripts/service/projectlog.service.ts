@@ -1,9 +1,9 @@
+import {Page} from './pagination';
+import {Response} from 'angular2/http';
 import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
-import {Response} from 'angular2/http';
-import {RestService} from './rest.service';
-import {Page} from './pagination';
 import {Projectlog} from '../state/projectlog';
+import {RestService} from './rest.service';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 
 import 'rxjs/add/operator/share';

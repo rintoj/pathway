@@ -112,7 +112,7 @@ export class ProjectlogComponent {
   toggleAll() {
     this.selectAllOn = !this.selectAllOn;
     for (var item of this.logs) {
-      item.ui.selected = this.selectAllOn;
+      item.uiState.selected = this.selectAllOn;
     }
     this.selectedCount = this.selectAllOn ? this.logs.length : 0;
   }
@@ -123,11 +123,11 @@ export class ProjectlogComponent {
   }
 
   onItemUpdate(item: Projectlog) {
-    this.selectedCount += item.ui.selected ? 1 : -1;
+    this.selectedCount += item.uiState.selected ? 1 : -1;
     this.selectAllOn = this.selectedCount === this.logs.length;
   }
 
   deleteSelected() {
-    this.logs = this.logs.filter((item: Projectlog) => { return item.ui.selected === false; });
+    this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
   }
 }
