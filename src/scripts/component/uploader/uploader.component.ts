@@ -1,7 +1,7 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-import {DialogComponent} from '../dialog/dialog.component';
+import {DialogBox} from '../../directive/dialog/dialog-box';
 import {LoaderComponent} from '../loader/loader.component';
-import {BulkRestService} from '../../services/bulk-rest.service';
+import {BulkRestService} from '../../service/bulk-rest.service';
 
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
@@ -10,9 +10,9 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
   providers: [BulkRestService]
 })
 @View({
-  directives: [DialogComponent, LoaderComponent],
+  directives: [DialogBox, LoaderComponent],
   template: `
-		<pw-dialog [title]="'Data Setup Wizard'" [showTitle]="true" [show]="show" (autoHide)="onAutoHide()">
+		<dialog-box [title]="'Data Setup Wizard'" [showTitle]="true" [show]="show" (autoHide)="onAutoHide()">
 				<div class="dialog-message" [ngSwitch]="status">
 		      <span *ngSwitchWhen="0">
 						<pw-loader></pw-loader>
@@ -89,7 +89,7 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 						<i class="fa fa-times"></i> Close
 					</div>
 				</div>
-		</pw-dialog>
+		</dialog-box>
 	`
 })
 export class UploaderComponent {

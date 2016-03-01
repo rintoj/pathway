@@ -1,7 +1,7 @@
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 @Component({
-  selector: 'pw-dialog'
+  selector: 'dialog-box'
 })
 @View({
   template: `
@@ -16,7 +16,7 @@ import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 		</div>
 	`
 })
-export class DialogComponent {
+export class DialogBox {
 
   @Input() show: boolean;
   @Input() title: string = null;

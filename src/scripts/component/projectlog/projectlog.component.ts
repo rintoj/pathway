@@ -1,12 +1,12 @@
 import {Component, View} from 'angular2/core';
 import {Projectlog} from '../../state/projectlog';
-import {ProjectlogService} from './projectlog.service';
+import {ProjectlogService} from '../../service/projectlog.service';
 import {ProjectlogItemComponent} from './projectlog-item.component';
 import {LoaderComponent} from '../loader/loader.component';
 import {UploaderComponent} from '../uploader/uploader.component';
-import {Page} from '../../services/pagination';
+import {Page} from '../../service/pagination';
 import {Promise} from 'angular2/src/facade/promise';
-import {InfiniteScroller} from '../../directives/scroller/infinite-scroller';
+import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
 
 @Component({
   selector: 'pw-projectlog',

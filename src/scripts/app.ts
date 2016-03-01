@@ -5,7 +5,7 @@ import {HTTP_PROVIDERS} from 'angular2/http';
 import {HeaderComponent} from './component/header/header.component';
 import {ProjectlogComponent} from './component/projectlog/projectlog.component';
 
-import {RestOptions, RestService} from './services/rest.service';
+import {RestOptions, RestService} from './service/rest.service';
 
 @Component({
   selector: 'pw-app',

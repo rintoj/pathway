@@ -1,10 +1,10 @@
 import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import {Response} from 'angular2/http';
-import {RestService} from '../../services/rest.service';
-import {Projectlog} from '../../state/projectlog';
+import {RestService} from './rest.service';
+import {Page} from './pagination';
+import {Projectlog} from '../state/projectlog';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
-import {Page} from '../../services/pagination';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
