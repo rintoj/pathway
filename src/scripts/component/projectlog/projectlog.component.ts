@@ -1,19 +1,23 @@
-import {Component, View} from 'angular2/core';
-import {Projectlog} from '../../state/projectlog';
-import {ProjectlogService} from '../../service/projectlog.service';
-import {ProjectlogItemComponent} from './projectlog-item.component';
-import {LoaderComponent} from '../loader/loader.component';
-import {UploaderComponent} from '../uploader/uploader.component';
 import {Page} from '../../service/pagination';
 import {Promise} from 'angular2/src/facade/promise';
+import {Projectlog} from '../../state/projectlog';
+import {Component, View} from 'angular2/core';
+import {LoaderComponent} from '../loader/loader.component';
 import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
+import {ProjectlogService} from '../../service/projectlog.service';
+import {UploaderComponent} from '../uploader/uploader.component';
+import {ProjectlogItemComponent} from './projectlog-item.component';
 
 @Component({
-  selector: 'pw-projectlog',
-  providers: [ProjectlogService]
+  selector: 'pw-projectlog'
 })
 @View({
-  directives: [ProjectlogItemComponent, LoaderComponent, UploaderComponent, InfiniteScroller],
+  directives: [
+    ProjectlogItemComponent,
+    LoaderComponent,
+    UploaderComponent,
+    InfiniteScroller
+  ],
   template: `
 
 		<!-- action buttons -->

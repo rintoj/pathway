@@ -9,7 +9,6 @@ interface ItemStatus {
 
 @Component({
   selector: 'pw-projectlog-item',
-  providers: [ProjectlogService],
   host: {
     '[class.open]': 'item.uiState.open',
     '[class.selected-item]': 'item.uiState.selected',

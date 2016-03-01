@@ -1,9 +1,11 @@
 import {Page} from './pagination';
+import {Action} from '../state/actions';
+import {Subject} from 'rxjs/Subject';
 import {Response} from 'angular2/http';
-import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import {Projectlog} from '../state/projectlog';
 import {RestService} from './rest.service';
+import {Inject, Injectable} from 'angular2/core';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 
 import 'rxjs/add/operator/share';
@@ -19,10 +21,15 @@ export class ProjectlogService {
   private observer: any;
   private defaultPageSize: number = 10;
 
-  constructor(private rest: RestService) {
+  constructor(private rest: RestService, @Inject('dispatcher') private dispatcher: Subject<Action>) {
     this.store = new Observable((observer: any) => this.observer = observer).share();
     this.data = [];
+		dispatcher.subscribe(this.processAction);
   }
+
+	private processAction(action: Action) {
+		console.warn('ProjectlogService processing action', action);
+	}
 
   private publish(data: Projectlog[]): ProjectlogService {
     this.observer.next(this.data);

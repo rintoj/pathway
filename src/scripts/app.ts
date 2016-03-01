@@ -4,10 +4,13 @@ import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router'
 import {HeaderComponent} from './component/header/header.component';
 import {ProjectlogComponent} from './component/projectlog/projectlog.component';
 
+import {ProjectlogService} from './service/projectlog.service';
+
 @Component({
   selector: 'pw-app',
   providers: [
-    ROUTER_PROVIDERS
+    ROUTER_PROVIDERS,
+    ProjectlogService
   ]
 })
 @View({
@@ -27,4 +30,9 @@ import {ProjectlogComponent} from './component/projectlog/projectlog.component';
 ])
 export class AppComponent {
 
+  constructor(
+    private projectlogService: ProjectlogService
+    ) {
+    console.log('Application created!');
+  }
 }

@@ -1,4 +1,6 @@
-import {Component, View} from 'angular2/core';
+import {Action} from '../../state/actions';
+import {Subject} from 'rxjs/Subject';
+import {Component, View, Inject} from 'angular2/core';
 
 @Component({
   selector: 'pw-header'
@@ -29,6 +31,7 @@ import {Component, View} from 'angular2/core';
 				</span>
 
 				<span class="icons">
+					<a class="fa fa-refresh" [class.fa-spin]="sycing" (click)="sync()"></a>
 					<a class="fa fa-user"></a>
 					<a class="fa fa-bell" badge="10"></a>
 					<a class="fa fa-cog"></a>
@@ -46,7 +49,9 @@ export class HeaderComponent {
   private showMenu: boolean = false;
   private projects: Array<string>;
 
-  constructor() {
+  sycing: boolean = false;
+
+  constructor( @Inject('dispatcher') private dispatcher: Subject<Action>) {
     this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
   }
 
@@ -60,5 +65,16 @@ export class HeaderComponent {
 
   selectProject(event: any) {
     this.selectedProject = event.target.innerText;
+  }
+
+  sync() {
+    this.sycing = !this.sycing;
+    this.dispatcher.next({
+      projectlog: {
+        id: 'string',
+        title: 'string',
+        status: 'string'
+      }
+    });
   }
 }
