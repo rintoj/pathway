@@ -4,4 +4,12 @@ export class AddProjcetlogAction {
   constructor(public projectlog: Projectlog) { }
 }
 
-export type Action = AddProjcetlogAction;
+export class FetchProjectlogAction {
+
+}
+
+export class ChangeSycingAction {
+  constructor(public sync: boolean) { }
+}
+
+export type Action = AddProjcetlogAction | FetchProjectlogAction;

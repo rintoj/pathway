@@ -1,19 +1,16 @@
 import {Page} from './pagination';
 import {Action} from '../state/actions';
-import {Subject} from 'rxjs/Subject';
 import {Response} from 'angular2/http';
+import {Dispatcher, Service} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Projectlog} from '../state/projectlog';
 import {RestService} from './rest.service';
-import {Inject, Injectable} from 'angular2/core';
+import {ApplicationState} from '../state/application-state';
+import {Injectable, Inject} from 'angular2/core';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/merge';
-
 @Injectable()
-export class ProjectlogService {
+export class ProjectlogService implements Service {
 
   public store: Observable<Projectlog[]>;
   private url: string = 'projectlog';
@@ -21,15 +18,21 @@ export class ProjectlogService {
   private observer: any;
   private defaultPageSize: number = 10;
 
-  constructor(private rest: RestService, @Inject('dispatcher') private dispatcher: Subject<Action>) {
+  constructor(
+    private rest: RestService,
+    private dispatcher: Dispatcher,
+    @Inject('state') private state: Observable<ApplicationState>
+    ) {
     this.store = new Observable((observer: any) => this.observer = observer).share();
     this.data = [];
-		dispatcher.subscribe(this.processAction);
+
+    dispatcher.subscribe(this);
   }
 
-	private processAction(action: Action) {
-		console.warn('ProjectlogService processing action', action);
-	}
+  transform(state: ApplicationState, action: Action): ApplicationState {
+    console.warn('ProjectlogService processing action', action);
+    return state;
+  }
 
   private publish(data: Projectlog[]): ProjectlogService {
     this.observer.next(this.data);

@@ -5,12 +5,18 @@ import {HeaderComponent} from './component/header/header.component';
 import {ProjectlogComponent} from './component/projectlog/projectlog.component';
 
 import {ProjectlogService} from './service/projectlog.service';
+import {UIStateService} from './service/ui-state.service';
+
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/merge';
 
 @Component({
   selector: 'pw-app',
   providers: [
     ROUTER_PROVIDERS,
-    ProjectlogService
+    ProjectlogService,
+		UIStateService
   ]
 })
 @View({
@@ -31,7 +37,8 @@ import {ProjectlogService} from './service/projectlog.service';
 export class AppComponent {
 
   constructor(
-    private projectlogService: ProjectlogService
+    private projectlogService: ProjectlogService,
+		private uiStateService: UIStateService
     ) {
     console.log('Application created!');
   }

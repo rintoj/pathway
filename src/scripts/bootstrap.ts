@@ -1,10 +1,10 @@
-import {Action} from './state/actions';
-import {Subject} from 'rxjs/Subject';
+import {Dispatcher} from './state/dispatcher';
 import {bootstrap} from 'angular2/platform/browser';
 import {AppComponent} from './app';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {enableProdMode, provide} from 'angular2/core';
+import {enableProdMode, provide, Inject} from 'angular2/core';
 import {RestOptions, RestService} from './service/rest.service';
+import {initialState} from './state/application-state';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -18,5 +18,6 @@ bootstrap(AppComponent, [
   HTTP_PROVIDERS,
   RestOptions,
   RestService,
-  provide('dispatcher', { useValue: new Subject<Action>() })
+  provide(Dispatcher, { useValue: new Dispatcher(initialState) }),
+  provide('state', { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })
 ]);
