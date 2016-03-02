@@ -69,12 +69,33 @@ export class HeaderComponent {
 
   sync() {
     this.sycing = !this.sycing;
-    this.dispatcher.next({
-      projectlog: {
-        id: 'string',
-        title: 'string',
-        status: 'string'
-      }
+    // this.dispatcher.next({
+    //   projectlog: {
+    //     id: 'string',
+    //     title: 'string',
+    //     status: 'string'
+    //   }
+    // });
+
+
+    const TodoRecord = Immutable.Record({
+      id: 0,
+      description: '',
+      completed: false
     });
+
+    class Todo extends TodoRecord {
+      id: number;
+      description: string;
+      completed: boolean;
+
+      constructor(props: any) {
+        super(props);
+      }
+    }
+
+		console.warn(Todo);
+
+
   }
 }
