@@ -33,7 +33,7 @@ import {Component, View, Inject} from 'angular2/core';
 				</span>
 
 				<span class="icons">
-					<a class="fa fa-refresh" [class.fa-spin]="data.uiState.sycing | async" (click)="sync()"></a>
+					<a class="fa fa-refresh" [class.fa-spin]="(state | async)?.toObject()?.uiState?.sycing" (click)="sync()"></a>
 					<a class="fa fa-user"></a>
 					<a class="fa fa-bell" badge="10"></a>
 					<a class="fa fa-cog"></a>
@@ -65,9 +65,8 @@ export class HeaderComponent {
   }
 
   get data() {
-    let x: any = this.state.map((s: ApplicationState) => s).source;
-		console.warn(x.value);
-		return x.value;
+    let observable: any = this.state;
+    return observable._value.toObject();
   }
 
   toggleDropdown() {
@@ -83,7 +82,7 @@ export class HeaderComponent {
   }
 
   sync() {
-    console.warn(this.data);
+    console.log('data: ', this.data);
     this.dispatcher.next(new ChangeSycingAction(!this.data.uiState.sycing));
   }
 }

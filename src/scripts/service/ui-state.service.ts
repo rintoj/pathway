@@ -22,9 +22,9 @@ export class UIStateService implements Service {
     return state;
   }
 
-  private changeSyncStatus(state: ApplicationState, action: ChangeSycingAction): any {
-    // return state.mergeDeep({ uiState: { sycing: action.sync } });
-		return state;
+  private changeSyncStatus(state: ApplicationState, action: ChangeSycingAction): ApplicationState {
+    let nextState: any = state.mergeDeep({ uiState: { sycing: action.sync } });
+    return nextState;
   }
 
 }

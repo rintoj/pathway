@@ -2,7 +2,7 @@ import {Action} from './actions';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/Rx';
-import {ApplicationState} from './application-state';
+import {IApplicationState, ApplicationState} from './application-state';
 
 export interface Service {
   transform(state: ApplicationState, action: Action): ApplicationState;
@@ -33,24 +33,26 @@ export class Dispatcher {
     this.actions.next(action);
   }
 
-  private createState(initialState: ApplicationState): Observable<ApplicationState> {
+  private createState(initialState: IApplicationState): Observable<ApplicationState> {
+
+    let immutableInitialState = new ApplicationState(initialState);
 
     let observableState = this.actions.scan((state: ApplicationState, action: Action) => {
 
       console.log('Processing action: ', action);
 
-      let nextState: ApplicationState = Immutable.fromJS(state);
+      let nextState: ApplicationState = state;
       this.subscriptions.map((service: Service) => {
         nextState = service.transform(nextState, action);
       });
 
       return nextState;
-    }, initialState).share();
+    }, immutableInitialState).share();
 
     // initial state is being wrapped into BehaviourSubject;
-    const response = new BehaviorSubject(initialState);
+    const response = new BehaviorSubject(immutableInitialState);
     observableState.subscribe((s: ApplicationState) => response.next(s));
-		return response;
+    return response;
   };
 
   static stateFactory(dispatcher: Dispatcher): Observable<ApplicationState> {

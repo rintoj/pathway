@@ -1,0 +1,39 @@
+
+'.source.ts':
+	'Immutable Object':
+		'prefix': 'immo'
+		'body': """
+		        export interface I${1:class} {
+		        	${2:properties}
+		        }
+
+		        export class ${1:class} extends ImmutableObject<I${1:class}> implements I${1:class} {
+
+		          constructor(properties: I${1:class} = undefined) {
+		            super(properties);
+		          }
+
+		          create(properties: I${1:class}): ${1:class} {
+		            return new ${1:class}(properties);
+		          }
+
+		          protected default(): I${1:class} {
+		            return {
+		              ${2:properties}
+		            };
+		          }
+
+		        }
+		        """
+	'Immutable Getter & Setter':
+		'prefix': 'immgs'
+		'body': """
+		          get ${1:field}(): ${2:type} {
+		            return this.data.get('${1:field}');
+		          }
+
+		          set${1:field}(value: ${2:type}): ${3:class} {
+		            return <${3:class}> this.cloneAndSet('${1:field}', value);
+		          }
+
+		        """

@@ -1,11 +1,6 @@
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-import {Projectlog} from '../../state/projectlog';
 import {ProjectlogService} from '../../service/projectlog.service';
-
-interface ItemStatus {
-  open: boolean;
-  selected: boolean;
-}
+import {Projectlog} from '../../state/projectlog';
+import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 @Component({
   selector: 'pw-projectlog-item',
@@ -45,37 +40,25 @@ interface ItemStatus {
 })
 export class ProjectlogItemComponent {
 
-  _item: Projectlog;
-  @Output() update: EventEmitter<Projectlog> = new EventEmitter();
+  @Input() item: Projectlog;
+  @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();
 
-  constructor(private service: ProjectlogService) {
+  constructor(private service: ProjectlogService) { }
 
-  }
-
-  get item(): Projectlog {
-    return this._item;
-  }
-
-  @Input() set item(item: Projectlog) {
-    this._item = item;
-    if (this._item.uiState === undefined) {
-      this._item.uiState = {
-        selected: false,
-        open: false
-      };
-    }
+  private fireStatusUpdate() {
+    this.statusUpdate.next(this.item);
   }
 
   toggleOpen(event: any) {
     event.stopPropagation();
     this.item.uiState.open = !this.item.uiState.open;
-    this.update.next(this.item);
+    this.fireStatusUpdate();
   }
 
   toggleSelection(event: any) {
     event.stopPropagation();
     this.item.uiState.selected = !this.item.uiState.selected;
-    this.update.next(this.item);
+    this.fireStatusUpdate();
   }
 
 }
