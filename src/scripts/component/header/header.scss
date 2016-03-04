@@ -13,9 +13,12 @@ pw-header {
     height: 50px;
 
     @media(max-width: $small-device) {
+      overflow: hidden;
+
       &.open {
         transition: height 0.2s 0s ease-in-out;
         height: 135px;
+        overflow: visible;
       }
     }
   }
