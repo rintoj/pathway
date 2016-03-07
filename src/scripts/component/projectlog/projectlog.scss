@@ -3,6 +3,7 @@
 pw-projectlog {
   width: 100%;
   display: block;
+  max-width: 900px;
   margin: 0 auto;
 
   .actions {
@@ -15,8 +16,7 @@ pw-projectlog {
       height: 50px;
       line-height: 50px;
       text-align: center;
-      transition: background-color 0.1s ease;
-
+      // transition: background-color 0.1s ease;
       &:hover {
         background-color: $accent-color;
         color: $primary-color-text;
@@ -40,21 +40,6 @@ pw-projectlog {
     }
   }
 
-  .list-item {
-    &.loader {
-      height: 0;
-      padding: 0;
-      transition: height 0.2s ease, padding 0.2s ease;
-      border: 0;
-      overflow: hidden;
-
-      & > div {
-        margin: 0 auto;
-        display: block;
-      }
-    }
-  }
-
   .list {
     border: 1px solid $primary-color-text;
     border-radius: 3px;
@@ -68,12 +53,26 @@ pw-projectlog {
     }
   }
 
-  pw-projectlog-item {
+  .list-item {
     padding: 15px;
     overflow: hidden;
-    transition: background 0.1s ease, transform 0.2s ease, margin 0.2s ease;
+    transition: max-height 0.6s ease, background 0.6s ease, margin 0.6s ease, box-shadow 0.6s ease 0.4s;
     cursor: pointer;
     display: block;
+    max-height: 85px;
+
+    &.loader {
+      height: 0;
+      padding: 0;
+      // transition: height 0.2s ease, padding 0.2s ease;
+      border: 0;
+      overflow: hidden;
+
+      & > div {
+        margin: 0 auto;
+        display: block;
+      }
+    }
 
     &:not(:first-child) {
       border-top: 1px solid $divider-color-light;
@@ -98,11 +97,10 @@ pw-projectlog {
       cursor: pointer;
       position: relative;
       margin: 0 10px;
-      transition: background 0.1s ease;
-
+      // transition: background 0.1s ease;
       &:before {
         opacity: 0;
-        transition: opacity 0.1s ease, transform 0.1s ease;
+        // transition: opacity 0.1s ease, transform 0.1s ease;
         content: '\f00c';
         position: absolute;
         color: $primary-color-text;
@@ -149,7 +147,20 @@ pw-projectlog {
       text-overflow: ellipsis;
       overflow: hidden;
       max-height: 25px;
-      transition: max-height 0.2s ease;
+      display: inline-block;
+      // transition: max-height 0.2s ease;
+      vertical-align: bottom;
+    }
+
+    .description {
+      vertical-align: top;
+      display: inline-block;
+      max-height: 25px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: calc(100% - 155px);
+      color: $secondary-text-color;
     }
 
     .action-bar {
@@ -158,10 +169,10 @@ pw-projectlog {
       clear: both;
       margin: 0 0 0 75px;
       padding: 0;
+      height: 0;
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.2s ease, padding 0.2s ease, margin 0.2s ease;
-
+      // transition: max-height 0.2s ease, padding 0.2s ease, margin 0.2s ease;
       .fa {
         font-size: 1.32em;
         margin: 0 10px;
@@ -169,22 +180,16 @@ pw-projectlog {
       }
     }
 
-    .separator {
-      display: none;
-    }
-
     &.open {
       @include shadow(5);
       margin: 20px 0;
       transform: scale(1.01);
       border: 1px solid $divider-color-light;
+      max-height: 1000px;
+      transition: max-height 0.6s ease, background 0.6s ease, margin 0.6s ease, box-shadow 0.6s ease 0.05s;
 
       .id {
         display: inline-block;
-      }
-
-      .separator {
-        display: block;
       }
 
       .heading {
@@ -196,10 +201,23 @@ pw-projectlog {
       .text {
         white-space: inherit;
         max-height: 500px;
-        transition: max-height 0.2s ease;
+        // transition: max-height 0.2s ease;
+        display: block;
+        padding: 2px 0;
+        margin: 10px 0;
+        border-top: 1px solid $divider-color-light;
+        border-bottom: 1px solid $divider-color-light;
+      }
+
+      .description {
+        display: block;
+        width: 100%;
+        white-space: normal;
+        max-height: 2000px;
       }
 
       .action-bar {
+        height: auto;
         max-height: 500px;
         margin: 20px 0 0 75px;
         padding: 20px 0 0;
