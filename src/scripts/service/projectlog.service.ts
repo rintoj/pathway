@@ -45,7 +45,7 @@ export class ProjectlogService implements Service {
     page = page ? page : new Page<Projectlog[]>(json.hits.total, this.defaultPageSize);
     page.data = json.hits.hits.map((item: any) => {
       item._source.id = item._id;
-      return new Projectlog(item._source);
+      return <Projectlog>item._source;
     });
 
     return page;

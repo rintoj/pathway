@@ -22,12 +22,13 @@ import {ProjectlogItemComponent} from './projectlog-item.component';
 
 		<!-- action buttons -->
 		<div class="actions">
-			<a class="fa fa-plus" tooltip="Add story" (click)="create()"></a>
-			<a class="fa fa-trash" tooltip="Delete stories" (click)="deleteSelected()"></a>
-			<a class="fa fa-check" tooltip="Toggle selection" (click)="toggleAll()" [class.selected]="selectAllOn"></a>
-			<a class="fa fa-refresh" tooltip="Toggle spinner" (click)="refresh()"></a>
-			<a class="fa fa-upload" tooltip="Upload sample data" (click)="showUploadPopup()"></a>
-			<a class="fa fa-sort-numeric-asc" [class.desc]="!sortAsc" tooltip="Sort" (click)="toggleSort()"></a>
+			<a class="btn btn-round fa fa-plus" tooltip="Add story" (click)="create()"></a>
+			<a class="btn btn-round fa fa-trash" tooltip="Delete stories" (click)="deleteSelected()"></a>
+			<a class="btn btn-round fa fa-check" tooltip="Toggle selection" (click)="toggleAll()"
+			[class.selected]="selectAllOn"></a>
+			<a class="btn btn-round fa fa-refresh" tooltip="Toggle spinner" (click)="refresh()"></a>
+			<a class="btn btn-round fa fa-upload" tooltip="Upload sample data" (click)="showUploadPopup()"></a>
+			<a class="btn btn-round fa fa-sort-numeric-asc" [class.desc]="!sortAsc" tooltip="Sort" (click)="toggleSort()"></a>
 		</div>
 
 		<div class="separator"></div>

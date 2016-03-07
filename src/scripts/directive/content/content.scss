@@ -1,0 +1,19 @@
+@import 'scss/variables';
+
+content {
+  span {
+    display: inline-block;
+    transition: padding 0.2s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    vertical-align: top;
+  }
+
+  [contenteditable=true] {
+    display: block;
+    padding: 2px 5px;
+    border: 1px solid $divider-color-light;
+    background: lighten($divider-color-light, 4%);
+  }
+}

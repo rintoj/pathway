@@ -7,22 +7,6 @@ pw-projectlog {
   margin: 0 auto;
 
   .actions {
-    .fa {
-      font-size: 1.32em;
-      margin: 0;
-      padding: 0;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      line-height: 50px;
-      text-align: center;
-      // transition: background-color 0.1s ease;
-      &:hover {
-        background-color: $accent-color;
-        color: $primary-color-text;
-      }
-    }
-
     .fa-sort-numeric-asc {
       &.desc {
         &:before {
@@ -56,7 +40,7 @@ pw-projectlog {
   .list-item {
     padding: 15px;
     overflow: hidden;
-    transition: max-height 0.6s ease, background 0.6s ease, margin 0.6s ease, box-shadow 0.6s ease 0.4s;
+    transition: max-height 0.6s ease, background 0.6s ease, margin 0.6s ease, box-shadow 0.6s ease 0.3s;
     cursor: pointer;
     display: block;
     max-height: 85px;
@@ -64,7 +48,7 @@ pw-projectlog {
     &.loader {
       height: 0;
       padding: 0;
-      // transition: height 0.2s ease, padding 0.2s ease;
+      transition: height 0.2s ease, padding 0.2s ease;
       border: 0;
       overflow: hidden;
 
@@ -148,7 +132,7 @@ pw-projectlog {
       overflow: hidden;
       max-height: 25px;
       display: inline-block;
-      // transition: max-height 0.2s ease;
+      transition: max-height 0.6s ease;
       vertical-align: bottom;
     }
 
@@ -161,22 +145,22 @@ pw-projectlog {
       text-overflow: ellipsis;
       width: calc(100% - 155px);
       color: $secondary-text-color;
+      transition: max-height 0.6s ease;
     }
 
     .action-bar {
       display: block;
       width: calc(100% - 85px);
       clear: both;
-      margin: 0 0 0 75px;
+      margin: 20px 0 0 75px;
       padding: 0;
       height: 0;
       max-height: 0;
       overflow: hidden;
-      // transition: max-height 0.2s ease, padding 0.2s ease, margin 0.2s ease;
-      .fa {
-        font-size: 1.32em;
-        margin: 0 10px;
-        color: $primary-text-color;
+      transition: max-height 0.6s ease, padding 0.6s ease, margin 0.6s ease;
+
+      .fa-save {
+        display: none;
       }
     }
 
@@ -201,7 +185,6 @@ pw-projectlog {
       .text {
         white-space: inherit;
         max-height: 500px;
-        // transition: max-height 0.2s ease;
         display: block;
         padding: 2px 0;
         margin: 10px 0;
@@ -213,14 +196,13 @@ pw-projectlog {
         display: block;
         width: 100%;
         white-space: normal;
-        max-height: 2000px;
+        max-height: 1000px;
       }
 
       .action-bar {
         height: auto;
         max-height: 500px;
-        margin: 20px 0 0 75px;
-        padding: 20px 0 0;
+        padding: 10px;
         display: block;
         border-top: 1px solid $divider-color-light;
       }
@@ -237,6 +219,18 @@ pw-projectlog {
           transform: rotateZ(0deg);
           opacity: 1;
         }
+      }
+    }
+
+    &.edit-mode {
+      .fa-edit {
+        &:before {
+          content: '\f00d';
+        }
+      }
+
+      .fa-save {
+        display: inline-block;
       }
     }
   }
