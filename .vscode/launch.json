@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+    "name": "Open Pathway",
+    "type": "chrome",
+    "request": "launch",
+    "url": "http://localhost:8080/",
+    "sourceMaps": true,
+    "webRoot": ""
+  }, {
+    "name": "gulp build serve",
+    "type": "node",
+    "program": "/usr/local/bin/gulp",
+    "request": "launch",
+    "args": ["build", "serve"],
+    "cwd": "${workspaceRoot}",
+    "runtimeExecutable": null,
+    "env": {
+      "NODE_ENV": "development"
+    }
+  }, {
+    "name": "Attach",
+    "type": "chrome",
+    "request": "attach",
+    "port": 9222
+  }]
+}
