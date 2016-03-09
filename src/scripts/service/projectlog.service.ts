@@ -79,7 +79,7 @@ export class ProjectlogService implements Service {
         return defer.promise;
     }
 
-    update(projectlog: Projectlog): void {
+    update(projectlog: Projectlog): Promise<any> {
         var defer = PromiseWrapper.completer();
         this.rest.update(`${this.url}/${projectlog.id}`, projectlog)
             .subscribe(defer.resolve, defer.reject);

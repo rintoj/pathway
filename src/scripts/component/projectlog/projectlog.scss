@@ -1,11 +1,9 @@
 @import 'scss/variables';
-
 pw-projectlog {
   width: 100%;
   display: block;
   max-width: 900px;
   margin: 0 auto;
-
   .actions {
     .fa-sort-numeric-asc {
       &.desc {
@@ -14,7 +12,6 @@ pw-projectlog {
         }
       }
     }
-
     .fa-check {
       &.selected {
         &:before {
@@ -23,11 +20,9 @@ pw-projectlog {
       }
     }
   }
-
   .list {
     border: 1px solid $primary-color-text;
     border-radius: 3px;
-
     &.loading {
       .loader {
         border: 1px solid $primary-color-text;
@@ -36,7 +31,6 @@ pw-projectlog {
       }
     }
   }
-
   .list-item {
     padding: 15px;
     overflow: hidden;
@@ -44,30 +38,25 @@ pw-projectlog {
     cursor: pointer;
     display: block;
     max-height: 85px;
-
     &.loader {
       height: 0;
       padding: 0;
       transition: height 0.2s ease, padding 0.2s ease;
       border: 0;
       overflow: hidden;
-
       & > div {
         margin: 0 auto;
         display: block;
       }
     }
-
     &:not(:first-child) {
       border-top: 1px solid $divider-color-light;
     }
-
     & > div {
       vertical-align: top;
       margin: 0 5px;
       display: inline-block;
     }
-
     .avatar {
       background: $primary-color;
       color: $primary-color-text;
@@ -92,11 +81,9 @@ pw-projectlog {
         transform: rotateZ(-90deg);
       }
     }
-
     .content {
       width: calc(100% - 85px);
     }
-
     .id {
       display: none;
       color: $accent-color;
@@ -105,7 +92,9 @@ pw-projectlog {
       vertical-align: middle;
       font-size: 0.8em;
     }
-
+    dropdown {
+      display: none;
+    }
     .heading {
       font-weight: bold;
       display: inline-block;
@@ -114,7 +103,6 @@ pw-projectlog {
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-
     .status {
       text-align: left;
       display: inline-block;
@@ -125,7 +113,6 @@ pw-projectlog {
       line-height: 18px;
       vertical-align: middle;
     }
-
     .text {
       color: $secondary-text-color;
       text-overflow: ellipsis;
@@ -135,7 +122,6 @@ pw-projectlog {
       transition: max-height 0.6s ease;
       vertical-align: bottom;
     }
-
     .description {
       vertical-align: top;
       display: inline-block;
@@ -147,7 +133,6 @@ pw-projectlog {
       color: $secondary-text-color;
       transition: max-height 0.6s ease;
     }
-
     .action-bar {
       display: block;
       width: calc(100% - 85px);
@@ -158,12 +143,10 @@ pw-projectlog {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.6s ease, padding 0.6s ease, margin 0.6s ease;
-
       .fa-save {
         display: none;
       }
     }
-
     &.open {
       @include shadow(5);
       margin: 20px 0;
@@ -171,17 +154,17 @@ pw-projectlog {
       border: 1px solid $divider-color-light;
       max-height: 1000px;
       transition: max-height 0.6s ease, background 0.6s ease, margin 0.6s ease, box-shadow 0.6s ease 0.05s;
-
       .id {
         display: inline-block;
       }
-
+      dropdown {
+        display: inline-block;
+      }
       .heading {
         display: block;
         width: 100%;
         white-space: inherit;
       }
-
       .text {
         white-space: inherit;
         max-height: 500px;
@@ -191,14 +174,12 @@ pw-projectlog {
         border-top: 1px solid $divider-color-light;
         border-bottom: 1px solid $divider-color-light;
       }
-
       .description {
         display: block;
         width: 100%;
         white-space: normal;
         max-height: 1000px;
       }
-
       .action-bar {
         height: auto;
         max-height: 500px;
@@ -207,34 +188,28 @@ pw-projectlog {
         border-top: 1px solid $divider-color-light;
       }
     }
-
     &.selected-item {
       background: lighten($primary-color-light, 10%);
-
       .avatar {
         background: darken($primary-color, 30%);
         color: darken($primary-color, 30%);
-
         &:before {
           transform: rotateZ(0deg);
           opacity: 1;
         }
       }
     }
-
     &.edit-mode {
       .fa-edit {
         &:before {
           content: '\f00d';
         }
       }
-
       .fa-save {
         display: inline-block;
       }
     }
   }
-
   .foot-note {
     text-align: center;
     font-size: 0.7em;

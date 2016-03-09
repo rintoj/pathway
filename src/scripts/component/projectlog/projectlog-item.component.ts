@@ -1,17 +1,21 @@
 import {Content} from '../../directive/content/content';
+import {Dropdown, DropdownOption} from '../../directive/dropdown/dropdown';
 import {Projectlog} from '../../state/projectlog';
 import {ProjectlogService} from '../../service/projectlog.service';
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 
-interface BeforeChange { title: string; description: string; }
+interface BeforeChange {
+    title: string;
+    description: string;
+}
 
 @Component({
-  selector: 'pw-projectlog-item'
+    selector: 'pw-projectlog-item'
 })
 @View({
-  directives: [Content],
-  template: `
+    directives: [Content, Dropdown],
+    template: `
 		<div class="list-item" (click)="toggleOpen($event)" [class.open]="item.uiState.open"
 			[class.selected-item]="item.uiState.selected" [class.edit-mode]="item.uiState.editMode">
 			<!-- the list item-->
@@ -28,12 +32,19 @@ interface BeforeChange { title: string; description: string; }
 
 				<div class="text">
 					<div class="status">{{item.index}}</div>
-					<div class="status"
+                    
+					<dropdown class="status"
 					 [class.grey-text]="item.status==='hold'"
 					 [class.blue-grey-text]="item.status==='done'"
 					 [class.green-text]="item.status==='doing'"
-					 [class.yellow-text]="item.status==='new'">{{item.status}}</div>
+					 [class.yellow-text]="item.status==='new'"
+                     [selectedItem]="{'text': item.status}"
+                     [options]="statusOptions"
+                     (click)="preventEvent($event)" 
+                     (change)="item.status=$event.text"></dropdown>
+                     
 				 	<div class="id">{{item.id}}</div>
+                   
 				</div>
 
 				<content class="description"
@@ -51,78 +62,92 @@ interface BeforeChange { title: string; description: string; }
 })
 export class ProjectlogItemComponent {
 
-  private _item: Projectlog;
-  private changed: boolean = false;
-  private beforeChange: BeforeChange = {
-    title: '',
-    description: ''
-  };
+    private _item: Projectlog;
+    private changed: boolean = false;
+    private beforeChange: BeforeChange = {
+        title: '',
+        description: ''
+    };
 
-  @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();
-  constructor(private service: ProjectlogService) { }
+    statusOptions: DropdownOption[] = [{
+        text: 'new'
+    }, {
+            text: 'doing'
+        }, {
+            text: 'done'
+        }, {
+            text: 'hold'
+        }];
 
-  private fireStatusUpdate() {
-    this.statusUpdate.next(this.item);
-  }
 
-  get item() {
-    return this._item;
-  }
+    @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();
 
-  @Input() set item(value: Projectlog) {
-    this._item = value;
-    if (this._item.uiState === undefined) {
-      this._item.uiState = {
-        open: false,
-        selected: false,
-        editMode: false
-      };
-    }
-  }
+    constructor(private service: ProjectlogService) { }
 
-  toggleOpen(event: any) {
-    event.stopPropagation();
-    if (!this.item.uiState.editMode) {
-      this.item.uiState.open = !this.item.uiState.open;
-      this.fireStatusUpdate();
-    }
-  }
-
-  toggleSelection(event: any) {
-    event.stopPropagation();
-    this.item.uiState.selected = !this.item.uiState.selected;
-    this.fireStatusUpdate();
-  }
-
-  toggleEdit(event: any) {
-    event.stopPropagation();
-    if (this.item.uiState.editMode) {
-      if (this.changed) {
-        console.warn('The changes are lost!');
-        this.item.title = this.beforeChange.title;
-        this.item.description = this.beforeChange.description;
-      }
-    } else {
-      this.changed = false;
-      this.beforeChange = {
-        title: this.item.title,
-        description: this.item.description
-      };
+    private fireStatusUpdate() {
+        this.statusUpdate.next(this.item);
     }
 
-    this.item.uiState.editMode = !this.item.uiState.editMode;
-  }
-
-  save() {
-    console.warn(this.item);
-  }
-
-  switchToEditMode(event: any) {
-		event.stopPropagation();
-    if (!this.item.uiState.editMode) {
-			this.item.uiState.open = true;
-      this.toggleEdit(event);
+    get item() {
+        return this._item;
     }
-  }
+
+    @Input() set item(value: Projectlog) {
+        this._item = value;
+        this._item.uiState = {
+            open: false,
+            selected: false,
+            editMode: false
+        };
+    }
+
+    toggleOpen(event: any) {
+        event.stopPropagation();
+        if (!this.item.uiState.editMode) {
+            this.item.uiState.open = !this.item.uiState.open;
+            this.fireStatusUpdate();
+        }
+    }
+
+    toggleSelection(event: any) {
+        event.stopPropagation();
+        this.item.uiState.selected = !this.item.uiState.selected;
+        this.fireStatusUpdate();
+    }
+
+    toggleEdit(event: any) {
+        event.stopPropagation();
+        if (this.item.uiState.editMode) {
+            if (this.changed) {
+                console.warn('The changes are lost!');
+                this.item.title = this.beforeChange.title;
+                this.item.description = this.beforeChange.description;
+            }
+        } else {
+            this.changed = false;
+            this.beforeChange = {
+                title: this.item.title,
+                description: this.item.description
+            };
+        }
+
+        this.item.uiState.editMode = !this.item.uiState.editMode;
+    }
+
+    save() {
+        this.service.update(this.item).then(function() { console.log('done'); });
+    }
+
+    switchToEditMode(event: any) {
+        event.stopPropagation();
+        if (!this.item.uiState.editMode) {
+            this.item.uiState.open = true;
+            this.toggleEdit(event);
+        }
+    }
+
+    preventEvent(event: any) {
+        event.stopPropagation();
+    }
 
 }
