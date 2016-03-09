@@ -5,10 +5,10 @@ import {ChangeSycingAction} from '../../state/actions';
 import {Component, View, Inject} from 'angular2/core';
 
 @Component({
-  selector: 'pw-header'
+    selector: 'pw-header'
 })
 @View({
-  template: `
+    template: `
 		<div class="nav-wrapper" [class.open]="showMenu">
 			<a class="title">
 				<img src="images/logo.svg" width="48">
@@ -39,50 +39,49 @@ import {Component, View, Inject} from 'angular2/core';
 					<a class="fa fa-cog"></a>
 				</span>
 			</span>
-
-    </div>
+        </div>
 	`
 })
 export class HeaderComponent {
-  public title = 'Pathway';
+    public title = 'Pathway';
 
-  private selectedProject: string = '--select project--';
-  private showDropdown: boolean = false;
-  private showMenu: boolean = false;
-  private projects: Array<string>;
+    private selectedProject: string = '--select project--';
+    private showDropdown: boolean = false;
+    private showMenu: boolean = false;
+    private projects: Array<string>;
 
-  // private data: ApplicationState;
+    // private data: ApplicationState;
 
-  constructor(private dispatcher: Dispatcher, @Inject('state') private state: Observable<ApplicationState>) {
-    this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
-  }
+    constructor(private dispatcher: Dispatcher, @Inject('state') private state: Observable<ApplicationState>) {
+        this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
+    }
 
-  ngOnInit() {
-    // this.stateObservable.subscribe((s: ApplicationState) => {
-    //   this.data = s;
-    //   console.log(this.data);
-    // }, (err: any) => console.error(err));
-  }
+    ngOnInit() {
+        // this.stateObservable.subscribe((s: ApplicationState) => {
+        //   this.data = s;
+        //   console.log(this.data);
+        // }, (err: any) => console.error(err));
+    }
 
-  get data() {
-    let observable: any = this.state;
-    return observable._value.toObject();
-  }
+    get data() {
+        let observable: any = this.state;
+        return observable._value.toObject();
+    }
 
-  toggleDropdown() {
-    this.showDropdown = !this.showDropdown;
-  }
+    toggleDropdown() {
+        this.showDropdown = !this.showDropdown;
+    }
 
-  toggleMenu() {
-    this.showMenu = !this.showMenu;
-  }
+    toggleMenu() {
+        this.showMenu = !this.showMenu;
+    }
 
-  selectProject(event: any) {
-    this.selectedProject = event.target.innerText;
-  }
+    selectProject(event: any) {
+        this.selectedProject = event.target.innerText;
+    }
 
-  sync() {
-    console.log('data: ', this.data);
-    this.dispatcher.next(new ChangeSycingAction(!this.data.uiState.sycing));
-  }
+    sync() {
+        console.log('data: ', this.data);
+        this.dispatcher.next(new ChangeSycingAction(!this.data.uiState.sycing));
+    }
 }

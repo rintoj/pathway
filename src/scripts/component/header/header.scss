@@ -1,5 +1,4 @@
 @import 'scss/variables';
-
 pw-header {
   @include shadow(5);
   width: 100%;
@@ -7,14 +6,11 @@ pw-header {
   padding: 12px 20px;
   height: auto;
   background: $primary-color;
-
   .nav-wrapper {
     transition: height 0.2s 0.1s ease-in-out;
     height: 50px;
-
     @media(max-width: $small-device) {
       overflow: hidden;
-
       &.open {
         transition: height 0.2s 0s ease-in-out;
         height: 135px;
@@ -22,11 +18,9 @@ pw-header {
       }
     }
   }
-
   .title {
     font-size: 1.8em;
     font-weight: 100;
-
     img,
     span {
       color: $primary-color-text;
@@ -34,40 +28,32 @@ pw-header {
       margin: 0 2px;
     }
   }
-
   .fa {
     color: $primary-color-text;
     vertical-align: middle;
-
     &.disabled {
       color: $divider-color;
       cursor: not-allowed;
     }
-
     &:hover {
       color: lighten($divider-color, 10%);
     }
   }
-
   .right {
     margin: 10px 0;
-
     .fa {
       font-size: 1.5em;
       margin: 0 10px;
     }
   }
-
   .menu {
     transition: opacity 0.2s ease-in-out;
     display: block;
-
     @media(max-width: $small-device) {
       opacity: 0;
       clear: both;
       width: 100%;
       margin: 0;
-
       span,
       .dropdown-btn {
         display: block;
@@ -75,16 +61,13 @@ pw-header {
         margin-top: 15px;
       }
     }
-
     &.open {
       transition: opacity 0.2s 0.2s ease-in-out;
-
       @media(max-width: $small-device) {
         opacity: 1;
       }
     }
   }
-
   .dropdown {
     .dropdown-btn {
       outline: none;
@@ -95,13 +78,11 @@ pw-header {
       margin-right: 10px;
       color: $secondary-text-color;
     }
-
     .dropdown-menu {
       @include shadow(6);
       background-color: $primary-color-text;
       color: $secondary-text-color;
     }
-
     .fa {
       margin: 0 5px;
       font-size: 1em;

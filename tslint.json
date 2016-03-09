@@ -22,7 +22,7 @@
 		"no-bitwise": true,
 		"no-console": [true,
 			"debug",
-			"info",
+            "info",
 			"time",
 			"timeEnd",
 			"trace"
