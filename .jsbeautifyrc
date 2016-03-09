@@ -4,5 +4,5 @@
   "css": {
     "indent_size": 2
   },
-  "newline_between_rules": true
+  "newline_between_rules": false
 }
