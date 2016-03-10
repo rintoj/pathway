@@ -1,11 +1,24 @@
-import {Action} from './actions';
 import {Subject} from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
+/**
+ * Defines a function that can perform an action
+ * 
+ * @export
+ * @interface ServiceFunction
+ */
 export interface ServiceFunction {
     (state: ApplicationState, action: Action): ApplicationState;
 }
+
+/**
+ * Defines an action
+ * 
+ * @export
+ * @class Action
+ */
+export abstract class Action { }
 
 export class Dispatcher {
 
@@ -26,13 +39,6 @@ export class Dispatcher {
             this.subscriptions[actionIdentity].push(callback);
         }
     }
-
-    // unsubscribe(service: Service) {
-    //     var index = this.subscriptions.indexOf(service);
-    //     if (index >= 0) {
-    //         this.subscriptions.splice(index, 1);
-    //     }
-    // }
 
     next(action: Action) {
         if (!action) {

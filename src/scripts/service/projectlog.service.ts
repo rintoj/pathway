@@ -1,13 +1,12 @@
 import {Page} from './pagination';
-import {CreateProjectlogAction, DeleteProjectlogAction} from '../state/actions';
 import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
-import {Projectlog} from '../state/projectlog';
+import {Injectable} from 'angular2/core';
 import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
-import {Injectable} from 'angular2/core';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
+import {Projectlog, CreateProjectlogAction, DeleteProjectlogAction} from '../state/projectlog';
 
 @Injectable()
 export class ProjectlogService {
