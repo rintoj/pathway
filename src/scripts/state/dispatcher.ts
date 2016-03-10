@@ -1,5 +1,6 @@
 import {Subject} from 'rxjs/Subject';
 import {BehaviorSubject} from 'rxjs/Rx';
+import {PromiseWrapper} from 'angular2/src/facade/promise';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
 /**
@@ -41,10 +42,12 @@ export class Dispatcher {
     }
 
     next(action: Action) {
+        var defer = PromiseWrapper.completer();
         if (!action) {
             return null; // do nothing
         }
         this.actions.next(action);
+        return defer.promise;
     }
 
     private createState(initialState: ApplicationState): ApplicationStateObservable {
