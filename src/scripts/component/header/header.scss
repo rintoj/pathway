@@ -39,6 +39,16 @@ pw-header {
       color: lighten($divider-color, 10%);
     }
   }
+  .sync-state {
+    width: 23px;
+    line-height: 23px;
+    text-align: center;
+    &.syncing {
+      &:before {
+        content: '\f0ee';
+      }
+    }
+  }
   .right {
     margin: 10px 0;
     .fa {

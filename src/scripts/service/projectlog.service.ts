@@ -1,16 +1,16 @@
 import {Page} from './pagination';
-import {Action} from '../state/actions';
+import {CreateProjectlogAction, DeleteProjectlogAction} from '../state/actions';
 import {Response} from 'angular2/http';
-import {Dispatcher, Service} from '../state/dispatcher';
+import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Projectlog} from '../state/projectlog';
 import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
-import {Injectable, Inject} from 'angular2/core';
+import {Injectable} from 'angular2/core';
 import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 
 @Injectable()
-export class ProjectlogService implements Service {
+export class ProjectlogService {
 
     public store: Observable<Projectlog[]>;
     private url: string = 'projectlog';
@@ -20,17 +20,28 @@ export class ProjectlogService implements Service {
 
     constructor(
         private rest: RestService,
-        private dispatcher: Dispatcher,
-        @Inject('state') private state: Observable<ApplicationState>
+        dispatcher: Dispatcher
     ) {
         this.store = new Observable((observer: any) => this.observer = observer).share();
         this.data = [];
 
-        dispatcher.subscribe(this);
+        this.subscribeToDispatcher(dispatcher);
     }
 
-    transform(state: ApplicationState, action: Action): ApplicationState {
-        console.warn('ProjectlogService processing action', action);
+    private subscribeToDispatcher(dispatcher: Dispatcher) {
+        dispatcher.subscribe([new CreateProjectlogAction(null)], this.createProjectlogAction);
+        dispatcher.subscribe([new DeleteProjectlogAction(null)], this.deleteProjectlogAction);
+    }
+
+    private createProjectlogAction(state: ApplicationState, action: CreateProjectlogAction): ApplicationState {
+        console.log('createProjectlogAction', state, action);
+        state.uiState.syncing = true;
+        return state;
+    }
+
+    private deleteProjectlogAction(state: ApplicationState, action: DeleteProjectlogAction): ApplicationState {
+        console.log('deleteProjectlogAction', state, action);
+        state.uiState.syncing = false;
         return state;
     }
 

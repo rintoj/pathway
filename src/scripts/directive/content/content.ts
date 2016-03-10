@@ -1,48 +1,67 @@
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, View, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
 
 @Component({
-  selector: 'content'
+    selector: 'content',
+    host: {
+        '[attr.contenteditable]': 'editMode',
+        '(paste)': 'handlePaste($event)',
+        '(keydown)': 'handlePaste($event)',
+        '(keyup)': 'publishChange($event)',
+        '(focusout)': 'publishUpdateEnd($event)',
+        '(click)': 'switchToEditMode()'
+    }
 })
 @View({
-  template: `<span [attr.contenteditable]="editMode"
-									(paste)="handlePaste($event)"
-									(keydown)="handlePaste($event)"
-									(keyup)="publishChange($event)"
-									(focusout)="publishUpdateEnd($event)"
-									(dblclick)="switchToEditModeOnDblClick()">
-									<ng-content></ng-content>
-						</span>`
+    template: `<ng-content></ng-content>`
 })
 export class Content {
 
-  @Input() editMode: boolean;
-  @Input() plainTextOnly: boolean;
-	@Input() editOnDblClick: boolean;
+    _editMode: boolean;
 
-  @Output() change: EventEmitter<string> = new EventEmitter<string>();
-  @Output() updateend: EventEmitter<string> = new EventEmitter<string>();
+    @Input() plainTextOnly: boolean;
+    @Input() editOnClick: boolean;
 
-  handlePaste(event: any) {
-    if (event.keyCode === 13 && !this.plainTextOnly) {
-      return true;
-    } else if (event.keyCode === 13 || event.type === 'paste') {
-      setTimeout(function() {
-        event.target.innerHTML = event.target.innerText;
-      }, 0);
+    @Output() change: EventEmitter<string> = new EventEmitter<string>();
+    @Output() updateend: EventEmitter<string> = new EventEmitter<string>();
+
+    constructor(private elementRef: ElementRef) { }
+
+    get editMode(): boolean {
+        return this._editMode;
     }
-  }
 
-  publishChange(event: any) {
-    this.change.next(event.target.innerText);
-  }
+    @Input() set editMode(editMode: boolean) {
+        this._editMode = editMode;
+        if (this._editMode) {
+            this.elementRef.nativeElement.focus();
+        }
+    }
 
-  publishUpdateEnd(event: any) {
-    this.updateend.next(event.target.innerText);
-  }
+    handlePaste(event: any) {
+        if (!this.plainTextOnly) {
+            if (event.keyCode === 13) {
+                return true;
+            }
+        } else {
+            if (event.keyCode === 13 || event.type === 'paste') {
+                setTimeout(function() {
+                    event.target.innerHTML = event.target.innerText;
+                }, 0);
+            }
+        }
+    }
 
-	switchToEditModeOnDblClick() {
-		if(this.editOnDblClick) {
-			this.editMode = true;
-		}
-	}
+    publishChange(event: any) {
+        this.change.next(this.plainTextOnly ? event.target.innerText : event.target.innerHTML);
+    }
+
+    publishUpdateEnd(event: any) {
+        this.updateend.next(this.plainTextOnly ? event.target.innerText : event.target.innerHTML);
+    }
+
+    switchToEditMode() {
+        if (this.editOnClick) {
+            this.editMode = true;
+        }
+    }
 }

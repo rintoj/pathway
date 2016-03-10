@@ -1,5 +1,6 @@
 import {Page} from '../../service/pagination';
 import {Promise} from 'angular2/src/facade/promise';
+import {Dispatcher} from '../../state/dispatcher';
 import {Projectlog} from '../../state/projectlog';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
@@ -7,18 +8,19 @@ import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
 import {ProjectlogService} from '../../service/projectlog.service';
 import {UploaderComponent} from '../uploader/uploader.component';
 import {ProjectlogItemComponent} from './projectlog-item.component';
+import {CreateProjectlogAction, DeleteProjectlogAction} from '../../state/actions';
 
 @Component({
-  selector: 'pw-projectlog'
+	selector: 'pw-projectlog'
 })
 @View({
-  directives: [
-    ProjectlogItemComponent,
-    LoaderComponent,
-    UploaderComponent,
-    InfiniteScroller
-  ],
-  template: `
+	directives: [
+		ProjectlogItemComponent,
+		LoaderComponent,
+		UploaderComponent,
+		InfiniteScroller
+	],
+	template: `
 
 		<!-- action buttons -->
 		<div class="actions">
@@ -55,84 +57,89 @@ import {ProjectlogItemComponent} from './projectlog-item.component';
 })
 export class ProjectlogComponent {
 
-  private logs: Projectlog[];
-  private selectedCount: number = 0;
-  private selectAllOn: boolean = false;
-  private sortAsc: boolean = true;
-  private loading: boolean;
-  private error: string;
-  private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 0);
-  private showUploader: boolean = false;
+	private logs: Projectlog[];
+	private selectedCount: number = 0;
+	private selectAllOn: boolean = false;
+	private sortAsc: boolean = true;
+	private loading: boolean;
+	private error: string;
+	private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 0);
+	private showUploader: boolean = false;
 
-  constructor(private service: ProjectlogService) {
-    this.loading = false;
-    this.logs = [];
-  }
+	constructor(
+		private service: ProjectlogService,
+		private dispatcher: Dispatcher
+	) {
+		this.loading = false;
+		this.logs = [];
+	}
 
-  ngOnInit() {
-    this.service.store.subscribe((data: Projectlog[]) => this.logs = data);
-    this.refresh();
-	 }
+	ngOnInit() {
+		this.service.store.subscribe((data: Projectlog[]) => this.logs = data);
+		this.refresh();
+	}
 
-  create() {
-    console.log('Create is yet to be implemented');
-  }
+	create() {
+		console.log('Create is yet to be implemented');
+		this.dispatcher.next(new CreateProjectlogAction(null));
+	}
 
-  refresh() {
-    this.loading = true;
-    this.error = undefined;
-    this.processResponse(this.service.fetch(undefined, this.sortAsc));
-  }
+	refresh() {
+		this.loading = true;
+		this.error = undefined;
+		this.processResponse(this.service.fetch(undefined, this.sortAsc));
+	}
 
-  processResponse(promise: Promise<Page<Projectlog[]>>) {
-    promise.then(
+	processResponse(promise: Promise<Page<Projectlog[]>>) {
+		promise.then(
 
-      (page: Page<Projectlog[]>) => {
-        this.loading = false;
-        this.page = page;
-      },
+			(page: Page<Projectlog[]>) => {
+				this.loading = false;
+				this.page = page;
+			},
 
-      (error: any) => {
-        this.loading = false;
-        this.error = 'Unexpected error occured! Contact administrator.';
-        console.error(error);
-      });
-  }
+			(error: any) => {
+				this.loading = false;
+				this.error = 'Unexpected error occured! Contact administrator.';
+				console.error(error);
+			});
+	}
 
-  nextPage() {
-    if (this.page !== undefined) {
-      var nextPage: Page<Projectlog[]> = this.page.next();
-      if (nextPage !== undefined) {
-        this.loading = true;
-        this.error = undefined;
-        this.processResponse(this.service.fetch(nextPage, this.sortAsc));
-      }
-    }
-  }
+	nextPage() {
+		if (this.page !== undefined) {
+			var nextPage: Page<Projectlog[]> = this.page.next();
+			if (nextPage !== undefined) {
+				this.loading = true;
+				this.error = undefined;
+				this.processResponse(this.service.fetch(nextPage, this.sortAsc));
+			}
+		}
+	}
 
-  showUploadPopup() {
-    this.showUploader = true;
-  }
+	showUploadPopup() {
+		this.showUploader = true;
+	}
 
-  toggleAll() {
-    this.selectAllOn = !this.selectAllOn;
-    for (var item of this.logs) {
-      item.uiState.selected = this.selectAllOn;
-    }
-    this.selectedCount = this.selectAllOn ? this.logs.length : 0;
-  }
+	toggleAll() {
+		this.selectAllOn = !this.selectAllOn;
+		for (var item of this.logs) {
+			item.uiState.selected = this.selectAllOn;
+		}
+		this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+	}
 
-  toggleSort() {
-    this.sortAsc = !this.sortAsc;
-    this.refresh();
-  }
+	toggleSort() {
+		this.sortAsc = !this.sortAsc;
+		this.refresh();
+	}
 
-  onItemUpdate(item: Projectlog) {
-    this.selectedCount += item.uiState.selected ? 1 : -1;
-    this.selectAllOn = this.selectedCount === this.logs.length;
-  }
+	onItemUpdate(item: Projectlog) {
+		this.selectedCount += item.uiState.selected ? 1 : -1;
+		this.selectAllOn = this.selectedCount === this.logs.length;
+	}
 
-  deleteSelected() {
-    this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
-  }
+	deleteSelected() {
+		this.dispatcher.next(new DeleteProjectlogAction(null));
+		// this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
+	}
 }

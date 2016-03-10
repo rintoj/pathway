@@ -1,61 +1,73 @@
 import {Action} from './actions';
 import {Subject} from 'rxjs/Subject';
-import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/Rx';
-import {IApplicationState, ApplicationState} from './application-state';
+import {ApplicationState, ApplicationStateObservable} from './application-state';
 
-export interface Service {
-  transform(state: ApplicationState, action: Action): ApplicationState;
+export interface ServiceFunction {
+    (state: ApplicationState, action: Action): ApplicationState;
 }
 
 export class Dispatcher {
 
-  private actions: Subject<Action> = new Subject<Action>();
-  private subscriptions: Service[] = [];
-  private state: Observable<ApplicationState>;
+    private actions: Subject<Action> = new Subject<Action>();
+    private subscriptions: any = {};
+    private state: ApplicationStateObservable;
 
-  constructor(initialState: ApplicationState) {
-    this.state = this.createState(initialState);
-  }
-
-  subscribe(service: Service) {
-    this.subscriptions.push(service);
-  }
-
-  unsubscribe(service: Service) {
-    var index = this.subscriptions.indexOf(service);
-    if (index >= 0) {
-      this.subscriptions.splice(index, 1);
+    constructor(initialState: ApplicationState) {
+        this.state = this.createState(initialState);
     }
-  }
 
-  next(action: Action) {
-    this.actions.next(action);
-  }
+    subscribe(actions: Action[], callback: ServiceFunction) {
+        for (let action of actions) {
+            let actionIdentity: any = action.constructor;
+            if (!this.subscriptions[actionIdentity]) {
+                this.subscriptions[actionIdentity] = [];
+            }
+            this.subscriptions[actionIdentity].push(callback);
+        }
+    }
 
-  private createState(initialState: IApplicationState): Observable<ApplicationState> {
+    // unsubscribe(service: Service) {
+    //     var index = this.subscriptions.indexOf(service);
+    //     if (index >= 0) {
+    //         this.subscriptions.splice(index, 1);
+    //     }
+    // }
 
-    let immutableInitialState = new ApplicationState(initialState);
+    next(action: Action) {
+        if (!action) {
+            return null; // do nothing
+        }
+        this.actions.next(action);
+    }
 
-    let observableState = this.actions.scan((state: ApplicationState, action: Action) => {
+    private createState(initialState: ApplicationState): ApplicationStateObservable {
 
-      console.log('Processing action: ', action);
+        let observableState = this.actions.scan((state: ApplicationState, action: Action) => {
 
-      let nextState: ApplicationState = state;
-      this.subscriptions.map((service: Service) => {
-        nextState = service.transform(nextState, action);
-      });
+            console.log('Processing action: ', action);
 
-      return nextState;
-    }, immutableInitialState).share();
+            let nextState: ApplicationState = state;
+            let actionIdentity: any = action.constructor;
+            let actions: ServiceFunction[] = this.subscriptions[actionIdentity];
 
-    // initial state is being wrapped into BehaviourSubject;
-    const response = new BehaviorSubject(immutableInitialState);
-    observableState.subscribe((s: ApplicationState) => response.next(s));
-    return response;
-  };
+            // if there are any registered actions
+            if (actions && actions.length > 0) {
+                actions.map((service: ServiceFunction) => {
+                    nextState = service(nextState, action);
+                });
+            }
 
-  static stateFactory(dispatcher: Dispatcher): Observable<ApplicationState> {
-    return dispatcher.state;
-  }
+            return nextState;
+        }, initialState).share();
+
+        // initial state is being wrapped into BehaviourSubject;
+        const response = new BehaviorSubject(initialState);
+        observableState.subscribe((s: ApplicationState) => response.next(s));
+        return response;
+    };
+
+    static stateFactory(dispatcher: Dispatcher): ApplicationStateObservable {
+        return dispatcher.state;
+    }
 }

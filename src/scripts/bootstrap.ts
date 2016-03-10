@@ -1,10 +1,11 @@
 import {Dispatcher} from './state/dispatcher';
 import {bootstrap} from 'angular2/platform/browser';
 import {AppComponent} from './app';
+import {INITIAL_STATE} from './state/config';
 import {HTTP_PROVIDERS} from 'angular2/http';
 import {enableProdMode, provide, Inject} from 'angular2/core';
 import {RestOptions, RestService} from './service/rest.service';
-import {ApplicationState, initialState} from './state/application-state';
+import {ApplicationStateObservable} from './state/application-state';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -16,9 +17,9 @@ enableProdMode();
 // @endif
 
 bootstrap(AppComponent, [
-  HTTP_PROVIDERS,
-  RestOptions,
-  RestService,
-  provide(Dispatcher, { useValue: new Dispatcher(new ApplicationState(initialState)) }),
-  provide('state', { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })
+    HTTP_PROVIDERS,
+    RestOptions,
+    RestService,
+    provide(Dispatcher, { useValue: new Dispatcher(INITIAL_STATE) }),
+    provide(ApplicationStateObservable, { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })
 ]);

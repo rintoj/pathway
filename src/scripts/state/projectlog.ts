@@ -11,5 +11,6 @@ export interface Projectlog {
   title: string;
   description?: string;
   status: string;
+  createdDate?: Date;
   uiState?: ProjectlogState;
 }

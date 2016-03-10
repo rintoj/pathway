@@ -16,41 +16,48 @@ interface BeforeChange {
 @View({
     directives: [Content, Dropdown],
     template: `
-		<div class="list-item" (click)="toggleOpen($event)" [class.open]="item.uiState.open"
-			[class.selected-item]="item.uiState.selected" [class.edit-mode]="item.uiState.editMode">
-			<!-- the list item-->
+		<div class="list-item" 
+            (click)="toggleOpen($event)" 
+            [class.open]="item.uiState.open"
+			[class.selected-item]="item.uiState.selected" 
+            [class.edit-mode]="item.uiState.editMode"
+            (keyup)="processKeypress($event)" >
+			
+            <!-- the list item-->
 			<div class="avatar fa" (click)="toggleSelection($event)">{{item.title?.substr(0, 1).toUpperCase()}}</div>
 
 			<div class="content">
 				<div class="heading-row">
-					<content class="heading"
-									[editMode]="item.uiState.editMode"
-									[plainTextOnly]="true"
-									(updateend)="item.title = $event; changed = true;"
-									(dblclick)="switchToEditMode($event)">{{item.title}}</content>
+                    <content class="heading"
+                            [editMode]="item.uiState.editMode"
+                            [plainTextOnly]="true"
+                            [editOnClick]="true"
+                            (updateend)="item.title = $event; changed = true;"
+                            (click)="switchToEditMode($event)">{{item.title}}</content>
 				</div>
 
 				<div class="text">
-					<div class="status">{{item.index}}</div>
+                    
+                    <span class="index">{{item.index}}</span>
                     
 					<dropdown class="status"
-					 [class.grey-text]="item.status==='hold'"
-					 [class.blue-grey-text]="item.status==='done'"
-					 [class.green-text]="item.status==='doing'"
-					 [class.yellow-text]="item.status==='new'"
-                     [selectedItem]="{'text': item.status}"
-                     [options]="statusOptions"
-                     (click)="preventEvent($event)" 
-                     (change)="item.status=$event.text"></dropdown>
+                            [class.grey-text]="item.status === 'hold'"
+                            [class.blue-grey-text]="item.status === 'done'"
+                            [class.green-text]="item.status === 'doing'"
+                            [class.yellow-text]="item.status === 'new'"
+                            [selectedItem]="statusItem"
+                            [options]="statusOptions"
+                            (click)="preventEvent($event)" 
+                            (change)="item.status = $event.text"></dropdown>
                      
 				 	<div class="id">{{item.id}}</div>
                    
 				</div>
 
 				<content class="description"
-								[editMode]="item.uiState.editMode"
-								(updateend)="item.description = $event; changed = true"
-								(dblclick)="switchToEditMode($event)">{{item.description}}</content>
+                        [editMode]="item.uiState.editMode"
+                        (updateend)="item.description = $event; changed = true"
+                        (click)="switchToEditMode($event)" [innerHTML]="item.description"></content>
 			</div>
 			<div class="action-bar">
 				<a class="btn btn-round btn-primary fa fa-edit" (click)="toggleEdit($event)"></a>
@@ -70,13 +77,17 @@ export class ProjectlogItemComponent {
     };
 
     statusOptions: DropdownOption[] = [{
-        text: 'new'
+        text: 'new',
+        icon: 'fa fa-star'
     }, {
-            text: 'doing'
+            text: 'doing',
+            icon: 'fa fa-refresh'
         }, {
-            text: 'done'
+            text: 'done',
+            icon: 'fa fa-check'
         }, {
-            text: 'hold'
+            text: 'hold',
+            icon: 'fa fa-hand-grab-o'
         }];
 
 
@@ -99,6 +110,14 @@ export class ProjectlogItemComponent {
             selected: false,
             editMode: false
         };
+    }
+
+    get statusItem() {
+        for (var item of this.statusOptions) {
+            if (item.text === this.item.status) {
+                return item;
+            }
+        }
     }
 
     toggleOpen(event: any) {
@@ -148,6 +167,13 @@ export class ProjectlogItemComponent {
 
     preventEvent(event: any) {
         event.stopPropagation();
+    }
+
+    processKeypress(event: any) {
+        console.log(event.which);
+        if (event.which === 27) { // escape key
+            this.toggleEdit(event);
+        }
     }
 
 }

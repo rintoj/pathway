@@ -1,109 +1,84 @@
 @import 'scss/variables';
-
 .middle {
   vertical-align: middle;
   display: inline-block;
 }
-
 .inline {
   display: inline-block;
 }
-
 .center {
   position: absolute;
   transform: translateX(-50%);
   left: 50%;
 }
-
 .left {
   float: left;
 }
-
 .right {
   float: right;
 }
-
 .clear {
   clear: both;
 }
-
 .green {
   background: $green;
 }
-
 .red {
   background: $red;
 }
-
 .pink {
   background: $pink;
 }
-
 .yellow {
   background: $yellow;
 }
-
 .blue-grey {
   background: $blue-grey;
 }
-
 .grey {
   background: $grey;
 }
-
 .green-text {
   color: $green;
 }
-
 .red-text {
   color: $red;
 }
-
 .pink-text {
   color: $pink;
 }
-
 .yellow-text {
   color: $yellow;
 }
-
 .blue-grey-text {
   color: $blue-grey;
 }
-
 .grey-text {
   color: $grey;
 }
-
 .visible-sm {
   display: none;
-
   @media(max-width: $small-device) {
     display: inline-block;
   }
 }
-
 .visible-lg {
   display: none;
-
   @media(min-width: $small-device + 1) {
     display: inline-block;
   }
 }
-
 .separator {
   border-top: 1px solid $divider-color-light;
   margin: 5px 0;
   padding: 0;
 }
-
 .error-message {
   color: $red;
   text-align: center;
   vertical-align: middle;
   line-height: 30px;
 }
-
 .btn {
   @include shadow(1);
   display: inline-block;
@@ -116,32 +91,30 @@
   min-width: 120px;
   text-align: center;
   border: 0;
-
-  &.btn-pill {
-    &:not(:hover) {
-      @include shadow(0);
-      background: transparent;
-      color: $primary-color;
-    }
-  }
-
   &:active {
     &:not(.dialog-disabled-button) {
       @include shadow(0);
     }
   }
-
   &.btn-primary {
     background: $accent-color;
   }
-
   &.btn-disabled {
     &:hover {
       cursor: not-allowed;
       background: $divider-color;
     }
   }
-
+  &.btn-pill {
+    @include shadow(0);
+    background: transparent;
+    color: $primary-color;
+    &:hover {
+      @include shadow(1);
+      background: $primary-color;
+      color: $primary-color-text;
+    }
+  }
   &.btn-round {
     font-size: 1.32em;
     margin: 0;
@@ -156,26 +129,22 @@
     color: $secondary-text-color;
     transition: background-color 0.1s ease;
     box-shadow: none;
-
     &.btn-primary {
       background: transparent;
       color: $primary-color;
     }
-
     &:hover {
+      @include shadow(1);
       background-color: $accent-color;
       color: $primary-color-text;
-
-      &:not(:active) {
-        @include shadow(1);
+      &:active {
+        @include shadow(0);
       }
     }
   }
 }
-
 [badge] {
   position: relative;
-
   &:after {
     content: attr(badge);
     font-size: 9px;
@@ -194,46 +163,40 @@
     padding: 0;
     font-weight: bold;
   }
-
   &.disabled {
     &:after {
       display: none;
     }
   }
 }
-
 [tooltip] {
   position: relative;
-
   &:after {
-    transition: opacity 0.1s 0.3s ease-in, bottom 0.1s 0.3s ease-in;
-    padding: 0 8px;
     content: attr(tooltip);
     position: absolute;
+    top: calc(100% + 2px);
+    left: 50%;
     background: $primary-text-color;
     color: $primary-color-text;
-    font-size: 0.7em;
-    left: 50%;
-    bottom: 10px;
-    line-height: 22px;
-    border-radius: 3px;
-    transform: translateX(-50%) translateY(100%);
-    white-space: nowrap;
-    height: 0;
-    overflow: hidden;
+    padding: 1px 5px 0;
+    border-radius: 4px;
+    transition: top .3s ease, height .3s ease, transform .3s ease, opacity .3s ease;
     opacity: 0;
+    height: 0;
+    font-size: 12px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    line-height: 20px;
+    overflow: hidden;
   }
-
   &:hover {
     &:after {
       opacity: 1;
-      height: 22px;
-      bottom: -2px;
+      height: 20px;
     }
   }
 }
 $code-bg-color: #EFEFEF;
-
 .code {
   background: $code-bg-color;
   font-family: monospace;
@@ -241,19 +204,14 @@ $code-bg-color: #EFEFEF;
   font-size: 14px;
   border: 1px solid darken($code-bg-color, 2%);
 }
-
 .dropdown {
   .dropdown-btn {
     border: 0;
   }
-
-  &.open {
-    .dropdown-menu {
-      //display: block;
-    }
-  }
 }
+
 /** Reset **/
+
 html {
   body,
   div,
@@ -266,23 +224,18 @@ html {
     font-size: 1em;
     outline: none;
   }
-
   button,
   .btn {
     outline: none;
-
     &:active {
       outline: none;
     }
   }
-
   a {
     color: $primary-color-dark;
-
     &:active {
       text-decoration: none;
     }
-
     &:hover {
       color: lighten($primary-text-color, 10%);
       text-decoration: none;

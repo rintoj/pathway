@@ -1,15 +1,17 @@
 import {Projectlog} from './projectlog';
 
-export class AddProjcetlogAction {
-  constructor(public projectlog: Projectlog) { }
-}
-
-export class FetchProjectlogAction {
+export class Action {
 
 }
 
-export class ChangeSycingAction {
-  constructor(public sync: boolean) { }
+export class CreateProjectlogAction extends Action {
+	constructor(projectlog: Projectlog) {
+		super();
+	}
 }
 
-export type Action = AddProjcetlogAction | FetchProjectlogAction;
+export class DeleteProjectlogAction extends Action {
+	constructor(projectlog: Projectlog) {
+		super();
+	}
+}

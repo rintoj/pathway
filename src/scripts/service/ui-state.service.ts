@@ -1,30 +1,20 @@
-import {Action, ChangeSycingAction} from '../state/actions';
-import {Dispatcher, Service} from '../state/dispatcher';
-import {Observable} from 'rxjs/Observable';
-import {ApplicationState} from '../state/application-state';
-import {Injectable, Inject} from 'angular2/core';
+import {Dispatcher} from '../state/dispatcher';
+import {ApplicationStateObservable} from '../state/application-state';
+import {Injectable} from 'angular2/core';
 
 @Injectable()
-export class UIStateService implements Service {
+export class UIStateService {
 
-  constructor(
-    private dispatcher: Dispatcher,
-    @Inject('state') private state: Observable<ApplicationState>
+	constructor(
+		private dispatcher: Dispatcher,
+		private state: ApplicationStateObservable
     ) {
-    dispatcher.subscribe(this);
-  }
+		// dispatcher.subscribe(this);
+	}
 
-  transform(state: ApplicationState, action: Action): ApplicationState {
-    if (action instanceof ChangeSycingAction) {
-      return this.changeSyncStatus(state, action);
-    }
-
-    return state;
-  }
-
-  private changeSyncStatus(state: ApplicationState, action: ChangeSycingAction): ApplicationState {
-    let nextState: any = state.mergeDeep({ uiState: { sycing: action.sync } });
-    return nextState;
-  }
+	//   private changeSyncStatus(state: ApplicationState, action: ChangeSycingAction): ApplicationState {
+	//     let nextState: any = state.mergeDeep({ uiState: { sycing: action.sync } });
+	//     return nextState;
+	//   }
 
 }

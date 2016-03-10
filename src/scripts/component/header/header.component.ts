@@ -1,8 +1,6 @@
 import {Dispatcher} from '../../state/dispatcher';
-import {Observable} from 'rxjs/Observable';
-import {ApplicationState} from '../../state/application-state';
-import {ChangeSycingAction} from '../../state/actions';
-import {Component, View, Inject} from 'angular2/core';
+import {Component, View} from 'angular2/core';
+import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 
 @Component({
     selector: 'pw-header'
@@ -33,7 +31,8 @@ import {Component, View, Inject} from 'angular2/core';
 				</span>
 
 				<span class="icons">
-					<a class="fa fa-refresh" [class.fa-spin]="(state | async)?.toObject()?.uiState?.sycing" (click)="sync()"></a>
+					<a class="sync-state fa fa-cloud" [class.syncing]="(uiState | async)?.syncing"
+					   [attr.tooltip]="(uiState | async)?.syncing ? 'syncing...' : 'synced'"></a>
 					<a class="fa fa-user"></a>
 					<a class="fa fa-bell" badge="10"></a>
 					<a class="fa fa-cog"></a>
@@ -50,23 +49,15 @@ export class HeaderComponent {
     private showMenu: boolean = false;
     private projects: Array<string>;
 
-    // private data: ApplicationState;
-
-    constructor(private dispatcher: Dispatcher, @Inject('state') private state: Observable<ApplicationState>) {
+    constructor(private dispatcher: Dispatcher, private state: ApplicationStateObservable) {
         this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
     }
 
-    ngOnInit() {
-        // this.stateObservable.subscribe((s: ApplicationState) => {
-        //   this.data = s;
-        //   console.log(this.data);
-        // }, (err: any) => console.error(err));
-    }
-
-    get data() {
-        let observable: any = this.state;
-        return observable._value.toObject();
-    }
+    get uiState() {
+		return this.state
+			.map((s: ApplicationState): any => s.uiState)
+			.distinctUntilChanged();
+	}
 
     toggleDropdown() {
         this.showDropdown = !this.showDropdown;
@@ -80,8 +71,4 @@ export class HeaderComponent {
         this.selectedProject = event.target.innerText;
     }
 
-    sync() {
-        console.log('data: ', this.data);
-        this.dispatcher.next(new ChangeSycingAction(!this.data.uiState.sycing));
-    }
 }
