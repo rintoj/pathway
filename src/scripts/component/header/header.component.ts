@@ -31,8 +31,8 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 				</span>
 
 				<span class="icons">
-					<a class="sync-state fa fa-cloud" [class.syncing]="(uiState | async)?.syncing"
-					   [attr.tooltip]="(uiState | async)?.syncing ? 'syncing...' : 'synced'"></a>
+					<a class="sync-state fa fa-cloud" [class.syncing]="state.ui.syncing"
+					   [attr.tooltip]="state.ui.syncing ? 'Syncing...' : 'Synced'" (click)="state.ui.syncing = !state.ui.syncing"></a>
 					<a class="fa fa-user"></a>
 					<a class="fa fa-bell" badge="10"></a>
 					<a class="fa fa-cog"></a>
@@ -44,19 +44,18 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 export class HeaderComponent {
     public title = 'Pathway';
 
+	private state: ApplicationState;
     private selectedProject: string = '--select project--';
     private showDropdown: boolean = false;
     private showMenu: boolean = false;
     private projects: Array<string>;
 
-    constructor(private dispatcher: Dispatcher, private state: ApplicationStateObservable) {
+    constructor(private dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) {
         this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
     }
 
-    get uiState() {
-		return this.state
-			.map((s: ApplicationState): any => s.uiState)
-			.distinctUntilChanged();
+	ngOnInit() {
+		this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
 	}
 
     toggleDropdown() {

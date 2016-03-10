@@ -1,5 +1,5 @@
-import {Page} from '../../service/pagination';
-import {Promise} from 'angular2/src/facade/promise';
+import {Page} from '../../state/pagination';
+// import {Promise} from 'angular2/src/facade/promise';
 import {Dispatcher} from '../../state/dispatcher';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
@@ -7,7 +7,8 @@ import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
 import {ProjectlogService} from '../../service/projectlog.service';
 import {UploaderComponent} from '../uploader/uploader.component';
 import {ProjectlogItemComponent} from './projectlog-item.component';
-import {Projectlog, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/projectlog';
+import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
+import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/projectlog';
 
 @Component({
 	selector: 'pw-projectlog'
@@ -35,10 +36,10 @@ import {Projectlog, CreateProjectlogAction, DeleteProjectlogAction} from '../../
 		<div class="separator"></div>
 
 		<!-- the list -->
-		<div class="list" [class.loading]="loading" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
+		<div class="list" [class.loading]="state.ui.projectlog.fetching" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
 
 			<!-- the list item-->
-			<pw-projectlog-item *ngFor="#item of logs" [item]="item" (update)="onItemUpdate($event)">
+			<pw-projectlog-item *ngFor="#item of state.projectlogs" [item]="item" (update)="onItemUpdate($event)">
 			</pw-projectlog-item>
 
 			<!-- list loader -->
@@ -51,32 +52,40 @@ import {Projectlog, CreateProjectlogAction, DeleteProjectlogAction} from '../../
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 
-		<div class="foot-note">{{logs.length}} of {{page.totalItems}}</div>
+		<div class="foot-note">{{state.projectlogs?.length}} of {{page.totalItems}}</div>
 	`
 })
 export class ProjectlogComponent {
 
-	private logs: Projectlog[];
+	private state: ApplicationState;
 	private selectedCount: number = 0;
 	private selectAllOn: boolean = false;
 	private sortAsc: boolean = true;
 	private loading: boolean;
 	private error: string;
-	private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 0);
+	private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 10);
 	private showUploader: boolean = false;
 
 	constructor(
 		private service: ProjectlogService,
-		private dispatcher: Dispatcher
+		private dispatcher: Dispatcher,
+		private stateObservable: ApplicationStateObservable
 	) {
 		this.loading = false;
-		this.logs = [];
+		this.page.filters = { sort: { index: { order: 'asc' } } };
 	}
 
 	ngOnInit() {
-		this.service.store.subscribe((data: Projectlog[]) => this.logs = data);
+		this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
 		this.refresh();
+		setTimeout(() => {
+			this.state.ui.projectlog.fetching = true;
+		}, 1500);
 	}
+
+	// get projectlogs() {
+	// 	return this.state.map((s: ApplicationState) => s.projectlogs);
+	// }
 
 	create() {
 		console.log('Create is yet to be implemented');
@@ -86,33 +95,34 @@ export class ProjectlogComponent {
 	refresh() {
 		this.loading = true;
 		this.error = undefined;
-		this.processResponse(this.service.fetch(undefined, this.sortAsc));
+		// this.processResponse(this.service.fetch(undefined, this.sortAsc));
+		this.dispatcher.next(new FetchProjectlogAction(this.page));
 	}
 
-	processResponse(promise: Promise<Page<Projectlog[]>>) {
-		promise.then(
+	// processResponse(promise: Promise<Page<Projectlog[]>>) {
+	// 	promise.then(
 
-			(page: Page<Projectlog[]>) => {
-				this.loading = false;
-				this.page = page;
-			},
+	// 		(page: Page<Projectlog[]>) => {
+	// 			this.loading = false;
+	// 			this.page = page;
+	// 		},
 
-			(error: any) => {
-				this.loading = false;
-				this.error = 'Unexpected error occured! Contact administrator.';
-				console.error(error);
-			});
-	}
+	// 		(error: any) => {
+	// 			this.loading = false;
+	// 			this.error = 'Unexpected error occured! Contact administrator.';
+	// 			console.error(error);
+	// 		});
+	// }
 
 	nextPage() {
-		if (this.page !== undefined) {
-			var nextPage: Page<Projectlog[]> = this.page.next();
-			if (nextPage !== undefined) {
-				this.loading = true;
-				this.error = undefined;
-				this.processResponse(this.service.fetch(nextPage, this.sortAsc));
-			}
-		}
+		// if (this.page !== undefined) {
+		// 	var nextPage: Page<Projectlog[]> = this.page.next();
+		// 	if (nextPage !== undefined) {
+		// 		this.loading = true;
+		// 		this.error = undefined;
+		// 		this.processResponse(this.service.fetch(nextPage, this.sortAsc));
+		// 	}
+		// }
 	}
 
 	showUploadPopup() {
@@ -121,10 +131,10 @@ export class ProjectlogComponent {
 
 	toggleAll() {
 		this.selectAllOn = !this.selectAllOn;
-		for (var item of this.logs) {
-			item.uiState.selected = this.selectAllOn;
-		}
-		this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+		// for (var item of this.logs) {
+		// 	item.uiState.selected = this.selectAllOn;
+		// }
+		// this.selectedCount = this.selectAllOn ? this.logs.length : 0;
 	}
 
 	toggleSort() {
@@ -134,7 +144,7 @@ export class ProjectlogComponent {
 
 	onItemUpdate(item: Projectlog) {
 		this.selectedCount += item.uiState.selected ? 1 : -1;
-		this.selectAllOn = this.selectedCount === this.logs.length;
+		// this.selectAllOn = this.selectedCount === this.logs.length;
 	}
 
 	deleteSelected() {

@@ -154,7 +154,7 @@ export class ProjectlogItemComponent {
     }
 
     save() {
-        this.service.update(this.item).then(function() { console.log('done'); });
+        // this.service.update(this.item).then(function() { console.log('done'); });
     }
 
     switchToEditMode(event: any) {

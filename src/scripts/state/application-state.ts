@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 
 export interface ApplicationState {
 	projectlogs: Projectlog[];
-	uiState: UIState;
+	ui: UIState;
 }
 
 export class ApplicationStateObservable extends Observable<ApplicationState> {

@@ -1,3 +1,4 @@
+import {Page} from './pagination';
 import {Action} from './dispatcher';
 
 export interface ProjectlogState {
@@ -18,13 +19,19 @@ export interface Projectlog {
 
 
 export class CreateProjectlogAction extends Action {
-    constructor(projectlog: Projectlog) {
+    constructor(public projectlog: Projectlog) {
+        super();
+    }
+}
+
+export class FetchProjectlogAction extends Action {
+    constructor(public page: Page<Projectlog>) {
         super();
     }
 }
 
 export class DeleteProjectlogAction extends Action {
-    constructor(projectlog: Projectlog) {
+    constructor(public projectlog: Projectlog) {
         super();
     }
 }

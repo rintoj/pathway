@@ -1,5 +1,11 @@
 
+
+export interface ProjectlogUIState {
+	sortOrderAsc: boolean;
+	fetching: boolean;
+}
+
 export interface UIState {
-  projectlogSortOrderAsc: boolean;
+  projectlog: ProjectlogUIState;
   syncing: boolean;
 }

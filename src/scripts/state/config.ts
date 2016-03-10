@@ -3,8 +3,11 @@ import {ApplicationState} from './application-state';
 export const INITIAL_STATE: ApplicationState = {
 	projectlogs: [],
 
-	uiState: {
-		projectlogSortOrderAsc: true,
+	ui: {
+		projectlog: {
+			sortOrderAsc: true,
+			fetching: false
+		},
 		syncing: false
 	}
 };
