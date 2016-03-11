@@ -9,8 +9,7 @@ let baseLibs = [
 	'node_modules/angular2/bundles/router.dev.js',
 	'node_modules/angular2/bundles/http.dev.js',
 	'node_modules/immutable/dist/immutable.js',
-    'node_modules/moment/min/moment.min.js',
-	'node_modules/lodash/index.js'
+    'node_modules/lodash/index.js'
 ];
 
 module.exports = {

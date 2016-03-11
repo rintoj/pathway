@@ -1,3 +1,34 @@
-// Place your settings in this file to overwrite default and user settings.
+// Place your settings in this file to overwrite the default settings
 {
+  // Controls if the editor will scroll beyond the last line
+  "editor.scrollBeyondLastLine": false,
+
+  "http.prxoyStrictSSL": false,
+
+  // Controls visibility of the glyph margin
+  "editor.glyphMargin": true,
+
+  // The path to the rules configuration file
+  "tslint.configFile": "tslint.json",
+
+  // File extensions that can be beautified as javascript or JSON.
+  "beautify.JSfiles": [
+    "js",
+    "ts",
+    "json",
+    "jsbeautifyrc",
+    "jshintrc"
+  ],
+
+  // File extensions that can be beautified as CSS.
+  "beautify.CSSfiles": [
+    "css",
+    "scss",
+    "less"
+  ],
+
+  "editor.quickSuggestions": false,
+
+  // Do not use duplicate style definitions
+  "sass.lint.duplicateProperties": "error"
 }

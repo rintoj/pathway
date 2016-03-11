@@ -31,25 +31,25 @@ export abstract class Action { }
  */
 export class Dispatcher {
 
-	private state: ApplicationState;
+    private state: ApplicationState;
     private subscriptions: any = {};
-	private stateObserver: Observer<ApplicationState>;
+    private stateObserver: Observer<ApplicationState>;
     private stateObservable: ApplicationStateObservable;
 
-	static stateFactory(dispatcher: Dispatcher): ApplicationStateObservable {
+    static stateFactory(dispatcher: Dispatcher): ApplicationStateObservable {
         return dispatcher.stateObservable;
     }
 
     constructor(initialState: ApplicationState) {
 
-		// set initial state
+        // set initial state
         this.state = initialState;
 
-		// create state observable
-		this.stateObservable = this.wrapIntoBehaviourSubject(
-			this.state,
-			ApplicationStateObservable.create((observer: Observer<ApplicationState>) => this.stateObserver = observer).share()
-		);
+        // create state observable
+        this.stateObservable = this.wrapIntoBehaviourSubject(
+            this.state,
+            ApplicationStateObservable.create((observer: Observer<ApplicationState>) => this.stateObserver = observer).share()
+        );
     }
 
 	/**
@@ -60,11 +60,14 @@ export class Dispatcher {
 	 * @param {ApplicationStateObservable} observableState (description)
 	 * @returns {ApplicationStateObservable} (description)
 	 */
-	private wrapIntoBehaviourSubject(intialState: ApplicationState, observableState: ApplicationStateObservable): ApplicationStateObservable {
-		let wrappedSubject: BehaviorSubject<ApplicationState> = new BehaviorSubject<ApplicationState>(this.state);
-		observableState.subscribe((s: ApplicationState) => wrappedSubject.next(s));
-		return wrappedSubject;
-	}
+    private wrapIntoBehaviourSubject(
+        intialState: ApplicationState,
+        observableState: ApplicationStateObservable
+    ): ApplicationStateObservable {
+        let wrappedSubject: BehaviorSubject<ApplicationState> = new BehaviorSubject<ApplicationState>(this.state);
+        observableState.subscribe((s: ApplicationState) => wrappedSubject.next(s));
+        return wrappedSubject;
+    }
 
 	/**
 	 * Merge previous application state with the new application state, obtained by calling services
@@ -73,18 +76,18 @@ export class Dispatcher {
 	 * @param {ApplicationState} state Next application state obtained from service
 	 * @returns {ApplicationState} New merged application state
 	 */
-	private mergeAppState(state: ApplicationState): ApplicationState {
-		let merger = (previous: any, next: any) => {
-			if (Immutable.List.isList(previous) && Immutable.List.isList(next)) {
-				return previous.concat(next);
-			} else if (previous && previous.mergeWith) {
-				return previous.mergeWith(merger, next);
-			}
-			return next;
-		};
+    private mergeAppState(state: ApplicationState): ApplicationState {
+        let merger = (previous: any, next: any) => {
+            if (Immutable.List.isList(previous) && Immutable.List.isList(next)) {
+                return previous.concat(next);
+            } else if (previous && previous.mergeWith) {
+                return previous.mergeWith(merger, next);
+            }
+            return next;
+        };
 
-		return this.state = Immutable.fromJS(this.state).mergeWith(merger, Immutable.fromJS(state)).toJS();
-	}
+        return this.state = Immutable.fromJS(this.state).mergeWith(merger, Immutable.fromJS(state)).toJS();
+    }
 
     subscribe(actions: Action[], callback: ServiceFunction) {
         for (let action of actions) {
@@ -96,17 +99,18 @@ export class Dispatcher {
         }
     }
 
-	next(action: Action): Observable<any> {
-		let actionIdentity: any = action.constructor;
-		let actions: ServiceFunction[] = this.subscriptions[actionIdentity];
+    next(action: Action): Observable<any> {
+        let actionIdentity: any = action.constructor;
+        let actions: ServiceFunction[] = this.subscriptions[actionIdentity];
 
-		let observable: any = Observable.from<ServiceFunction>(actions)
-			.flatMap((service: ServiceFunction) => service(this.state, action));
-		observable.subscribe(
-			(state: ApplicationState) => this.stateObserver.next(this.mergeAppState(state)),
-			(error: any) => this.stateObserver.error(error)
-		);
-		return observable;
-	}
+        let observable: any = Observable.from<ServiceFunction>(actions)
+            .flatMap((service: ServiceFunction) => service(this.state, action));
+
+        observable.subscribe(
+            (state: ApplicationState) => this.stateObserver.next(this.mergeAppState(state)),
+            (error: any) => this.stateObserver.error(error)
+        );
+        return observable;
+    }
 
 }

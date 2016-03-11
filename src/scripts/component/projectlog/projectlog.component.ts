@@ -1,4 +1,6 @@
+import {Page} from '../../state/pagination';
 import {Dispatcher} from '../../state/dispatcher';
+import {Subject} from 'rxjs/Subject';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
@@ -9,16 +11,16 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/projectlog';
 
 @Component({
-	selector: 'pw-projectlog'
+    selector: 'pw-projectlog'
 })
 @View({
-	directives: [
-		ProjectlogItemComponent,
-		LoaderComponent,
-		UploaderComponent,
-		InfiniteScroller
-	],
-	template: `
+    directives: [
+        ProjectlogItemComponent,
+        LoaderComponent,
+        UploaderComponent,
+        InfiniteScroller
+    ],
+    template: `
 
 		<!-- action buttons -->
 		<div class="actions">
@@ -55,90 +57,88 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 })
 export class ProjectlogComponent {
 
-	private state: ApplicationState;
-	private selectedCount: number = 0;
-	private selectAllOn: boolean = false;
-	private sortAsc: boolean = true;
-	private loading: boolean;
-	private error: string;
-	private showUploader: boolean = false;
+    private state: ApplicationState;
+    private selectedCount: number = 0;
+    private selectAllOn: boolean = false;
+    private sortAsc: boolean = true;
+    private loading: boolean;
+    private error: string;
+    private showUploader: boolean = false;
 
-	constructor(
-		private service: ProjectlogService,
-		private dispatcher: Dispatcher,
-		private stateObservable: ApplicationStateObservable
-	) {
-		this.loading = false;
-	}
+    private fetchPageAction: Subject<Page<Projectlog>>;
 
-	ngOnInit() {
-		this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-		this.refresh();
-	}
+    constructor(
+        private service: ProjectlogService,
+        private dispatcher: Dispatcher,
+        private stateObservable: ApplicationStateObservable
+    ) {
+        this.loading = false;
+    }
 
-	create() {
-		console.log('Create is yet to be implemented');
-		this.dispatcher.next(new CreateProjectlogAction(null));
-	}
+    ngOnInit() {
+        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+        this.fetchPageAction = new Subject<Page<Projectlog>>();
+        this.fetchPageAction.debounceTime(1000).subscribe((page: Page<Projectlog>) => this.requestPage(page));
+        this.refresh();
+    }
 
-	refresh() {
-		this.loading = true;
-		this.error = undefined;
-		this.state.projectlogs.page = this.state.projectlogs.page.setFilters(this.filters);
-		let prevState: any;
-		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page)).subscribe(
-			(x: ApplicationState) => {
-				this.loading = false;
-				console.log('same state', prevState === x.projectlogs.list);
-				prevState = x.projectlogs.list;
-			},
-			(error: any) => { this.error = 'Error occured'; console.error('error', error); }
-		);
-	}
+    create() {
+        console.log('Create is yet to be implemented');
+        this.dispatcher.next(new CreateProjectlogAction(null));
+    }
 
-	nextPage() {
-		this.loading = true;
-		this.error = undefined;
-		let prevState: any;
-		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page.next())).subscribe(
-			(x: ApplicationState) => {
-				this.loading = false;
-				console.log('same state', prevState === x);
-				// this.state = x;
-				prevState = x;
-			},
-			(error: any) => { this.error = 'Error occured'; console.error('error', error); }
-		);
-	}
+    refresh() {
+        this.loading = true;
+        this.error = undefined;
+        this.fetchPageAction.next(new Page(0).setFilters(this.filters));
+    }
 
-	get filters() {
-		return { sort: { index: { order: 'asc' } } };
-	}
+    nextPage() {
+        this.loading = true;
+        this.error = undefined;
+        this.fetchPageAction.next(this.state.projectlogs.page.next());
+    }
 
-	showUploadPopup() {
-		this.showUploader = true;
-	}
+    private requestPage(page: Page<Projectlog>) {
+        console.log('request:', page);
 
-	toggleAll() {
-		this.selectAllOn = !this.selectAllOn;
-		// for (var item of this.logs) {
-		// 	item.uiState.selected = this.selectAllOn;
-		// }
-		// this.selectedCount = this.selectAllOn ? this.logs.length : 0;
-	}
+        this.dispatcher.next(new FetchProjectlogAction(page)).subscribe(
+            (x: ApplicationState) => {
+                this.loading = false;
+                console.log('response:', this.state.projectlogs.page);
+            },
+            (error: any) => { this.error = 'Error occured'; console.error('error', error); }
+        );
+    }
 
-	toggleSort() {
-		this.sortAsc = !this.sortAsc;
-		this.refresh();
-	}
+    get filters() {
+        return { sort: { index: { order: 'asc' } } };
+    }
 
-	onItemUpdate(item: Projectlog) {
-		this.selectedCount += item.uiState.selected ? 1 : -1;
-		// this.selectAllOn = this.selectedCount === this.logs.length;
-	}
+    showUploadPopup() {
+        this.showUploader = true;
+    }
 
-	deleteSelected() {
-		this.dispatcher.next(new DeleteProjectlogAction(null));
-		// this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
-	}
+    toggleAll() {
+        this.selectAllOn = !this.selectAllOn;
+        // for (var item of this.logs) {
+        // 	item.uiState.selected = this.selectAllOn;
+        // }
+        // this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+    }
+
+    toggleSort() {
+        this.sortAsc = !this.sortAsc;
+        this.refresh();
+    }
+
+    onItemUpdate(item: Projectlog) {
+        this.selectedCount += item.uiState.selected ? 1 : -1;
+        // this.selectAllOn = this.selectedCount === this.logs.length;
+    }
+
+    deleteSelected() {
+        this.dispatcher.next(new DeleteProjectlogAction(null));
+        // this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
+    }
 }
