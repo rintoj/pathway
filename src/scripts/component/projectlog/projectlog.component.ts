@@ -34,7 +34,7 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 		<div class="separator"></div>
 
 		<!-- the list -->
-		<div class="list" [class.loading]="state.ui.projectlog.fetching" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
+		<div class="list" [class.loading]="loading" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
 
 			<!-- the list item-->
 			<pw-projectlog-item *ngFor="#item of state.projectlogs.list" [item]="item" (update)="onItemUpdate($event)">
@@ -50,7 +50,7 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 
-		<div class="foot-note">{{state.projectlogs?.list?.size}} of {{state.projectlogs?.list?.totalItems}}</div>
+		<div class="foot-note">{{state.projectlogs?.list?.length}} of {{state.projectlogs?.page?.totalItems}}</div>
 	`
 })
 export class ProjectlogComponent {
@@ -69,20 +69,12 @@ export class ProjectlogComponent {
 		private stateObservable: ApplicationStateObservable
 	) {
 		this.loading = false;
-		// this.page.filters = { sort: { index: { order: 'asc' } } };
 	}
 
 	ngOnInit() {
 		this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
 		this.refresh();
-		setTimeout(() => {
-			this.state.ui.projectlog.fetching = true;
-		}, 1500);
 	}
-
-	// get projectlogs() {
-	// 	return this.state.map((s: ApplicationState) => s.projectlogs);
-	// }
 
 	create() {
 		console.log('Create is yet to be implemented');
@@ -92,19 +84,30 @@ export class ProjectlogComponent {
 	refresh() {
 		this.loading = true;
 		this.error = undefined;
-		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page.setFilters(this.filters))).subscribe(
-			() => { this.loading = false; console.log('next'); },
-			() => { this.error = 'Error occured'; console.error('error'); }
+		this.state.projectlogs.page = this.state.projectlogs.page.setFilters(this.filters);
+		let prevState: any;
+		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page)).subscribe(
+			(x: ApplicationState) => {
+				this.loading = false;
+				console.log('same state', prevState === x.projectlogs.list);
+				prevState = x.projectlogs.list;
+			},
+			(error: any) => { this.error = 'Error occured'; console.error('error', error); }
 		);
 	}
 
 	nextPage() {
 		this.loading = true;
 		this.error = undefined;
-
+		let prevState: any;
 		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page.next())).subscribe(
-			() => { this.loading = false; console.log('next'); },
-			() => { this.error = 'Error occured'; console.error('error'); }
+			(x: ApplicationState) => {
+				this.loading = false;
+				console.log('same state', prevState === x);
+				// this.state = x;
+				prevState = x;
+			},
+			(error: any) => { this.error = 'Error occured'; console.error('error', error); }
 		);
 	}
 

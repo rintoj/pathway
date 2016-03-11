@@ -44,8 +44,8 @@ export class RestService {
 			search: this.serialize(search)
 		}));
 
-		return this.http.request(new Request(options))
-			.delay(Math.random() * 3);
+		return this.http.request(new Request(options));
+			// .delay(Math.random() * 3);
 	}
 
 	private serialize(obj: Object): string {

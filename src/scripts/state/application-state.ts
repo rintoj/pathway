@@ -1,11 +1,11 @@
 import {UIState} from './ui-state';
 import {Projectlog} from './projectlog';
 import {Observable} from 'rxjs/Observable';
-import {PagenatedList} from './pagination';
+import {PaginatableList} from './pagination';
 
 export interface ApplicationState {
-	projectlogs: PagenatedList<Projectlog>;
-	ui: UIState;
+	projectlogs?: PaginatableList<Projectlog>;
+	ui?: UIState;
 }
 
 export class ApplicationStateObservable extends Observable<ApplicationState> {

@@ -1,5 +1,3 @@
-import {Immutable} from './immutable';
-
 export class Page<R> {
 
 	private _totalItems: number = 0;
@@ -69,14 +67,14 @@ export class Page<R> {
 		if (this.currentPage < this.totalPages) {
 			return new Page<R>(this.totalItems, this.pageSize, this.currentPage + 1, this.filters);
 		}
-		return undefined;
+		return this;
 	}
 
 	previous(): Page<R> {
 		if (this.currentPage > 0) {
 			return new Page<R>(this.totalItems, this.pageSize, this.currentPage - 1, this.filters);
 		}
-		return undefined;
+		return this;
 	}
 
 	clone(): Page<R> {
@@ -106,7 +104,7 @@ export class Page<R> {
  * @interface PagenatedList
  * @template R
  */
-export interface PagenatedList<R> {
+export interface PaginatableList<R> {
 	page: Page<R>;
-	list: Immutable.List<R>;
+	list: R[];
 }

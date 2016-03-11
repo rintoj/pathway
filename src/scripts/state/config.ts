@@ -1,11 +1,10 @@
 import {Page} from './pagination';
-import {Immutable} from './immutable';
 import {Projectlog} from './projectlog';
 import {ApplicationState} from './application-state';
 
 export const INITIAL_STATE: ApplicationState = {
 	projectlogs: {
-		list: Immutable.List([]),
+		list: [],
 		page: new Page<Projectlog>(0, 10)
 	},
 
