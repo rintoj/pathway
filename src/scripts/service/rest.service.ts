@@ -42,6 +42,8 @@ export class RestService {
 			search: this.serialize(search)
 		}));
 
+		console.log(options);
+
 		return this.http.request(new Request(options))
 			.retryWhen((attempts: any) => {
 				return Observable.range(1, 3)
