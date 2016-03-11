@@ -1,6 +1,4 @@
-import 'rxjs/add/operator/map';
-
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
 
@@ -44,8 +42,18 @@ export class RestService {
 			search: this.serialize(search)
 		}));
 
-		return this.http.request(new Request(options));
-			// .delay(Math.random() * 3);
+		return this.http.request(new Request(options))
+			.retryWhen((attempts: any) => {
+				return Observable.range(1, 3)
+					.zip(attempts, (i: number) => i)
+					.flatMap((i: number) => {
+						console.log('delay retry by ' + i + ' second(s)');
+						return Observable.timer(i * 1000);
+					});
+			});
+
+
+		// .delay(Math.random() * 3);
 	}
 
 	private serialize(obj: Object): string {
