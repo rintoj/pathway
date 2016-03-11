@@ -1,6 +1,9 @@
 import {Subject} from 'rxjs/Subject';
+import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+// import {Promise} from 'angular2/src/facade/async';
 import {BehaviorSubject} from 'rxjs/Rx';
-import {PromiseWrapper} from 'angular2/src/facade/promise';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
 /**
@@ -10,7 +13,7 @@ import {ApplicationState, ApplicationStateObservable} from './application-state'
  * @interface ServiceFunction
  */
 export interface ServiceFunction {
-    (state: ApplicationState, action: Action): ApplicationState;
+    (state: ApplicationState, action: Action): Observable<any>;
 }
 
 /**
@@ -41,16 +44,28 @@ export class Dispatcher {
         }
     }
 
-    next(action: Action) {
-        var defer = PromiseWrapper.completer();
-        if (!action) {
-            return null; // do nothing
-        }
-        this.actions.next(action);
-        return defer.promise;
+    next(action: Action): Observable<any> {
+		return Observable.create((observer: Observer<any>) => {
+			let subscription: Subscription<any> = this.actions.subscribe(
+				(value: any) => {
+					subscription.unsubscribe();
+					observer.next(value);
+				},
+				(value: any) => {
+					subscription.unsubscribe();
+					observer.error(value);
+				},
+				() => {
+					subscription.unsubscribe();
+					observer.complete();
+				});
+			this.actions.next(action);
+
+			return () => subscription.unsubscribe;
+		});
     }
 
-    private createState(initialState: ApplicationState): ApplicationStateObservable {
+	private createState(initialState: ApplicationState): ApplicationStateObservable {
 
         let observableState = this.actions.scan((state: ApplicationState, action: Action) => {
 
@@ -62,9 +77,10 @@ export class Dispatcher {
 
             // if there are any registered actions
             if (actions && actions.length > 0) {
-                actions.map((service: ServiceFunction) => {
-                    nextState = service(nextState, action);
-                });
+				let subscription: Subscription<any> = Observable.from(actions)
+					.flatMap((service: ServiceFunction) => service(nextState, action))
+					.finally(() => subscription.unsubscribe())
+					.subscribe((data: any) => console.log(data));
             }
 
             return nextState;

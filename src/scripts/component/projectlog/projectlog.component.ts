@@ -1,5 +1,3 @@
-import {Page} from '../../state/pagination';
-// import {Promise} from 'angular2/src/facade/promise';
 import {Dispatcher} from '../../state/dispatcher';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
@@ -39,7 +37,7 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 		<div class="list" [class.loading]="state.ui.projectlog.fetching" infinite-scroll [infiniteScrollDistance]="2" (scrolled)="nextPage()">
 
 			<!-- the list item-->
-			<pw-projectlog-item *ngFor="#item of state.projectlogs" [item]="item" (update)="onItemUpdate($event)">
+			<pw-projectlog-item *ngFor="#item of state.projectlogs.list" [item]="item" (update)="onItemUpdate($event)">
 			</pw-projectlog-item>
 
 			<!-- list loader -->
@@ -52,7 +50,7 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 
-		<div class="foot-note">{{state.projectlogs?.length}} of {{page.totalItems}}</div>
+		<div class="foot-note">{{state.projectlogs?.list?.size}} of {{state.projectlogs?.list?.totalItems}}</div>
 	`
 })
 export class ProjectlogComponent {
@@ -63,7 +61,6 @@ export class ProjectlogComponent {
 	private sortAsc: boolean = true;
 	private loading: boolean;
 	private error: string;
-	private page: Page<Projectlog[]> = new Page<Projectlog[]>(0, 10);
 	private showUploader: boolean = false;
 
 	constructor(
@@ -72,7 +69,7 @@ export class ProjectlogComponent {
 		private stateObservable: ApplicationStateObservable
 	) {
 		this.loading = false;
-		this.page.filters = { sort: { index: { order: 'asc' } } };
+		// this.page.filters = { sort: { index: { order: 'asc' } } };
 	}
 
 	ngOnInit() {
@@ -95,34 +92,24 @@ export class ProjectlogComponent {
 	refresh() {
 		this.loading = true;
 		this.error = undefined;
-		// this.processResponse(this.service.fetch(undefined, this.sortAsc));
-		this.dispatcher.next(new FetchProjectlogAction(this.page));
+		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page.setFilters(this.filters))).subscribe(
+			() => { this.loading = false; console.log('next'); },
+			() => { this.error = 'Error occured'; console.error('error'); }
+		);
 	}
 
-	// processResponse(promise: Promise<Page<Projectlog[]>>) {
-	// 	promise.then(
-
-	// 		(page: Page<Projectlog[]>) => {
-	// 			this.loading = false;
-	// 			this.page = page;
-	// 		},
-
-	// 		(error: any) => {
-	// 			this.loading = false;
-	// 			this.error = 'Unexpected error occured! Contact administrator.';
-	// 			console.error(error);
-	// 		});
-	// }
-
 	nextPage() {
-		// if (this.page !== undefined) {
-		// 	var nextPage: Page<Projectlog[]> = this.page.next();
-		// 	if (nextPage !== undefined) {
-		// 		this.loading = true;
-		// 		this.error = undefined;
-		// 		this.processResponse(this.service.fetch(nextPage, this.sortAsc));
-		// 	}
-		// }
+		this.loading = true;
+		this.error = undefined;
+
+		this.dispatcher.next(new FetchProjectlogAction(this.state.projectlogs.page.next())).subscribe(
+			() => { this.loading = false; console.log('next'); },
+			() => { this.error = 'Error occured'; console.error('error'); }
+		);
+	}
+
+	get filters() {
+		return { sort: { index: { order: 'asc' } } };
 	}
 
 	showUploadPopup() {

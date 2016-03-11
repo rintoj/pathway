@@ -1,11 +1,12 @@
-import {Page, PageResponse} from '../state/pagination';
+import {Page, PagenatedList} from '../state/pagination';
 import {Response} from 'angular2/http';
+import {Observer} from 'rxjs/Observer';
+import {Immutable} from '../state/immutable';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
 import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
-// import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
 import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../state/projectlog';
 
 @Injectable()
@@ -41,35 +42,32 @@ export class ProjectlogService {
         return state;
     }
 
-    private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): ApplicationState {
-        state.ui.projectlog.fetching = true;
-        this.rest.read(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
-            .map((response: Response) => this.mapResponse(response, action.page))
-            .subscribe((response: PageResponse<Projectlog>) => {
-                state.projectlogs = response.data;
-                state.ui.projectlog.fetching = false;
-            });
-
-        return state;
+    private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<any> {
+        return Observable.create((observer: Observer<any>) => {
+			state.ui.projectlog.fetching = true;
+			this.rest.read(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
+				.map((response: Response) => this.mapResponse(response, action.page))
+				.subscribe((response: PagenatedList<Projectlog>) => {
+					state.projectlogs = response;
+					state.ui.projectlog.fetching = false;
+					observer.next(state);
+					observer.complete();
+				}, (error: any) => observer.error(error), () => observer.complete());
+		});
     }
 
-    // private publish(data: Projectlog[]): ProjectlogService {
-    //     this.observer.next(this.data);
-    //     return this;
-    // }
-
-    private mapResponse(response: Response, page: Page<any>): PageResponse<Projectlog> {
+    private mapResponse(response: Response, page: Page<any>): PagenatedList<Projectlog> {
         var json = response.json();
 
-        let nextPage = page ? page : new Page<Projectlog[]>(json.hits.total);
-        let data: Projectlog[] = json.hits.hits.map((item: any) => {
+        let nextPage: Page<Projectlog> = page ? page.setTotalItems(json.hits.total) : new Page<Projectlog>(json.hits.total);
+		let data: Immutable.List<Projectlog> = Immutable.List<Projectlog>(json.hits.hits.map((item: any) => {
             item._source.id = item._id;
             return <Projectlog>item._source;
-        });
+        }));
 
         return {
             page: nextPage,
-            data: data
+            list: data
         };
     }
 
