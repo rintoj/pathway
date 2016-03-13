@@ -52,7 +52,7 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 		<div class="error-message" *ngIf="error != undefined"><i class="fa fa-exclamation-triangle"></i> {{error}}</div>
 		<pw-uploader [show]="showUploader" (autoHide)="showUploader = false"> </pw-uploader>
 
-		<div class="foot-note">{{state.projectlogs?.list?.length}} of {{state.projectlogs?.page?.totalItems}}</div>
+		<div class="foot-note">{{state.projectlogs?.list?.size}} of {{state.projectlogs?.page?.totalItems}}</div>
 	`
 })
 export class ProjectlogComponent {

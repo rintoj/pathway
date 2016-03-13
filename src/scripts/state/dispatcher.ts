@@ -47,9 +47,28 @@ export class Dispatcher {
 
         // create state observable
         this.stateObservable = this.wrapIntoBehaviourSubject(
-            this.state,
+            this.makeImmutable(this.state),
             ApplicationStateObservable.create((observer: Observer<ApplicationState>) => this.stateObserver = observer).share()
         );
+    }
+
+    protected makeImmutable(object: Object) {
+        return Immutable.fromJS(object, (key: any, value: any) => {
+            console.log(Immutable.Iterable.isIndexed(value), value);
+
+            if (Immutable.Iterable.isIndexed(value)) {
+                return value.toList();
+            }
+
+            // convert every object into a record
+            value = value.toObject();
+            let ImmutableObject = Immutable.Record(value);
+            return new ImmutableObject(value);
+        });
+    }
+
+    protected makeMutable(object: any) {
+        return object && (object.toJS ? object.toJS() : object);
     }
 
 	/**
@@ -64,7 +83,7 @@ export class Dispatcher {
         intialState: ApplicationState,
         observableState: ApplicationStateObservable
     ): ApplicationStateObservable {
-        let wrappedSubject: BehaviorSubject<ApplicationState> = new BehaviorSubject<ApplicationState>(this.state);
+        let wrappedSubject: BehaviorSubject<ApplicationState> = new BehaviorSubject<ApplicationState>(intialState);
         observableState.subscribe((s: ApplicationState) => wrappedSubject.next(s));
         return wrappedSubject;
     }
@@ -76,7 +95,7 @@ export class Dispatcher {
 	 * @param {ApplicationState} state Next application state obtained from service
 	 * @returns {ApplicationState} New merged application state
 	 */
-    private mergeAppState(state: ApplicationState): ApplicationState {
+    protected mergeAppState(state: ApplicationState): ApplicationState {
         let merger = (previous: any, next: any) => {
             if (Immutable.List.isList(previous) && Immutable.List.isList(next)) {
                 return previous.concat(next);
@@ -86,7 +105,7 @@ export class Dispatcher {
             return next;
         };
 
-        return this.state = Immutable.fromJS(this.state).mergeWith(merger, Immutable.fromJS(state)).toJS();
+        return state;
     }
 
     subscribe(actions: Action[], callback: ServiceFunction) {
@@ -103,11 +122,14 @@ export class Dispatcher {
         let actionIdentity: any = action.constructor;
         let actions: ServiceFunction[] = this.subscriptions[actionIdentity];
 
-        let observable: any = Observable.from<ServiceFunction>(actions)
+        let observable: Observable<any> = Observable.from<ServiceFunction>(actions)
             .flatMap((service: ServiceFunction) => service(this.state, action));
 
         observable.subscribe(
-            (state: ApplicationState) => this.stateObserver.next(this.mergeAppState(state)),
+            (state: ApplicationState) => {
+                this.state = state;
+                this.stateObserver.next(this.makeImmutable(state));
+            },
             (error: any) => this.stateObserver.error(error)
         );
         return observable;

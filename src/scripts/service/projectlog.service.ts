@@ -44,7 +44,14 @@ export class ProjectlogService {
 
     private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
 		return this.rest.read(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
-			.map((response: Response): ApplicationState => this.mapResponse(response, action.page));
+			.map((response: Response): ApplicationState => this.mapResponse(response, action.page))
+            .map((s: ApplicationState) => {
+                console.log('before', state.projectlogs.list.length);
+                state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
+                state.projectlogs.page = s.projectlogs.page;
+                console.log('after', state.projectlogs.list.length);
+                return state;
+            });
     }
 
     private mapResponse(response: Response, page: Page<any>): ApplicationState {
