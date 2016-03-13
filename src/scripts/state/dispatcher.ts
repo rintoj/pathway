@@ -1,6 +1,7 @@
 import {Observer} from 'rxjs/Observer';
 import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
+import {ObservableUtil} from '../util/ObservableUtil';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
@@ -22,6 +23,11 @@ export interface ServiceFunction {
  */
 export abstract class Action { }
 
+interface ServiceAction {
+    service: ServiceFunction;
+    action: Action;
+}
+
 /**
  * Dispatcher dispatches actions to subscribed services and then merge back the partial application state
  * returned by services with the original application state. 
@@ -32,6 +38,8 @@ export abstract class Action { }
 export class Dispatcher {
 
     private state: ApplicationState;
+    private actionObserver: Observer<ServiceAction[]>;
+    private actionObservable: Observable<ServiceAction[]>;
     private subscriptions: any = {};
     private stateObserver: Observer<ApplicationState>;
     private stateObservable: ApplicationStateObservable;
@@ -50,12 +58,30 @@ export class Dispatcher {
             this.makeImmutable(this.state),
             ApplicationStateObservable.create((observer: Observer<ApplicationState>) => this.stateObserver = observer).share()
         );
+
+        // create action observable
+        this.actionObservable = Observable.create((observer: Observer<ServiceAction[]>) => this.actionObserver = observer)
+            .flatMap((serviceActions: ServiceAction[]): any => serviceActions)
+            .flatMap((serviceAction: ServiceAction) => {
+                return serviceAction.service(this.state, serviceAction.action);
+            })
+            .map((state: ApplicationState) => {
+                this.state = state;
+                // @if isDev
+                state = this.makeImmutable(state);
+                // @endif
+                this.stateObserver.next(state);
+                return state;
+            })
+            .share();
+
+        // subscribe to active actionObservable once
+        this.actionObservable.subscribe();
     }
 
     protected makeImmutable(object: Object) {
-        return Immutable.fromJS(object, (key: any, value: any) => {
-            console.log(Immutable.Iterable.isIndexed(value), value);
-
+        console.time('makeImmutable');
+        let immutable: any = Immutable.fromJS(object, (key: any, value: any) => {
             if (Immutable.Iterable.isIndexed(value)) {
                 return value.toList();
             }
@@ -65,6 +91,8 @@ export class Dispatcher {
             let ImmutableObject = Immutable.Record(value);
             return new ImmutableObject(value);
         });
+        console.timeEnd('makeImmutable');
+        return immutable;
     }
 
     protected makeMutable(object: any) {
@@ -120,19 +148,20 @@ export class Dispatcher {
 
     next(action: Action): Observable<any> {
         let actionIdentity: any = action.constructor;
-        let actions: ServiceFunction[] = this.subscriptions[actionIdentity];
+        let services: any[] = this.subscriptions[actionIdentity];
 
-        let observable: Observable<any> = Observable.from<ServiceFunction>(actions)
-            .flatMap((service: ServiceFunction) => service(this.state, action));
+        if (services === undefined) {
+            return Observable.empty();
+        }
 
-        observable.subscribe(
-            (state: ApplicationState) => {
-                this.state = state;
-                this.stateObserver.next(this.makeImmutable(state));
-            },
-            (error: any) => this.stateObserver.error(error)
-        );
-        return observable;
+        this.actionObserver.next(services.map((item: any): ServiceAction => {
+            return {
+                service: item,
+                action: action
+            };
+        }));
+
+        return ObservableUtil.observeNextOnce(this.actionObservable);
     }
 
 }
