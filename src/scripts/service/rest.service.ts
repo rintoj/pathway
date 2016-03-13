@@ -1,4 +1,4 @@
-// import {Observer} from 'rxjs/Observer';
+import {Config} from '../state/config';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
@@ -6,7 +6,7 @@ import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptio
 export class RestOptions extends BaseRequestOptions {
     constructor() {
         super();
-        this.url = '//localhost:9200/pathway/';
+        this.url = Config.SERVICE_URL;
         this.headers.append('Content-Type', 'application/json');
     }
 }
@@ -37,7 +37,7 @@ export class RestService {
         return this.request(path, RequestMethod.Delete);
     }
 
-    private request(path: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
+    private request(path: string, method: RequestMethod, body?: Object, search?: Object, force: boolean = false): Observable<Response> {
         let options = new RequestOptions(this.restOptions.merge({
             method: method,
             url: this.restOptions.url + path,
@@ -47,22 +47,18 @@ export class RestService {
 
         let requestId = JSON.stringify(options, null, 4);
         let request: Observable<Response> = this.requestsInFlight[requestId];
+
         if (request) {
-            // request.dispose();
-            return request;
-            // return Observable.create((observer: any) => {
-            //     request.share().subscribe(
-            //         (data: Response) => observer.next(data),
-            //         (error: any) => observer.error(error),
-            //         () => observer.complete()
-            //     );
-            // });
+            // if a request is in flight ignore this request and return the previous observable
+            if (!force) {
+                return request;
+            }
         }
 
         return this.requestsInFlight[requestId] = this.http.request(new Request(options))
             .share()
             // @if isDev
-            .delay(Math.random() * 10)
+            .delay(Config.SERVICE_ACCESS_DELAY)
             // @endif
             .retryWhen(this.retryAttempts)
             .finally(() => {
@@ -71,10 +67,10 @@ export class RestService {
     }
 
     protected retryAttempts(attempts: any) {
-        return Observable.range(1, 3)
+        return Observable.range(1, Config.SERVICE_RETRY_COUNT)
             .zip(attempts, (i: number) => i)
             .flatMap((i: number) => {
-                console.log('delay retry by ' + i + ' second(s)');
+                console.log('Request will be retried within ' + i + ' second(s)');
                 return Observable.timer(i * 1000);
             });
     };

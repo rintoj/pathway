@@ -38,11 +38,14 @@ export class ProjectlogService {
     }
 
     private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
-        console.log(state, action);
         return this.rest.read(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
             .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
             .map((s: ApplicationState) => {
-                state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
+                if (s.projectlogs.page.currentPage === 0) {
+                    state.projectlogs.list = s.projectlogs.list;
+                } else {
+                    state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
+                }
                 state.projectlogs.page = s.projectlogs.page;
                 return state;
             });

@@ -78,7 +78,7 @@ export class ProjectlogComponent {
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
         this.fetchPageAction = new Subject<Page<Projectlog>>();
-        this.fetchPageAction.debounceTime(1000).subscribe((page: Page<Projectlog>) => this.requestPage(page));
+        this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
         this.refresh();
     }
 
@@ -94,6 +94,9 @@ export class ProjectlogComponent {
     }
 
     nextPage() {
+        if (this.loading) {
+            return null; // do nothing
+        }
         this.loading = true;
         this.error = undefined;
         this.fetchPageAction.next(this.state.projectlogs.page.next());
@@ -112,7 +115,7 @@ export class ProjectlogComponent {
     }
 
     get filters() {
-        return { sort: { index: { order: 'asc' } } };
+        return { sort: { index: { order: this.sortAsc ? 'asc' : 'desc' } } };
     }
 
     showUploadPopup() {

@@ -2,17 +2,57 @@ import {Page} from './pagination';
 import {Projectlog} from './projectlog';
 import {ApplicationState} from './application-state';
 
-export const INITIAL_STATE: ApplicationState = {
-	projectlogs: {
-		list: [],
-		page: new Page<Projectlog>(0, 10)
-	},
+// default configuration
+class DefaultConfig {
 
-	ui: {
-		projectlog: {
-			sortOrderAsc: true,
-			fetching: false
-		},
-		syncing: false
-	}
-};
+    /**
+     * The initial state of the application
+     */
+    static get INITIAL_STATE(): ApplicationState {
+        return {
+            projectlogs: {
+                list: [],
+                page: new Page<Projectlog>(0, 10)
+            },
+
+            ui: {
+                projectlog: {
+                    sortOrderAsc: true,
+                    fetching: false
+                },
+                syncing: false
+            }
+        };
+    }
+
+    static get SERVICE_ACCESS_DELAY(): number {
+        return Math.random() * 10;
+    }
+
+    static get SERVICE_RETRY_COUNT(): number {
+        return 3;
+    }
+}
+
+// override or add configurations for development environment
+class DevConfig extends DefaultConfig {
+
+    static get SERVICE_URL(): string {
+        return '//localhost:9200/pathway/';
+    }
+}
+
+// override or add configurations for production environment
+class ProdConfig extends DefaultConfig {
+
+    static get SERVICE_ACCESS_DELAY(): number {
+        return 0;
+    }
+
+    static get SERVICE_URL(): string {
+        return '//rintoj.github.io/pathway/';
+    }
+}
+
+// Change 'extends' to 'DevConfig/ProdConfig' to switch between dev and prod configs
+export class Config extends DevConfig { };
