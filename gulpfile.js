@@ -55,7 +55,7 @@ gulp.task("builddoc", gulp.series(
 ));
 
 gulp.task('serve', gulp.series(
-  gulp.parallel(restServer, watch, livereload)
+  gulp.parallel(apiServer, watch, livereload)
 ));
 
 gulp.task('unit', gulp.series(
@@ -77,6 +77,7 @@ gulp.task('e2e', gulp.series(
 
 gulp.task('index', index);
 gulp.task('assets', assets);
+gulp.task('apiServer', apiServer);
 
 /**
  * Definitions
@@ -179,7 +180,7 @@ function tsSrc() {
   return ts(filesRoot, filesGlob, filesDest, tsProject);
 }
 
-function restServer(cb) {
+function apiServer(cb) {
   exec('cd ./server; npm start', function(err, stdout, stderr) {
     console.log(stdout);
     console.log(stderr);

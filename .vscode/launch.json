@@ -23,6 +23,17 @@
       "NODE_ENV": "production"
     }
   }, {
+    "name": "gulp apiServer",
+    "type": "node",
+    "program": "/usr/local/bin/gulp",
+    "request": "launch",
+    "args": ["apiServer"],
+    "cwd": "${workspaceRoot}",
+    "runtimeExecutable": null,
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }, {
     "name": "Open Pathway",
     "type": "chrome",
     "request": "launch",
