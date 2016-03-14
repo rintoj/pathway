@@ -1,6 +1,7 @@
 .svn
 .DS_Store
 node_modules/
+server/node_modules/
 target/
 build/
 typings/
