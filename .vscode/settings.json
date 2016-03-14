@@ -27,7 +27,7 @@
     "less"
   ],
 
-  "editor.quickSuggestions": false,
+  "editor.quickSuggestions": true,
 
   // Do not use duplicate style definitions
   "sass.lint.duplicateProperties": "error"

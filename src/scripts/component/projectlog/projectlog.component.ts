@@ -105,13 +105,15 @@ export class ProjectlogComponent {
     private requestPage(page: Page<Projectlog>) {
         console.log('request:', page);
 
-        this.dispatcher.next(new FetchProjectlogAction(page)).subscribe(
-            (x: ApplicationState) => {
-                this.loading = false;
+        this.dispatcher.next(new FetchProjectlogAction(page))
+			.finally(() => {
+				this.loading = false;
+			}).subscribe((state: ApplicationState) => {
                 console.log('response:', this.state.projectlogs.page);
-            },
-            (error: any) => { this.error = 'Error occured'; console.error('error', error); }
-        );
+            }, (error: any) => {
+				this.error = 'Error occured';
+				console.error('error', error);
+			});
     }
 
     get filters() {

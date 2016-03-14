@@ -32,6 +32,10 @@ class DefaultConfig {
     static get SERVICE_RETRY_COUNT(): number {
         return 3;
     }
+
+	static get SERVICE_RETRY_DELAY(): number {
+		return 1 * 1000; // 1 second; 
+	}
 }
 
 // override or add configurations for development environment

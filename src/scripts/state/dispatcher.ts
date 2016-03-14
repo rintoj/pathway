@@ -63,6 +63,7 @@ export class Dispatcher {
         this.actionObservable = Observable.create((observer: Observer<ServiceAction[]>) => this.actionObserver = observer)
             .flatMap((serviceActions: ServiceAction[]): any => serviceActions)
             .flatMap((serviceAction: ServiceAction) => {
+				console.log('Processing action: ', serviceAction);
                 return serviceAction.service(this.state, serviceAction.action);
             })
             .map((state: ApplicationState) => {

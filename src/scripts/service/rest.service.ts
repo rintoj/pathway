@@ -60,7 +60,7 @@ export class RestService {
             // @if isDev
             .delay(Config.SERVICE_ACCESS_DELAY)
             // @endif
-            .retryWhen(this.retryAttempts)
+            // .retryWhen(this.retryAttempts)
             .finally(() => {
                 this.requestsInFlight[requestId] = undefined;
             });
@@ -70,8 +70,8 @@ export class RestService {
         return Observable.range(1, Config.SERVICE_RETRY_COUNT)
             .zip(attempts, (i: number) => i)
             .flatMap((i: number) => {
-                console.log('Request will be retried within ' + i + ' second(s)');
-                return Observable.timer(i * 1000);
+				console.log('Attempt ' + i + ' of ' + Config.SERVICE_RETRY_COUNT + ' within ' + Config.SERVICE_RETRY_DELAY + ' milli-second(s)');
+                return Observable.timer(Config.SERVICE_RETRY_DELAY);
             });
     };
 
