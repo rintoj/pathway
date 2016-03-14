@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-var debug = require('debug')('todoApp');
 var app = require('../app');
 
 app.set('port', 3000);

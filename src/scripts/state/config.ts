@@ -42,7 +42,8 @@ class DefaultConfig {
 class DevConfig extends DefaultConfig {
 
     static get SERVICE_URL(): string {
-        return '//localhost:9200/pathway/';
+        // return '//localhost:9200/pathway/';
+		return '//localhost:3000/pathway/api/';
     }
 }
 

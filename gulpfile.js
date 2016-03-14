@@ -55,7 +55,7 @@ gulp.task("builddoc", gulp.series(
 ));
 
 gulp.task('serve', gulp.series(
-  gulp.parallel(mongoDB, restServer, watch, livereload)
+  gulp.parallel(restServer, watch, livereload)
 ));
 
 gulp.task('unit', gulp.series(
