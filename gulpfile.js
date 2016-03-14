@@ -180,7 +180,7 @@ function tsSrc() {
 }
 
 function restServer(cb) {
-  exec('node server/app.js', function(err, stdout, stderr) {
+  exec('cd ./server; npm start', function(err, stdout, stderr) {
     console.log(stdout);
     console.log(stderr);
     cb(err);

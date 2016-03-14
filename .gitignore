@@ -1,7 +1,9 @@
 .svn
 .DS_Store
 node_modules/
-server/node_modules/
 target/
 build/
 typings/
+server/node_modules/
+server/npm-debug.log*
+server/data
