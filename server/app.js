@@ -1,66 +1,111 @@
-var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
+var user = require('./routes/user');
+var auth2 = require('./routes/auth2');
 var todos = require('./routes/todos');
-var baseUrl = '/pathway/api';
-
+var logger = require('morgan');
+var express = require('express');
+var favicon = require('serve-favicon');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/pathway', function(err) {
-  if (err) {
-    console.log('Connect to mongodb: failed! ', err);
-  } else {
-    console.log('Connect to mongodb: successful');
-  }
-});
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 
-var app = express();
+(function PathwayServer() {
 
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(cookieParser());
+  var app;
+  var baseUrl = '/pathway/api';
+  var databaseUrl = 'mongodb://localhost/pathway';
 
-// add CORS to the api 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+  // api configuration
+  var apis = {
+    '/todos': todos,
+    '/user': user.router,
+    '/auth2': auth2.router
+  };
 
-app.use(baseUrl + '/todos', todos);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  res.json({
-    status: 404,
-    message: 'Resource not found!'
-  });
-});
-
-// error handlers
-// development error handler and this will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.json({
-      message: err.message,
-      error: err
+  function connectToDB() {
+    mongoose.connect(databaseUrl, function(error) {
+      if (error) {
+        console.log('Connect to mongodb: failed! ', error);
+      } else {
+        console.log('Connect to mongodb: successful');
+      }
     });
-  });
-}
+  }
 
-// production error handler and this will not leake stacktraces to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.json({
-    message: err.message
-  });
-});
+  function setupAPI() {
+    app = express();
+    app.use(require('serve-static')(__dirname + '/../build'));
+    app.use(logger('dev'));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({
+      extended: false
+    }));
+    app.use(cookieParser());
+  }
 
-module.exports = app;
+  // enable CORS 
+  function setupCORS() {
+    app.use(function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+  }
+
+  function registerAPIs() {
+    for (var api in apis) {
+      app.use(baseUrl + api, apis[api]);
+      console.log('registered: ', api);
+    }
+  }
+
+  function handle404() {
+    // catch 404 and forward to error handler
+    app.use(function(req, res, next) {
+      res.status(404);
+      res.json({
+        status: 404,
+        message: 'Requested URL is invalid!'
+      });
+    });
+  }
+
+  // error handlers
+  function handle500() {
+    // development error handler and this will print stacktrace
+    // @if isDev
+    app.use(function(error, req, res, next) {
+      res.status(error.status || 500);
+      res.json({
+        message: error.message,
+        error: error
+      });
+    });
+    // @endif
+
+    // production error handler and this will not leake stacktraces to user
+    // @if isProd
+    app.use(function(error, req, res, next) {
+      res.status(error.status || 500);
+      res.json({
+        message: error.message
+      });
+    });
+    // @endif
+  }
+
+  function startup() {
+    connectToDB();
+    setupAPI();
+    registerAPIs();
+    handle404();
+    handle500();
+
+    // export module
+    module.exports = app;
+  }
+
+  // startup this module and export
+  startup();
+
+})(this);
