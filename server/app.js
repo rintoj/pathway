@@ -1,11 +1,11 @@
 var path = require('path');
 var user = require('./routes/user');
-var todos = require('./routes/todos');
 var logger = require('morgan');
 var express = require('express');
 var favicon = require('serve-favicon');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var projectlog = require('./routes/projectlog');
 var cookieParser = require('cookie-parser');
 var OAuthService = require('./routes/auth2');
 
@@ -17,7 +17,7 @@ var OAuthService = require('./routes/auth2');
 
   // api configuration
   var apis = {
-    '/todos': todos,
+    '/projectlog': projectlog.router,
     '/user': user.router
   };
 
@@ -44,8 +44,9 @@ var OAuthService = require('./routes/auth2');
 
   function enableCORS() {
     app.use(function(req, res, next) {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
       next();
     });
   }

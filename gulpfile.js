@@ -57,7 +57,7 @@ gulp.task("builddoc", gulp.series(
 ));
 
 gulp.task('serve', gulp.series(
-  gulp.parallel(apiServer, watch, livereload)
+  gulp.parallel(watch, livereload)
 ));
 
 gulp.task('unit', gulp.series(

@@ -33,17 +33,20 @@ class DefaultConfig {
         return 3;
     }
 
-	static get SERVICE_RETRY_DELAY(): number {
-		return 1 * 1000; // 1 second; 
-	}
+    static get SERVICE_RETRY_DELAY(): number {
+        return 1 * 1000; // 1 second; 
+    }
+
+    static get DATA_PROJECTLOGS_URL(): string {
+        return '/data/projectlogs.json';
+    }
 }
 
 // override or add configurations for development environment
 class DevConfig extends DefaultConfig {
 
     static get SERVICE_URL(): string {
-        // return '//localhost:9200/pathway/';
-		return '//localhost:3000/pathway/api/';
+        return '//localhost:3000/pathway/api';
     }
 }
 

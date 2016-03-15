@@ -38,7 +38,7 @@ export class ProjectlogService {
     }
 
     private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
-        return this.rest.read(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
+        return this.rest.fetch(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
             .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
             .map((s: ApplicationState) => {
                 if (s.projectlogs.page.currentPage === 0) {

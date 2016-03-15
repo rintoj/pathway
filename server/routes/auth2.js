@@ -4,7 +4,6 @@ var Base64 = require('../util/Base64');
 var Client = require('../models/Client');
 var express = require('express');
 var AccessToken = require('../models/AccessToken');
-var OAuthServer = require('express-oauth-server');
 var oauthserver = require('oauth2-server');
 var GenericService = require('./GenericService');
 
@@ -128,7 +127,7 @@ var GenericService = require('./GenericService');
       app.use(baseUrl + '/client', client.router);
 
       // use authorization
-      app.use(app.oauth.authorise());
+    //   app.use(baseUrl, app.oauth.authorise());
 
       // add error handler for auth errors
       //   addErrorHandler();

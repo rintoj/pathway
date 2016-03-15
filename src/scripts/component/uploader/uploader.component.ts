@@ -1,17 +1,18 @@
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
+import {Config} from '../../state/config';
 import {DialogBox} from '../../directive/dialog/dialog-box';
+import {RestService} from '../../service/rest.service';
 import {LoaderComponent} from '../loader/loader.component';
-import {BulkRestService} from '../../service/bulk-rest.service';
+import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
 @Component({
-  selector: 'pw-uploader',
-  providers: [BulkRestService]
+    selector: 'pw-uploader',
+    providers: [RestService]
 })
 @View({
-  directives: [DialogBox, LoaderComponent],
-  template: `
+    directives: [DialogBox, LoaderComponent],
+    template: `
 		<dialog-box [title]="'Data Setup Wizard'" [showTitle]="true" [show]="show" (autoHide)="onAutoHide()">
 				<div class="dialog-message" [ngSwitch]="status">
 		      <span *ngSwitchWhen="0">
@@ -23,7 +24,7 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 						<div class="status-message">
 							<i class="fa fa-check"></i> Sample data uploaded.
 						</div>
-						Hit <b> <a href="{{searchUrl}}" target="_blank"> {{searchUrl}}</a></b> to see them.
+						Hit <b> <a href="{{dataEndpoint}}" target="_blank"> {{dataEndpoint}}</a></b> to see them.
 					</span>
 
 					<span *ngSwitchWhen="2">
@@ -46,8 +47,8 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 					 		<i class="fa fa-check"></i> Data cleared.
 						</div>
 						 Accessing <b>
-						<a href="{{searchUrl}}" target="_blank">
-							{{searchUrl}}</a></b> should return <span class="code">404</span> now.
+						<a href="{{dataEndpoint}}" target="_blank">
+							{{dataEndpoint}}</a></b> should return an empty array.
 					</span>
 
 					<span *ngSwitchWhen="5">
@@ -55,7 +56,7 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 							<i class="fa fa-exclamation-triangle"></i> Could not clear data due to an error!
 						</div>
 						Accessing <b>
-						<a href="{{searchUrl}}" target="_blank">{{searchUrl}}</a></b> should return <span class="code">404</span>
+						<a href="{{dataEndpoint}}" target="_blank">{{dataEndpoint}}</a></b> should return <span class="code">404</span>
 						if data was cleared or was never created.
 					</span>
 
@@ -94,39 +95,53 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 })
 export class UploaderComponent {
 
-  @Input() show: boolean;
-  @Output() autoHide = new EventEmitter();
-  private status: UploadStatus = UploadStatus.DEFAULT;
+    @Input() show: boolean;
+    @Output() autoHide = new EventEmitter();
+    private status: UploadStatus = UploadStatus.DEFAULT;
 
-  serverUrl: string = 'http://localhost:9200';
-  searchUrl: string = this.serverUrl + '/pathway/projectlog/_search';
-  sampleDataUrl: string = 'http://localhost:8080/data/sample-data.json';
+    serverUrl: string = Config.SERVICE_URL;
+    dataEndpoint: string = Config.SERVICE_URL + '/projectlog';
+    sampleDataUrl: string = Config.DATA_PROJECTLOGS_URL;
 
-  constructor(private bulkService: BulkRestService) {
-    this.show = true;
-  }
+    constructor(private service: RestService) {
+        this.show = true;
+    }
 
-  upload() {
-    this.status = UploadStatus.UPLOADING;
-    this.bulkService.uploadSampleData(this.sampleDataUrl, `${this.serverUrl}/pathway/projectlog/_bulk`)
-      .then(() => this.status = UploadStatus.UPLOADED, () => this.status = UploadStatus.UPLOAD_FAILED);
-  }
+    private partition(items: Array<any>, size: number): any[] {
+        var p = [];
+        for (var i = Math.floor(items.length / size); i-- > 0;) {
+            p[i] = items.slice(i * size, (i + 1) * size);
+        }
+        return p;
+    }
 
-  clear() {
-    this.status = UploadStatus.CLEARING;
-    this.bulkService.clearData(`${this.serverUrl}/pathway`)
-      .then(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
-  }
+    upload() {
+        this.status = UploadStatus.UPLOADING;
+        this.service.fetch(this.sampleDataUrl)
+            .map((res: any) => res.json())
+            .flatMap((data: any): any => this.partition(data, 100))
+            .subscribe((data: any[]) => {
+                console.log(data);
+                this.service.createOrUpdate(this.dataEndpoint, data)
+                    .subscribe(() => this.status = UploadStatus.UPLOADED, () => this.status = UploadStatus.UPLOAD_FAILED);
+            }, () => this.status = UploadStatus.UPLOAD_FAILED);
+    }
 
-  close() {
-    this.status = UploadStatus.DEFAULT;
-    this.show = false;
-    this.autoHide.next(this.show);
-  }
+    clear() {
+        this.status = UploadStatus.CLEARING;
+        this.service.delete(this.dataEndpoint)
+            .subscribe(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
+    }
 
-  onAutoHide() {
-    this.status = UploadStatus.DEFAULT;
-    this.show = false;
-    this.autoHide.next(this.show);
-  }
+    close() {
+        this.status = UploadStatus.DEFAULT;
+        this.show = false;
+        this.autoHide.next(this.show);
+    }
+
+    onAutoHide() {
+        this.status = UploadStatus.DEFAULT;
+        this.show = false;
+        this.autoHide.next(this.show);
+    }
 }

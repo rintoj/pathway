@@ -6,7 +6,6 @@ import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptio
 export class RestOptions extends BaseRequestOptions {
     constructor() {
         super();
-        this.url = Config.SERVICE_URL;
         this.headers.append('Content-Type', 'application/json');
     }
 }
@@ -18,18 +17,18 @@ export class RestService {
 
     constructor(private http: Http, private restOptions: RestOptions) { }
 
-    create(path: string, body: Object): Observable<Response> {
+    query(path: string, body: Object): Observable<Response> {
         return this.request(path, RequestMethod.Post, body);
     }
 
-    read(path: string, search?: Object, data?: Object): Observable<Response> {
-        if (data) {
-            return this.request(path, RequestMethod.Post, data, search);
+    fetch(path: string, search?: Object, body?: Object): Observable<Response> {
+        if (body) {
+            return this.request(path, RequestMethod.Post, body, search);
         }
         return this.request(path, RequestMethod.Get, null, search);
     }
 
-    update(path: string, body: Object): Observable<Response> {
+    createOrUpdate(path: string, body: Object): Observable<Response> {
         return this.request(path, RequestMethod.Put, body);
     }
 
@@ -40,7 +39,7 @@ export class RestService {
     private request(path: string, method: RequestMethod, body?: Object, search?: Object, force: boolean = false): Observable<Response> {
         let options = new RequestOptions(this.restOptions.merge({
             method: method,
-            url: this.restOptions.url + path,
+            url: path,
             body: JSON.stringify(body),
             search: this.serialize(search)
         }));
@@ -60,7 +59,9 @@ export class RestService {
             // @if isDev
             .delay(Config.SERVICE_ACCESS_DELAY)
             // @endif
-            // .retryWhen(this.retryAttempts)
+            // @if isProd
+            .retryWhen(this.retryAttempts)
+            // @endif
             .finally(() => {
                 this.requestsInFlight[requestId] = undefined;
             });
@@ -70,7 +71,8 @@ export class RestService {
         return Observable.range(1, Config.SERVICE_RETRY_COUNT)
             .zip(attempts, (i: number) => i)
             .flatMap((i: number) => {
-				console.log('Attempt ' + i + ' of ' + Config.SERVICE_RETRY_COUNT + ' within ' + Config.SERVICE_RETRY_DELAY + ' milli-second(s)');
+                console.log('Attempt ' + i + ' of ' + Config.SERVICE_RETRY_COUNT + ' within ' +
+                    Config.SERVICE_RETRY_DELAY + ' milli-second(s)');
                 return Observable.timer(Config.SERVICE_RETRY_DELAY);
             });
     };
