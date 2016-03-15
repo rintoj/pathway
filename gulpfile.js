@@ -3,17 +3,19 @@
  * `$ NODE_ENV=<development/production> PORT=<port> gulp <task>`
  */
 
-var gulp = require('gulp'),
-  plugins = require('gulp-load-plugins')();
+var gulp = require('gulp');
+var plugins = require('gulp-load-plugins')();
 
-var del = require('del'),
-  path = require('path'),
-  exec = require('child_process').exec,
-  karma = require('karma'),
-  merge = require('merge-stream'),
-  history = require('connect-history-api-fallback'),
-  webdriver = require('gulp-protractor').webdriver_update,
-  remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+var del = require('del');
+var path = require('path');
+var exec = require('child_process').exec;
+var gutil = require('gulp-util');
+var spawn = require('child_process').spawn;
+var karma = require('karma');
+var merge = require('merge-stream');
+var history = require('connect-history-api-fallback');
+var webdriver = require('gulp-protractor').webdriver_update;
+var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 
 var paths = require('./gulpfile.paths.js');
 
@@ -181,11 +183,7 @@ function tsSrc() {
 }
 
 function apiServer(cb) {
-  exec('cd ./server; npm start', function(err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+  execute('npm', ['start'], '/server');
 }
 
 function mongoDB(cb) {
@@ -193,6 +191,30 @@ function mongoDB(cb) {
     console.log(stdout);
     console.log(stderr);
     cb(err);
+  });
+}
+
+function execute(command, arguments, dir) {
+
+  // Finally execute your script below - here "ls -lA"
+  var child = spawn(command, arguments || [], {
+    cwd: process.cwd() + dir
+  });
+
+  child.stdout.setEncoding('utf8');
+  child.stderr.setEncoding('utf8');
+
+  child.stdout.on('data', function(data) {
+    gutil.log(gutil.colors.green(data));
+  });
+
+  child.stderr.on('data', function(data) {
+    gutil.log(gutil.colors.red(data));
+    gutil.beep();
+  });
+
+  child.on('close', function(code) {
+    gutil.log("Done with exit code", code);
   });
 }
 

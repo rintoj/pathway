@@ -1,0 +1,9 @@
+
+> todoApp@0.0.0 start /Users/839655roje/data/projects/pathway/server
+> node ./bin/www
+
+registered:  /todos
+registered:  /user
+registered:  /auth2
+Express server listening on port 3000
+Connect to mongodb: successful

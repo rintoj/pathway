@@ -1,6 +1,5 @@
 var path = require('path');
 var user = require('./routes/user');
-var auth2 = require('./routes/auth2');
 var todos = require('./routes/todos');
 var logger = require('morgan');
 var express = require('express');
@@ -8,6 +7,7 @@ var favicon = require('serve-favicon');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
+var OAuthService = require('./routes/auth2');
 
 (function PathwayServer() {
 
@@ -18,17 +18,16 @@ var cookieParser = require('cookie-parser');
   // api configuration
   var apis = {
     '/todos': todos,
-    '/user': user.router,
-    '/auth2': auth2.router
+    '/user': user.router
   };
 
   function connectToDB() {
     mongoose.connect(databaseUrl, function(error) {
       if (error) {
-        console.log('Connect to mongodb: failed! ', error);
-      } else {
-        console.log('Connect to mongodb: successful');
+        throw ('Connect to mongodb: ' + error);
       }
+
+      console.log('Connect to mongodb: successful [' + databaseUrl + ']');
     });
   }
 
@@ -38,18 +37,21 @@ var cookieParser = require('cookie-parser');
     app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({
-      extended: false
+      extended: true
     }));
     app.use(cookieParser());
   }
 
-  // enable CORS 
-  function setupCORS() {
+  function enableCORS() {
     app.use(function(req, res, next) {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
     });
+  }
+
+  function setupAuth() {
+    app.oauth = new OAuthService(app, baseUrl + '/oauth');
   }
 
   function registerAPIs() {
@@ -94,18 +96,16 @@ var cookieParser = require('cookie-parser');
     // @endif
   }
 
-  function startup() {
-    connectToDB();
-    setupAPI();
-    registerAPIs();
-    handle404();
-    handle500();
-
-    // export module
-    module.exports = app;
-  }
-
   // startup this module and export
-  startup();
+  connectToDB();
+  setupAPI();
+  enableCORS();
+  setupAuth();
+  registerAPIs();
+  handle404();
+  handle500();
+
+  // export module
+  module.exports = app;
 
 })(this);
