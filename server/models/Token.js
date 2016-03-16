@@ -13,9 +13,7 @@ var TokenSchema = new mongoose.Schema({
     required: true
   },
   expires: {
-    type: Date,
-    required: true,
-    default: Date.now
+    type: Date
   },
   userId: {
     type: String,

@@ -36,7 +36,7 @@ var ClientSchema = new mongoose.Schema({
     required: true,
     default: ["password", "refresh_token"]
   },
-  expiresOn: {
+  expires: {
     type: Date,
     default: new Date(+new Date() + 365 * 24 * 60 * 60 * 1000)
   }

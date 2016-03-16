@@ -54,7 +54,7 @@ var GenericService = require('./GenericService');
       }, function(error, item) {
         User.create({
           name: "System Administrator",
-          userId: "rintoj@gmail.com",
+          userId: "admin",
           password: Base64.encode("sysadmin@123"),
           active: true,
           roles: [
@@ -80,6 +80,7 @@ var GenericService = require('./GenericService');
           function(error, item) {
             if (error) return callback(error);
             console.log('Default client "default" created!');
+            console.log('Authorization: Basic N2Q2NWQ5YjYtNWNhZS00ZGI3LWIxOWQtNTZjYmRkMjVlYWFiOmEwYzdiNzQxLWIxOGItNDdlYi1iNmRmLTQ4YTBiZDNjZGUyZQ==');
           });
       });
     }
@@ -142,7 +143,13 @@ var GenericService = require('./GenericService');
           this.getToken(token, 'access', function(error, item) {
             if (error) return callback(error);
             if (!item) return callback(new Error('Invalid access token!'));
-            callback(null, callback);
+            var accessToken = {
+              accessToken: item.token,
+              clientId: item.clientId,
+              userId: item.userId,
+              expires: item.expires
+            };
+            callback(null, accessToken);
           });
         },
 
@@ -344,8 +351,8 @@ var GenericService = require('./GenericService');
     function addErrorHandler() {
       app.use(function(error, req, res, next) {
 
+        res.status(401);
         if (error && error.error_description === "The access token was is not found") {
-          res.status(401);
           return res.json({
             code: 401,
             error: "Unauthorized!"
@@ -354,7 +361,6 @@ var GenericService = require('./GenericService');
 
         if (error) {
           console.log(error);
-          res.status(400);
           return res.json({
             code: 400,
             error: error.message
