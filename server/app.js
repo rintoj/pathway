@@ -1,5 +1,4 @@
 var path = require('path');
-var user = require('./routes/user');
 var logger = require('morgan');
 var express = require('express');
 var favicon = require('serve-favicon');
@@ -17,8 +16,7 @@ var OAuthService = require('./routes/auth2');
 
   // api configuration
   var apis = {
-    '/projectlog': projectlog.router,
-    '/user': user.router
+    '/projectlog': projectlog.router
   };
 
   function connectToDB() {
