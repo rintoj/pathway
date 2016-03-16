@@ -40,6 +40,22 @@ class DefaultConfig {
     static get DATA_PROJECTLOGS_URL(): string {
         return '/data/projectlogs.json';
     }
+
+    static get APPLICATION_NAME(): string {
+        return 'Pathway';
+    }
+
+    static get EMAIL_VALIDATE_REGEXP(): any {
+        return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/;
+    }
+
+    static get NAME_VALIDATE_REGEXP(): any {
+        return /^[A-Za-z][A-Za-z0-9._-]{2,63}( [A-Za-z][A-Za-z0-9._-]{0,63}){1,2}$/;
+    }
+
+    static get PASSWORD_VALIDATE_REGEXP(): any {
+        return /^[a-zA-Z]\w{3,14}$/;
+    }
 }
 
 // override or add configurations for development environment

@@ -36,3 +36,11 @@ $small-device: 768px;
   -webkit-filter: blur(0);
   position: absolute;
 }
+
+@mixin align-center {
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(0);
+  -webkit-filter: blur(0);
+  position: relative;
+}

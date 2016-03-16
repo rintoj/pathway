@@ -1,8 +1,8 @@
 import {Component, View} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router';
-import {HeaderComponent} from './component/header/header.component';
-import {ProjectlogComponent} from './component/projectlog/projectlog.component';
-
+import {LoginComponent} from './component/login/login.component';
+import {RegisterComponent} from './component/login/register.component';
+import {MainComponent} from './component/main/main.component';
 import {ProjectlogService} from './service/projectlog.service';
 import {UIStateService} from './service/ui-state.service';
 
@@ -19,23 +19,24 @@ import 'rxjs/add/operator/merge';
     ]
 })
 @View({
-    directives: [HeaderComponent, ROUTER_DIRECTIVES],
-    template: `
-		<pw-header></pw-header>
-		<main>
-			<router-outlet></router-outlet>
-		</main>
-		<footer>
-			Pathway™ - Powered by Angular 2. © 2016 Copyright rintoj (Rinto Jose).
-		</footer>
-	`
+    directives: [ROUTER_DIRECTIVES],
+    template: `<router-outlet></router-outlet>`
 })
-@RouteConfig([{
-    path: '/',
-    name: 'Projectlog',
-    component: ProjectlogComponent,
-    useAsDefault: true
-}])
+@RouteConfig([
+    {
+        path: '/login',
+        name: 'Login',
+        component: LoginComponent,
+        useAsDefault: true
+    }, {
+        path: '/register',
+        name: 'Register',
+        component: RegisterComponent
+    }, {
+        path: '/home',
+        name: 'Projectlog',
+        component: MainComponent
+    }])
 export class AppComponent {
 
     constructor(
