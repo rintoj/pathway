@@ -32,9 +32,9 @@ var ClientSchema = new mongoose.Schema({
     default: false
   },
   grantType: {
-    type: String,
+    type: Array,
     required: true,
-    default: "password"
+    default: ["password", "refresh_token"]
   },
   expiresOn: {
     type: Date,

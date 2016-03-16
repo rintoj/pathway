@@ -26,7 +26,8 @@ var GenericService = require('./GenericService');
 
         getAccessToken: function getAccessToken(bearerToken, callback) {
           AccessToken.findOne({
-            accessToken: bearerToken
+            token: bearerToken,
+            type: 'access'
           }, callback);
         },
 
@@ -42,9 +43,12 @@ var GenericService = require('./GenericService');
         },
 
         grantTypeAllowed: function grantTypeAllowed(clientId, grantType, callback) {
-          Client.findById(clientId, {
+          Client.find({
+            _id: clientId,
             active: true,
-            grantType: grantType
+            grantType: {
+              "$in": [grantType]
+            }
           }, function(error, item) {
             if (error) return callback(error);
             if (!item) return callback(new Error('Client not found!'));
@@ -70,20 +74,29 @@ var GenericService = require('./GenericService');
         },
 
         saveAccessToken: function saveAccessToken(accessToken, clientId, expires, user, callback) {
+          this.saveToken(accessToken, clientId, expires, user, 'access', callback);
+        },
+
+        saveRefreshToken: function saveRefreshToken(refreshToken, clientId, expires, user, callback) {
+          this.saveToken(refreshToken, clientId, expires, user, 'refresh', callback);
+        },
+
+        saveToken: function saveToken(token, clientId, expires, user, type, callback) {
           AccessToken.remove({
             userid: user.userid,
-            clientId: clientId
+            clientId: clientId,
+            type: type
           }, function(error, item) {
             if (error) return callback(error);
             AccessToken.create({
-              accessToken: accessToken,
+              token: token,
               clientId: clientId,
               expires: expires,
               userid: user.userid,
-              roles: user.roles
+              type: type
             }, callback);
           });
-        },
+        }
 
       };
     }
@@ -91,7 +104,7 @@ var GenericService = require('./GenericService');
     function createAuth() {
       app.oauth = oauthserver({
         model: model,
-        grants: ['password'],
+        grants: ['password', 'refresh_token'],
         debug: true
       });
     }
@@ -127,7 +140,7 @@ var GenericService = require('./GenericService');
       app.use(baseUrl + '/client', client.router);
 
       // use authorization
-    //   app.use(baseUrl, app.oauth.authorise());
+      //   app.use(baseUrl, app.oauth.authorise());
 
       // add error handler for auth errors
       //   addErrorHandler();

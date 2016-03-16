@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var AccessTokenSchema = new mongoose.Schema({
-  accessToken: {
+  token: {
     type: String,
     required: true,
     index: {
@@ -21,7 +21,7 @@ var AccessTokenSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  roles: []
+  type: String
 });
 
 module.exports = mongoose.model('AccessToken', AccessTokenSchema);
