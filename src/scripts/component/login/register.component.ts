@@ -29,22 +29,22 @@ interface ValidationResult {
              <div class="input-container">
 			    <i class="fa fa-user-secret"></i> 
                 <input type="text" placeholder="Enter your name" ngControl="name">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="name.touched && name.errors !== null">Valid full name is required.</div>
             </div>
             <div class="input-container">
 			    <i class="fa fa-envelope"></i> 
                 <input type="text" placeholder="Enter your email" ngControl="userId">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null && !userId.errors.userIdTaken">Valid email is required.</div>
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null && userId.errors.userIdTaken">
                     This id is already registered.</div>
             </div>
             <div class="input-container">
                 <i class="fa fa-key"></i> 
                 <input type="password" placeholder="Enter your password" ngControl="password">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="password.touched && password.errors !== null">
                     Password Policy: The password's first character must be a letter, it must contain at least 4 characters and no more 
                     than 15 characters and no characters other than letters, numbers and the underscore may be used
@@ -53,7 +53,7 @@ interface ValidationResult {
             <div class="input-container">
                 <i class="fa fa-key"></i> 
                 <input type="password" placeholder="Confirm your password" ngControl="confirmation">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="confirmation.touched && confirmation.errors !== null">
                     Passwords don't match!
                     </div>

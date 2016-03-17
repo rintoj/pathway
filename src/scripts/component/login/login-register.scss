@@ -33,6 +33,14 @@ pw-register {
     color: $primary-color-dark;
     display: inline-block;
   }
+  .message-container {
+    height: 50px;
+    max-height: 50px;
+    overflow: hidden;
+  }
+  .login-message {
+    line-height: 60px;
+  }
   .input-container {
     width: 80%;
     padding-top: 30px;
@@ -72,15 +80,11 @@ pw-register {
     text-align: left;
     margin-left: 60px;
     height: auto;
-    max-height: 0;
     overflow: hidden;
     transition: max-height .3s ease;
     white-space: initial;
     font-size: 0.8em;
     line-height: 20px;
-    &.show {
-      max-height: 200px;
-    }
   }
   .signup-btn {
     @include align-center;

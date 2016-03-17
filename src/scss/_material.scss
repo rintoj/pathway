@@ -99,7 +99,9 @@
   &.btn-primary {
     background: $accent-color;
   }
-  &.btn-disabled {
+  &.btn-disabled,
+  &[disabled] {
+    background: $divider-color;
     &:hover {
       cursor: not-allowed;
       background: $divider-color;
@@ -228,6 +230,14 @@ $code-bg-color: #EFEFEF;
     padding-left: 5px;
   }
 }
+.dynamic-text {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease;
+  &.show {
+    max-height: 100px;
+  }
+}
 
 /** Reset **/
 
@@ -242,6 +252,12 @@ html {
     font-family: 'Roboto', sans-serif;
     font-size: 1em;
     outline: none;
+  }
+  * {
+    filter: blur(0);
+    -webkit-filter: blur(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   button,
   .btn {

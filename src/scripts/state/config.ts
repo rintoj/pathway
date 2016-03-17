@@ -56,6 +56,10 @@ class DefaultConfig {
     static get PASSWORD_VALIDATE_REGEXP(): any {
         return /^[a-zA-Z]\w{3,14}$/;
     }
+
+    static get LOGIN_AUTH_HEADER(): string {
+        return 'Basic N2Q2NWQ5YjYtNWNhZS00ZGI3LWIxOWQtNTZjYmRkMjVlYWFiOmEwYzdiNzQxLWIxOGItNDdlYi1iNmRmLTQ4YTBiZDNjZGUyZQ==';
+    }
 }
 
 // override or add configurations for development environment

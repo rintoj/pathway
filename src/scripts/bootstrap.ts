@@ -6,6 +6,7 @@ import {HTTP_PROVIDERS} from 'angular2/http';
 import {enableProdMode, provide, Inject} from 'angular2/core';
 import {RestOptions, RestService} from './service/rest.service';
 import {ApplicationStateObservable} from './state/application-state';
+import {LocationStrategy, HashLocationStrategy} from 'angular2/router';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -20,6 +21,7 @@ bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     RestOptions,
     RestService,
+    provide(LocationStrategy, { useClass: HashLocationStrategy }),
     provide(Dispatcher, { useValue: new Dispatcher(Config.INITIAL_STATE) }),
     provide(ApplicationStateObservable, { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })
 ]);

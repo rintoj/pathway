@@ -375,8 +375,19 @@ var GenericService = require('./GenericService');
      */
     function bind() {
 
+      app.use(baseUrl + '/token', function(request, response, next) {
+        if (request.method === 'OPTIONS') {
+          response.status(200);
+          response.send('POST');
+        } else {
+          next();
+        }
+      });
+
+      //   OPTIONS / pathway / api / oauth / token
+
       // api to obtain access token
-      app.all(baseUrl + '/token', app.oauth.grant());
+      app.use(baseUrl + '/token', app.oauth.grant());
 
       // use authorization
       app.use(app.oauth.authorise());

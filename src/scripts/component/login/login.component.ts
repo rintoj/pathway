@@ -1,8 +1,9 @@
 import {Config} from '../../state/config';
 import {Dispatcher} from '../../state/dispatcher';
+import {LoginAction} from '../../state/user';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
-import {ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router';
+import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
@@ -11,8 +12,7 @@ interface ValidationResult {
 }
 
 @Component({
-    selector: 'pw-login',
-    providers: [ROUTER_PROVIDERS]
+    selector: 'pw-login'
 })
 @View({
     directives: [
@@ -24,28 +24,31 @@ interface ValidationResult {
         	<div class="title">
 				<i class="avatar"></i>
 			</div>
-            <div class="input-container error-message" *ngIf="errorMessage">
-                {{errorMessage}}
+            <div class="message-container">
+                <pw-loader [show]="loading"></pw-loader>
+                <div class="error-message dynamic-text login-message" [class.show]="errorMessage">
+                    {{errorMessage}}
+                </div>
             </div>
             <div class="input-container">
 			    <i class="fa fa-envelope"></i> 
                 <input type="text" placeholder="Enter your email" ngControl="userId">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null">Valid email is required.</div>
             </div>
             <div class="input-container">
                 <i class="fa fa-key"></i> 
                 <input type="password" placeholder="Enter your password" ngControl="password">
-                <div class="foot-note error-message" 
+                <div class="foot-note error-message dynamic-text" 
                     [class.show]="password.touched && password.errors !== null">Password is required!</div>
             </div>
             <div class="input-container">
                 <button type="submit" 
-                    class="btn btn-primary submit-btn" 
+                    class="btn submit-btn" 
                     [disabled]="!loginForm.valid">Login</button>
             </div>
             <div class="signup-btn">
-                <a>Create account</a> | <a>Help</a>
+                <a [routerLink]="['Register']">Create account</a> | <a>Help</a>
             </div>
             <footer>
 			    <span>Pathway™ - Powered by Angular 2.</span> <span>© 2016 Copyright rintoj (Rinto Jose).</span>
@@ -62,6 +65,9 @@ export class LoginComponent {
     password: Control;
     loginForm: ControlGroup;
 
+    loading: boolean = false;
+    errorMessage: string;
+
     constructor(
         private builder: FormBuilder,
         private dispatcher: Dispatcher,
@@ -71,8 +77,8 @@ export class LoginComponent {
 
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        this.userId = new Control('', Validators.compose([Validators.required, this.validEmail]));
-        this.password = new Control('', Validators.required);
+        this.userId = new Control('admin', Validators.compose([Validators.required, this.validEmail]));
+        this.password = new Control('c3lzYWRtaW5AMTIz', Validators.required);
 
         this.loginForm = this.builder.group({
             userId: this.userId,
@@ -81,13 +87,35 @@ export class LoginComponent {
     }
 
     onSubmit() {
-        console.log('user:', this.userId, 'password:', this.password);
+        this.loading = true;
+        this.errorMessage = undefined;
+        this.dispatcher
+            .next(new LoginAction({
+                userId: this.userId.value,
+                password: this.password.value
+            }))
+            .catch((error: any): any => {
+                this.loading = false;
+                this.errorMessage = 'Login failed! Try again.';
+                console.error(error);
+                throw 'Couldnt authorize!';
+            }).subscribe(
+            () => this.loading = false,
+            (error: any) => {
+                this.loading = false;
+                this.errorMessage = 'Login failed! Try again.';
+            },
+            () => {
+                this.loading = false;
+                this.errorMessage = 'Login failed! Try again.';
+            });
+        return null;
     }
 
     private validEmail(control: Control): any {
-        if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
-            return { validEmail: true };
-        }
+        // if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
+        //     return { validEmail: true };
+        // }
         return null;
     }
 }

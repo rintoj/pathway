@@ -1,11 +1,11 @@
-import {Component, View} from 'angular2/core';
+import {Component, Input, View} from 'angular2/core';
 
 @Component({
-  selector: 'pw-loader'
+    selector: 'pw-loader'
 })
 @View({
-  template: `
-		<div class="sk-circle">
+    template: `
+		<div class="sk-circle" [class.show]="show">
 			<div class="sk-circle1 sk-child"></div>
 			<div class="sk-circle2 sk-child"></div>
 			<div class="sk-circle3 sk-child"></div>
@@ -22,5 +22,5 @@ import {Component, View} from 'angular2/core';
 	`
 })
 export class LoaderComponent {
-
+    @Input() show: boolean = true;
 }
