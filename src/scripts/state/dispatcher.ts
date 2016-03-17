@@ -1,7 +1,31 @@
+/**
+ * @author rintoj (Rinto Jose)
+ * @license The MIT License (MIT)
+ *
+ * Copyright (c) 2016 rintoj
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the " Software "), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED " AS IS ", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 import {Observer} from 'rxjs/Observer';
 import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
-// import {ObservableUtil} from '../util/ObservableUtil';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
@@ -33,18 +57,26 @@ export abstract class Action { }
 export class Dispatcher {
 
     private state: ApplicationState;
-    // private actionObserver: Observer<ServiceAction[]>;
-    // private actionObservable: Observable<ServiceAction[]>;
     private subscriptions: any = {};
     private stateObserver: Observer<ApplicationState>;
     private stateObservable: ApplicationStateObservable;
 
-    private s: number = 1;
-
+    /**
+     * The factory for creating the initial application state
+     * 
+     * @static
+     * @param {Dispatcher} dispatcher Application's default dispatcher
+     * @returns {ApplicationStateObservable} Returns application state as an observable
+     */
     static stateFactory(dispatcher: Dispatcher): ApplicationStateObservable {
         return dispatcher.stateObservable;
     }
 
+    /**
+     * Creates an instance of Dispatcher.
+     * 
+     * @param {ApplicationState} initialState (description)
+     */
     constructor(initialState: ApplicationState) {
 
         // set initial state
@@ -55,28 +87,15 @@ export class Dispatcher {
             this.makeImmutable(this.state),
             ApplicationStateObservable.create((observer: Observer<ApplicationState>) => this.stateObserver = observer).share()
         );
-
-        // create action observable
-        // this.actionObservable = Observable.create((observer: Observer<ServiceAction[]>) => this.actionObserver = observer)
-        //     .flatMap((serviceActions: ServiceAction[]): any => serviceActions)
-        //     .flatMap((serviceAction: ServiceAction) => {
-        // 		console.log('Processing action: ', serviceAction);
-        //         return serviceAction.service(this.state, serviceAction.action);
-        //     })
-        //     .map((state: ApplicationState) => {
-        //         this.state = state;
-        //         // @if isDev
-        //         state = this.makeImmutable(state);
-        //         // @endif
-        //         this.stateObserver.next(state);
-        //         return state;
-        //     })
-        //     .share();
-
-        // // subscribe to active actionObservable once
-        // this.actionObservable.subscribe();
     }
 
+    /**
+     * Make this object immutable
+     * 
+     * @protected
+     * @param {Object} object The object needs to coverted to immutable 
+     * @returns The immutable copy of the given object
+     */
     protected makeImmutable(object: Object) {
         console.time('makeImmutable');
         let immutable: any = Immutable.fromJS(object, (key: any, value: any) => {
@@ -141,6 +160,12 @@ export class Dispatcher {
         return state;
     }
 
+    /**
+     * Subscribe to an action.
+     * 
+     * @param {Action[]} actions Actions as array
+     * @param {ServiceFunction} callback Callback for each action
+     */
     subscribe(actions: Action[], callback: ServiceFunction) {
         for (let action of actions) {
             let actionIdentity: any = action.constructor;
@@ -151,42 +176,19 @@ export class Dispatcher {
         }
     }
 
-    next(action: Action): Observable<any> {
-        // let actionIdentity: any = action.constructor;
-        // let services: any[] = this.subscriptions[actionIdentity];
-
-        let processor = (v: any) => {
-            console.log('processor:', v);
-            return Observable.create((observer: any) => observer.next(v + 1));
-        };
-
-        let x: any[] = [];
-        x.push(processor);
-        x.push(processor);
-        x.push(processor);
-        x.push(processor);
-
-        console.log('Processing action: ', action, x.length + ' service(s) found.');
-
-
-        Observable.from(x)
-            .flatMap((x: any): any => {
-                console.log('flat map:', this.s);
-                return x(this.s);
-            })
-            .map((v: any) => {
-                this.s = v;
-                console.log('map:', this.s);
-                return v;
-            })
-            .skipWhile(function(v: any, i: number) { return i + 1 < x.length; })
-            .subscribe((v: any) => console.log('next: ', v, this.s));
-
+    /**
+     * Publish next action to all the subscribed services
+     * 
+     * @param {Action} action The action
+     * @returns {Observable<ApplicationState>} An observable
+     */
+    next(action: Action): Observable<ApplicationState> {
 
         let actionIdentity: any = action.constructor;
         let services: any[] = this.subscriptions[actionIdentity];
 
         console.log('Processing action: ', action, services.length + ' service(s) found.');
+
         if (services === undefined || services.length === 0) {
             return Observable.empty();
         }
@@ -220,7 +222,6 @@ export class Dispatcher {
                 }, () => observer.complete()
             );
         });
-
     }
 
 }

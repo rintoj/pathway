@@ -54,7 +54,7 @@ var GenericService = require('./GenericService');
       }, function(error, item) {
         User.create({
           name: "System Administrator",
-          userId: "admin",
+          userId: "admin@pathway.com",
           password: Base64.encode("sysadmin@123"),
           active: true,
           roles: [

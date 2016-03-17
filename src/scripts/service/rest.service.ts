@@ -53,17 +53,9 @@ export class RestService {
             }
         }
 
-        // return this.http.request(new Request(options));
-
         return Observable.create((observer: Observer<any>) => {
             this.requestsInFlight[requestId] = this.http.request(new Request(options))
                 .share()
-                // @if isDev
-                .delay(Config.SERVICE_ACCESS_DELAY)
-                // @endif
-                // @if isProd
-                .retryWhen(this.retryAttempts)
-                // @endif
                 .catch((response: Response): any => {
                     try {
                         if (response.status === 401) { // unauthorized

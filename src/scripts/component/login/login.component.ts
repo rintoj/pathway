@@ -7,10 +7,6 @@ import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
-interface ValidationResult {
-    [key: string]: boolean;
-}
-
 @Component({
     selector: 'pw-login'
 })
@@ -108,9 +104,9 @@ export class LoginComponent {
     }
 
     private validEmail(control: Control): any {
-        // if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
-        //     return { validEmail: true };
-        // }
+        if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
+            return { validEmail: true };
+        }
         return null;
     }
 }

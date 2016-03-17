@@ -25,10 +25,6 @@ class DefaultConfig {
         };
     }
 
-    static get SERVICE_ACCESS_DELAY(): number {
-        return Math.random() * 10;
-    }
-
     static get SERVICE_RETRY_COUNT(): number {
         return 3;
     }
