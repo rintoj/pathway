@@ -1,4 +1,5 @@
 import {Config} from '../state/config';
+import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
@@ -13,7 +14,7 @@ export class RestOptions extends BaseRequestOptions {
 @Injectable()
 export class RestService {
 
-    // private requestsInFlight: Object = {};
+    private requestsInFlight: Object = {};
 
     constructor(private http: Http, private restOptions: RestOptions) { }
 
@@ -42,29 +43,46 @@ export class RestService {
 
     request(options: RequestOptions, force: boolean = false) {
 
-        // let requestId = JSON.stringify(options, null, 4);
-        // let request: Observable<Response> = this.requestsInFlight[requestId];
+        let requestId = JSON.stringify(options, null, 4);
+        let request: Observable<Response> = this.requestsInFlight[requestId];
 
-        // if (request) {
-        //     // if a request is in flight ignore this request and return the previous observable
-        //     if (!force) {
-        //         return request;
-        //     }
-        // }
+        if (request) {
+            // if a request is in flight ignore this request and return the previous observable
+            if (!force) {
+                return request;
+            }
+        }
 
-        return this.http.request(new Request(options));
+        // return this.http.request(new Request(options));
 
-        // return this.requestsInFlight[requestId] = this.http.request(new Request(options));
-        // .share()
-        // @if isDev
-        // .delay(Config.SERVICE_ACCESS_DELAY)
-        // @endif
-        // @if isProd
-        // .retryWhen(this.retryAttempts)
-        // @endif
-        // .finally(() => {
-        //     this.requestsInFlight[requestId] = undefined;
-        // });
+        return Observable.create((observer: Observer<any>) => {
+            this.requestsInFlight[requestId] = this.http.request(new Request(options))
+                .share()
+                // @if isDev
+                .delay(Config.SERVICE_ACCESS_DELAY)
+                // @endif
+                // @if isProd
+                .retryWhen(this.retryAttempts)
+                // @endif
+                .catch((response: Response): any => {
+                    try {
+                        if (response.status === 401) { // unauthorized
+                            console.log('here unauthorized');
+                            throw 'User is unauthorized!';
+                        }
+                    } catch (error) {
+                        observer.error({
+                            status: response.status,
+                            message: error
+                        });
+                        observer.complete();
+                    }
+                })
+                .finally(() => {
+                    this.requestsInFlight[requestId] = undefined;
+                })
+                .subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete);
+        });
     }
 
     serialize(obj: Object): string {

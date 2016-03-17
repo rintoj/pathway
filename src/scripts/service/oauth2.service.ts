@@ -42,18 +42,19 @@ export class OAuth2Service {
             headers: headers
         });
 
-        let request = this.rest.request(options);
+        return this.rest.request(options)
+            .map((response: Response): ApplicationState => this.mapResponse(response, action.user));
 
-        request.subscribe((data: any) => {
-            console.log('HJEREEREERER:', data);
-            return data;
-        }, (data: any) => {
-            console.error('HJEREEREERER:', data);
-            return data;
-        });
+        // request.subscribe((data: any) => {
+        //     console.log('HJEREEREERER:', data);
+        //     return data;
+        // }, (data: any) => {
+        //     console.error('HJEREEREERER:', data);
+        //     return data;
+        // });
 
-        // return request.map((response: Response): ApplicationState => this.mapResponse(response, action.user));
-        return Observable.empty();
+        // // return request.map((response: Response): ApplicationState => this.mapResponse(response, action.user));
+        // return Observable.empty();
     }
 
     protected logout(state: ApplicationState, action: LogoutAction): ApplicationState {

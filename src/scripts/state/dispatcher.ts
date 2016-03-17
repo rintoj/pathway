@@ -1,7 +1,7 @@
 import {Observer} from 'rxjs/Observer';
 import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
-import {ObservableUtil} from '../util/ObservableUtil';
+// import {ObservableUtil} from '../util/ObservableUtil';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
@@ -23,11 +23,6 @@ export interface ServiceFunction {
  */
 export abstract class Action { }
 
-interface ServiceAction {
-    service: ServiceFunction;
-    action: Action;
-}
-
 /**
  * Dispatcher dispatches actions to subscribed services and then merge back the partial application state
  * returned by services with the original application state. 
@@ -38,11 +33,13 @@ interface ServiceAction {
 export class Dispatcher {
 
     private state: ApplicationState;
-    private actionObserver: Observer<ServiceAction[]>;
-    private actionObservable: Observable<ServiceAction[]>;
+    // private actionObserver: Observer<ServiceAction[]>;
+    // private actionObservable: Observable<ServiceAction[]>;
     private subscriptions: any = {};
     private stateObserver: Observer<ApplicationState>;
     private stateObservable: ApplicationStateObservable;
+
+    private s: number = 1;
 
     static stateFactory(dispatcher: Dispatcher): ApplicationStateObservable {
         return dispatcher.stateObservable;
@@ -60,24 +57,24 @@ export class Dispatcher {
         );
 
         // create action observable
-        this.actionObservable = Observable.create((observer: Observer<ServiceAction[]>) => this.actionObserver = observer)
-            .flatMap((serviceActions: ServiceAction[]): any => serviceActions)
-            .flatMap((serviceAction: ServiceAction) => {
-				console.log('Processing action: ', serviceAction);
-                return serviceAction.service(this.state, serviceAction.action);
-            })
-            .map((state: ApplicationState) => {
-                this.state = state;
-                // @if isDev
-                state = this.makeImmutable(state);
-                // @endif
-                this.stateObserver.next(state);
-                return state;
-            })
-            .share();
+        // this.actionObservable = Observable.create((observer: Observer<ServiceAction[]>) => this.actionObserver = observer)
+        //     .flatMap((serviceActions: ServiceAction[]): any => serviceActions)
+        //     .flatMap((serviceAction: ServiceAction) => {
+        // 		console.log('Processing action: ', serviceAction);
+        //         return serviceAction.service(this.state, serviceAction.action);
+        //     })
+        //     .map((state: ApplicationState) => {
+        //         this.state = state;
+        //         // @if isDev
+        //         state = this.makeImmutable(state);
+        //         // @endif
+        //         this.stateObserver.next(state);
+        //         return state;
+        //     })
+        //     .share();
 
-        // subscribe to active actionObservable once
-        this.actionObservable.subscribe();
+        // // subscribe to active actionObservable once
+        // this.actionObservable.subscribe();
     }
 
     protected makeImmutable(object: Object) {
@@ -96,6 +93,13 @@ export class Dispatcher {
         return immutable;
     }
 
+    /**
+     * Make the object mutable so that services can edit it directly.
+     * 
+     * @protected
+     * @param {*} object (description)
+     * @returns (description)
+     */
     protected makeMutable(object: any) {
         return object && (object.toJS ? object.toJS() : object);
     }
@@ -148,21 +152,75 @@ export class Dispatcher {
     }
 
     next(action: Action): Observable<any> {
+        // let actionIdentity: any = action.constructor;
+        // let services: any[] = this.subscriptions[actionIdentity];
+
+        let processor = (v: any) => {
+            console.log('processor:', v);
+            return Observable.create((observer: any) => observer.next(v + 1));
+        };
+
+        let x: any[] = [];
+        x.push(processor);
+        x.push(processor);
+        x.push(processor);
+        x.push(processor);
+
+        console.log('Processing action: ', action, x.length + ' service(s) found.');
+
+
+        Observable.from(x)
+            .flatMap((x: any): any => {
+                console.log('flat map:', this.s);
+                return x(this.s);
+            })
+            .map((v: any) => {
+                this.s = v;
+                console.log('map:', this.s);
+                return v;
+            })
+            .skipWhile(function(v: any, i: number) { return i + 1 < x.length; })
+            .subscribe((v: any) => console.log('next: ', v, this.s));
+
+
         let actionIdentity: any = action.constructor;
         let services: any[] = this.subscriptions[actionIdentity];
 
-        if (services === undefined) {
+        console.log('Processing action: ', action, services.length + ' service(s) found.');
+        if (services === undefined || services.length === 0) {
             return Observable.empty();
         }
+        return Observable.create((observer: Observer<ApplicationState>) => {
+            let observable: Observable<ApplicationState> = Observable.from(services)
+                .flatMap((service: ServiceFunction): any => {
+                    return service(this.state, action);
+                })
+                .map((state: ApplicationState) => {
+                    this.state = state;
+                    // @if isDev
+                    state = this.makeImmutable(state);
+                    // @endif
+                    this.stateObserver.next(state);
+                    return state;
+                })
+                .catch((error: any): any => {
+                    observer.error(error);
+                    observer.complete();
+                })
+                .skipWhile((state: ApplicationState, i: number) => i + 1 < services.length)
+                .share();
 
-        this.actionObserver.next(services.map((item: any): ServiceAction => {
-            return {
-                service: item,
-                action: action
-            };
-        }));
+            observable.subscribe(
+                (state: ApplicationState) => {
+                    observer.next(state);
+                    observer.complete();
+                }, (error: any) => {
+                    observer.error(error);
+                    observer.complete();
+                }, () => observer.complete()
+            );
+        });
 
-        return ObservableUtil.observeNextOnce(this.actionObservable);
     }
 
 }

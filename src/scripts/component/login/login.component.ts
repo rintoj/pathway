@@ -89,25 +89,20 @@ export class LoginComponent {
     onSubmit() {
         this.loading = true;
         this.errorMessage = undefined;
-        this.dispatcher
-            .next(new LoginAction({
-                userId: this.userId.value,
-                password: this.password.value
-            }))
-            .catch((error: any): any => {
+        this.dispatcher.next(new LoginAction({
+            userId: this.userId.value,
+            password: this.password.value
+        })).subscribe(
+            () => {
                 this.loading = false;
-                this.errorMessage = 'Login failed! Try again.';
-                console.error(error);
-                throw 'Couldnt authorize!';
-            }).subscribe(
-            () => this.loading = false,
+                this.errorMessage = 'Login successful';
+            },
             (error: any) => {
                 this.loading = false;
                 this.errorMessage = 'Login failed! Try again.';
             },
             () => {
                 this.loading = false;
-                this.errorMessage = 'Login failed! Try again.';
             });
         return null;
     }
