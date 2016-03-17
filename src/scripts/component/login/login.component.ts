@@ -1,6 +1,6 @@
 import {Config} from '../../state/config';
 import {Dispatcher} from '../../state/dispatcher';
-import {LoginAction} from '../../state/user';
+import {LoginAction, ValidateAuthAction} from '../../state/user';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {ROUTER_DIRECTIVES, Router} from 'angular2/router';
@@ -28,7 +28,7 @@ import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
             </div>
             <div class="input-container">
 			    <i class="fa fa-envelope"></i> 
-                <input type="text" placeholder="Enter your email" ngControl="userId">
+                <input type="text" placeholder="Enter your email" ngControl="userId" autofocus>
                 <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null">Valid email is required.</div>
             </div>
@@ -81,6 +81,12 @@ export class LoginComponent {
             userId: this.userId,
             password: this.password
         });
+        this.validateAuth();
+    }
+
+    validateAuth() {
+        this.dispatcher.next(new ValidateAuthAction(this.state.user))
+            .subscribe(() => this.router.navigate(['/Home']));
     }
 
     onSubmit() {

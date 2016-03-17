@@ -1,11 +1,12 @@
+import {User} from '../state/user';
 import {Config} from '../state/config';
 import {Dispatcher} from '../state/dispatcher';
 import {Injectable} from 'angular2/core';
-import {Observable} from 'rxjs/Observable';
 import {RestService} from './rest.service';
+import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Observable';
 import {ApplicationState} from '../state/application-state';
-import {User, LoginPayload} from '../state/user';
-import {LoginAction, LogoutAction} from '../state/user';
+import {LoginAction, LogoutAction, ValidateAuthAction} from '../state/user';
 import {Response, RequestMethod, RequestOptions, Headers} from 'angular2/http';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class OAuth2Service {
     private subscribeToDispatcher(dispatcher: Dispatcher) {
         dispatcher.subscribe([new LoginAction(null)], this.login.bind(this));
         // dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
+        dispatcher.subscribe([new ValidateAuthAction(null)], this.validateAuth.bind(this));
     }
 
     protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
@@ -43,18 +45,21 @@ export class OAuth2Service {
         });
 
         return this.rest.request(options)
-            .map((response: Response): ApplicationState => this.mapResponse(response, action.user));
+            .map((response: Response): ApplicationState => this.mapLoginResponse(response, state, action));
+    }
 
-        // request.subscribe((data: any) => {
-        //     console.log('HJEREEREERER:', data);
-        //     return data;
-        // }, (data: any) => {
-        //     console.error('HJEREEREERER:', data);
-        //     return data;
-        // });
+    protected mapLoginResponse(response: Response, state: ApplicationState, action: LoginAction): ApplicationState {
+        var json = response.json();
 
-        // // return request.map((response: Response): ApplicationState => this.mapResponse(response, action.user));
-        // return Observable.empty();
+        let user: User = {
+            id: null,
+            name: 'Unknown',
+            userId: action.user.userId,
+            auth: json
+        };
+
+        state.user = user;
+        return state;
     }
 
     protected logout(state: ApplicationState, action: LogoutAction): ApplicationState {
@@ -62,83 +67,52 @@ export class OAuth2Service {
         return Observable.create();
     }
 
-    // private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
-    //     return this.rest.fetch(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
-    //         .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
-    //         .map((s: ApplicationState) => {
-    //             if (s.projectlogs.page.currentPage === 0) {
-    //                 state.projectlogs.list = s.projectlogs.list;
-    //             } else {
-    //                 state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
-    //             }
-    //             state.projectlogs.page = s.projectlogs.page;
-    //             return state;
-    //         });
-    // }
+    protected validateAuth(state: ApplicationState, action: ValidateAuthAction): ApplicationState {
+        console.log('validateAuth', state, action);
+        return Observable.create((observer: Observer<ApplicationState>) => {
 
-    protected mapResponse(response: Response, payload: LoginPayload): ApplicationState {
+            if (!state.user || !state.user.auth || !state.user.auth.access_token) {
+                observer.error({
+                    status: 401,
+                    message: 'Unauthorized!'
+                });
+                return observer.complete();
+            }
+
+            var headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            headers.append('Authorization', 'Bearer ' + state.user.auth.access_token);
+
+            let options = new RequestOptions({
+                method: RequestMethod.Get,
+                url: `${this.url}/user`,
+                body: this.rest.serialize({
+                    userId: action.user.userId
+                }),
+                headers: headers
+            });
+
+            let request = this.rest.request(options)
+                .map((response: Response): ApplicationState => this.mapUserResponse(response, state, action));
+
+            request.subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete());
+            observer.complete();
+        });
+    }
+
+    protected mapUserResponse(response: Response, state: ApplicationState, action: ValidateAuthAction): ApplicationState {
         var json = response.json();
 
         let user: User = {
-            id: null,
-            name: 'Unknown',
-            userId: payload.userId,
-            auth: json
+            id: json._id,
+            name: json.name,
+            userId: json.userId,
+            auth: state.user.auth
         };
 
-        return { user: user };
+        state.user = user;
+        return state;
     }
 
-    // fetch(page?: Page<any>, sortAsc: boolean = true): Promise<any> {
-    //     var defer = PromiseWrapper.completer();
 
-    //     this.rest.read(`${this.url}/_search`, (page === undefined) ? undefined : page.currentIndex(), {
-    //         'sort': {
-    //             'index': {
-    //                 'order': sortAsc ? 'asc' : 'desc'
-    //             }
-    //         }
-    //     })
-    //         .map((response: Response) => this.mapResponse(response, page))
-    //         .subscribe(
-
-    //         (data: Page<Projectlog[]>) => {
-    //             if (page !== undefined) {
-    //                 this.data = this.data.concat(data.data);
-    //             } else {
-    //                 this.data = data.data;
-    //             }
-    //             this.publish(data.data); 
-    //             defer.resolve(data);
-    //         },
-
-    //         defer.reject);
-
-    //     return defer.promise;
-    // }
-
-    // update(projectlog: Projectlog): Promise<any> {
-    //     var defer = PromiseWrapper.completer();
-    //     this.rest.update(`${this.url}/${projectlog.id}`, projectlog)
-    //         .subscribe(defer.resolve, defer.reject);
-    //     return defer.promise;
-    // }
-
-    // create(projectlog: Projectlog): ProjectlogService {
-    //   this.data.unshift(projectlog);
-    //   this.rest.create(this.url, projectlog).map((res: Response) => res.json()).subscribe(this.publish);
-    //   return this;
-    // }
-
-    // update(projectlog: Projectlog): void {
-    //   this.rest.update(`${this.url}/${projectlog.id}`, projectlog)
-    //     .subscribe(() => console.log('updated!'));
-    // }
-
-    // delete(projectlog: Projectlog): ProjectlogService {
-    //   this.data.splice(this.data.indexOf(projectlog), 1);
-    //   this.rest.delete(`${this.url}/${projectlog.id}`).map((res: Response) => res.json())
-    //     .subscribe(this.publish);
-    //   return this;
-    // }
 }

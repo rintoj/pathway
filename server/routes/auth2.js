@@ -50,7 +50,7 @@ var GenericService = require('./GenericService');
     function defaultSetup() {
 
       User.remove({
-        userId: 'admin'
+        userId: 'admin@pathway.com'
       }, function(error, item) {
         User.create({
           name: "System Administrator",
@@ -61,7 +61,7 @@ var GenericService = require('./GenericService');
             "admin"
           ]
         }, function(error, item) {
-          if (error) return callback(error);
+          if (error) return console.error(error);
           console.log('Default user "admin" created!');
         });
       });
@@ -390,7 +390,14 @@ var GenericService = require('./GenericService');
       app.use(baseUrl + '/token', app.oauth.grant());
 
       // use authorization
-      app.use(app.oauth.authorise());
+      var authorizeMethod = app.oauth.authorise();
+      app.use(function(request, response, next) {
+        if (request.method === 'OPTIONS') {
+          next();
+        } else {
+          authorizeMethod(request, response, next);
+        }
+      });
 
       // add client creation url
       app.use(baseUrl + '/client', client.router);

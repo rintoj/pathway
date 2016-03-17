@@ -1,5 +1,5 @@
 import {Page} from './pagination';
-import {Action} from './dispatcher';
+import {Action} from './action';
 
 export interface ProjectlogState {
     open: boolean;

@@ -1,6 +1,8 @@
 import {Page} from './pagination';
 import {Projectlog} from './projectlog';
+import {ApplicationStatus} from './ui-state';
 import {ApplicationState} from './application-state';
+import {DataServiceOptions} from '../service/data.service';
 
 // default configuration
 class DefaultConfig {
@@ -16,11 +18,13 @@ class DefaultConfig {
             },
 
             ui: {
+                syncing: false,
                 projectlog: {
                     sortOrderAsc: true,
                     fetching: false
                 },
-                syncing: false
+                restorePending: true,
+                applicationStatus: ApplicationStatus.STOPPED,
             }
         };
     }
@@ -55,6 +59,12 @@ class DefaultConfig {
 
     static get LOGIN_AUTH_HEADER(): string {
         return 'Basic N2Q2NWQ5YjYtNWNhZS00ZGI3LWIxOWQtNTZjYmRkMjVlYWFiOmEwYzdiNzQxLWIxOGItNDdlYi1iNmRmLTQ4YTBiZDNjZGUyZQ==';
+    }
+
+    static get DATA_SERVICE_OPTIONS(): DataServiceOptions {
+        return {
+            offline: true
+        };
     }
 }
 

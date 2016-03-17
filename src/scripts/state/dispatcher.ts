@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+import {Action} from './action';
 import {Observer} from 'rxjs/Observer';
 import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
@@ -38,14 +39,6 @@ import {ApplicationState, ApplicationStateObservable} from './application-state'
 export interface ServiceFunction {
     (state: ApplicationState, action: Action): Observable<ApplicationState>;
 }
-
-/**
- * Defines an action
- *
- * @export
- * @class Action
- */
-export abstract class Action { }
 
 /**
  * Dispatcher dispatches actions to subscribed services and then merge back the partial application state
@@ -206,6 +199,7 @@ export class Dispatcher {
                     return state;
                 })
                 .catch((error: any): any => {
+                    console.error(error);
                     observer.error(error);
                     observer.complete();
                 })
