@@ -27,7 +27,7 @@ import 'rxjs/add/operator/merge';
 @RouteConfig([
     { path: '/login', name: 'Login', component: LoginComponent, useAsDefault: true },
     { path: '/register', name: 'Register', component: RegisterComponent },
-    { path: '/home', name: 'Projectlog', component: MainComponent },
+    { path: '/home', name: 'Home', component: MainComponent },
     { path: '/**', redirectTo: ['Login'] }
 ])
 export class AppComponent {

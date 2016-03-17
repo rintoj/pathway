@@ -3,7 +3,7 @@ import {Dispatcher} from '../../state/dispatcher';
 import {LoginAction} from '../../state/user';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
-import {ROUTER_DIRECTIVES} from 'angular2/router';
+import {ROUTER_DIRECTIVES, Router} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
@@ -65,6 +65,7 @@ export class LoginComponent {
     errorMessage: string;
 
     constructor(
+        private router: Router,
         private builder: FormBuilder,
         private dispatcher: Dispatcher,
         private stateObservable: ApplicationStateObservable
@@ -73,8 +74,8 @@ export class LoginComponent {
 
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        this.userId = new Control('admin', Validators.compose([Validators.required, this.validEmail]));
-        this.password = new Control('c3lzYWRtaW5AMTIz', Validators.required);
+        this.userId = new Control('admin@pathway.com', Validators.compose([Validators.required, this.validEmail]));
+        this.password = new Control('sysadmin@123', Validators.required);
 
         this.loginForm = this.builder.group({
             userId: this.userId,
@@ -87,11 +88,12 @@ export class LoginComponent {
         this.errorMessage = undefined;
         this.dispatcher.next(new LoginAction({
             userId: this.userId.value,
-            password: this.password.value
+            password: btoa(this.password.value)
         })).subscribe(
             () => {
                 this.loading = false;
                 this.errorMessage = 'Login successful';
+                this.router.parent.navigate(['Home']);
             },
             (error: any) => {
                 this.loading = false;

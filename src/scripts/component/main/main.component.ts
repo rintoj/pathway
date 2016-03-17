@@ -1,12 +1,13 @@
 import {Component, View} from 'angular2/core';
 import {HeaderComponent} from '../header/header.component';
+import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ProjectlogComponent} from '../projectlog/projectlog.component';
 
 @Component({
     selector: 'pw-main'
 })
 @View({
-    directives: [HeaderComponent, ProjectlogComponent],
+    directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
     template: `
 		<pw-header></pw-header>
 		<main>

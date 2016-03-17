@@ -253,12 +253,6 @@ html {
     font-size: 1em;
     outline: none;
   }
-  * {
-    filter: blur(0);
-    -webkit-filter: blur(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-  }
   button,
   .btn {
     outline: none;
