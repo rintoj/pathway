@@ -34,7 +34,7 @@
         ]
     },
     "Import": {
-        "prefix": "imp",
+        "prefix": "import",
         "body": ["import {${1:Type}} from '${2:file}';"]
     },
     "Import Observable": {

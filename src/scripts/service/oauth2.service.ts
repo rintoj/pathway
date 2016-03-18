@@ -125,16 +125,16 @@ export class OAuth2Service {
         headers.append('Content-Type', 'application/json');
         headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
-        // let options = new RequestOptions({
-        //     method: RequestMethod.Get,
-        //     url: `${this.url}/user?userId=${action.userId}`,
-        //     headers: headers
-        // });
-        return Observable.create((observer: Observer<ApplicationState>) => {
-            observer.next(state);
-            observer.complete();
-        }).share();
+        let options = new RequestOptions({
+            method: RequestMethod.Get,
+            url: `${this.url}/user?userId=${action.userId}`,
+            headers: headers
+        });
+        // return Observable.create((observer: Observer<ApplicationState>) => {
+        //     observer.next(state);
+        //     observer.complete();
+        // }).share();
 
-        // return Observable.empty(); // this.rest.request(options).map((response: Response): ApplicationState => state);
+        return this.rest.request(options).map((response: Response): ApplicationState => state);
     }
 }
