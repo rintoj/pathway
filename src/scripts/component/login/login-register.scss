@@ -24,6 +24,20 @@ pw-register {
     margin: 0 auto;
     border-radius: 10px;
     z-index: 1;
+    &.validating {
+      .input-container {
+        max-height: 0;
+        padding: 0px;
+        overflow: hidden;
+      }
+      .signup-btn {
+        max-height: 0;
+        overflow: hidden;
+      }
+      .message-container {
+        margin: 50px 0;
+      }
+    }
   }
   .title {
     @include align-center;
@@ -37,14 +51,18 @@ pw-register {
     height: 50px;
     max-height: 50px;
     overflow: hidden;
+    margin: 10px 0;
+    transition: margin .3s ease;
   }
   .login-message {
     line-height: 60px;
   }
   .input-container {
     width: 80%;
-    padding-top: 30px;
+    padding: 15px;
     margin: 0 auto;
+    max-height: 500px;
+    transition: max-height .3s ease, padding .3s ease;
   }
   .fa {
     display: inline-block;
@@ -90,6 +108,8 @@ pw-register {
     @include align-center;
     text-align: center;
     margin: 20px 0 0;
+    max-height: 50px;
+    transition: max-height .3s ease;
     a {
       margin: 0 10px;
     }

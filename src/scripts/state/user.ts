@@ -26,10 +26,6 @@ export class LoginAction extends Action {
     }
 }
 
-export class ValidateAuthAction extends Action {
-    constructor(public user: User) {
-        super();
-    }
-}
+export class ValidateAuthAction extends Action { }
 
 export class LogoutAction extends Action { }

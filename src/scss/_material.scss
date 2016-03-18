@@ -79,6 +79,9 @@
   vertical-align: middle;
   line-height: 30px;
 }
+input[disabled] {
+  color: $divider-color;
+}
 .btn {
   @include shadow(1);
   display: inline-block;
@@ -91,6 +94,13 @@
   min-width: 120px;
   text-align: center;
   border: 0;
+  &:focus {
+    outline: 0;
+    &:active {
+      outline: 0;
+      @include shadow(0);
+    }
+  }
   &:active {
     &:not(.dialog-disabled-button) {
       @include shadow(0);
@@ -115,6 +125,9 @@
       @include shadow(1);
       background: $primary-color;
       color: $primary-color-text;
+      &.btn-primary {
+        background: $accent-color;
+      }
     }
   }
   &.btn-round {
@@ -223,11 +236,21 @@ $code-bg-color: #EFEFEF;
   text-rendering: auto;
   -webkit-font-smoothing: antialiased;
   text-align: center;
+  vertical-align: middle;
   &:before {
     font-size: 8em;
     content: '\f21b';
     line-height: 140px;
-    padding-left: 5px;
+    padding-left: 4px;
+  }
+  &.small {
+    width: 40px;
+    height: 40px;
+    &:before {
+      font-size: 3em;
+      content: '\f21b';
+      line-height: 60px;
+    }
   }
 }
 .dynamic-text {

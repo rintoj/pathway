@@ -13,6 +13,18 @@
     		"description": "Log output to console"
     	}
     */
+
+    "Action": {
+        "prefix": "action",
+        "body": [
+            "export class ${actionName}Action extends Action {",
+            "	constructor(${arguments}) {",
+            "		super();",
+            "	}",
+            "}"
+        ],
+        "description": "Create an action"
+    },
     "Create Observable": {
         "prefix": "observable",
         "body": [
@@ -40,7 +52,6 @@
             "import {ApplicationStateObservable} from '${1:..}/state/application-state';"
         ]
     },
-
     "License": {
         "prefix": "license",
         "body": [

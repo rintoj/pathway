@@ -23,8 +23,8 @@ export class OAuth2Service {
 
     private subscribeToDispatcher(dispatcher: Dispatcher) {
         dispatcher.subscribe([new LoginAction(null)], this.login.bind(this));
-        // dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
-        dispatcher.subscribe([new ValidateAuthAction(null)], this.validateAuth.bind(this));
+        dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
+        dispatcher.subscribe([new ValidateAuthAction()], this.validateAuth.bind(this));
     }
 
     protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
@@ -53,7 +53,7 @@ export class OAuth2Service {
 
         let user: User = {
             id: null,
-            name: 'Unknown',
+            name: 'User',
             userId: action.user.userId,
             auth: json
         };
@@ -64,50 +64,53 @@ export class OAuth2Service {
 
     protected logout(state: ApplicationState, action: LogoutAction): ApplicationState {
         console.log('logout', state, action);
-        return Observable.create();
+        return Observable.create((observer: Observer<ApplicationState>) => {
+            state.user = undefined;
+            observer.next(state);
+            observer.complete();
+        });
     }
 
     protected validateAuth(state: ApplicationState, action: ValidateAuthAction): ApplicationState {
         console.log('validateAuth', state, action);
         return Observable.create((observer: Observer<ApplicationState>) => {
 
-            if (!state.user || !state.user.auth || !state.user.auth.access_token) {
-                observer.error({
-                    status: 401,
-                    message: 'Unauthorized!'
-                });
-                return observer.complete();
-            }
-
             var headers = new Headers();
             headers.append('Content-Type', 'application/json');
-            headers.append('Authorization', 'Bearer ' + state.user.auth.access_token);
+            headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
 
             let options = new RequestOptions({
                 method: RequestMethod.Get,
                 url: `${this.url}/user`,
                 body: this.rest.serialize({
-                    userId: action.user.userId
+                    userId: state.user && state.user.userId
                 }),
                 headers: headers
             });
 
-            let request = this.rest.request(options)
-                .map((response: Response): ApplicationState => this.mapUserResponse(response, state, action));
-
-            request.subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete());
-            observer.complete();
+            this.rest.request(options)
+                .map((response: Response): ApplicationState => this.mapUserResponse(response, state, action))
+                .subscribe(
+                (data: any) => {
+                    observer.next(data);
+                    observer.complete();
+                },
+                (error: any) => {
+                    observer.error(error);
+                    observer.complete();
+                },
+                () => observer.complete());
         });
     }
 
     protected mapUserResponse(response: Response, state: ApplicationState, action: ValidateAuthAction): ApplicationState {
-        var json = response.json();
+        var json = response.json()[0];
 
         let user: User = {
             id: json._id,
             name: json.name,
             userId: json.userId,
-            auth: state.user.auth
+            auth: state.user && state.user.auth
         };
 
         state.user = user;

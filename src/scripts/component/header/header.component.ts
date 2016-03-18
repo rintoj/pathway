@@ -1,4 +1,30 @@
+/**
+ * @author rintoj (Rinto Jose)
+ * @license The MIT License (MIT)
+ *
+ * Copyright (c) 2016 rintoj
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the " Software "), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED " AS IS ", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+import {Router} from 'angular2/router';
 import {Dispatcher} from '../../state/dispatcher';
+import {LogoutAction} from '../../state/user';
 import {Component, View} from 'angular2/core';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 
@@ -33,9 +59,18 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 				<span class="icons">
 					<a class="sync-state fa fa-cloud" [class.syncing]="state.ui.syncing"
 					   [attr.tooltip]="state.ui.syncing ? 'Syncing...' : 'Synced'" (click)="state.ui.syncing = !state.ui.syncing"></a>
-					<a class="fa fa-user"></a>
-					<a class="fa fa-bell" badge="10"></a>
 					<a class="fa fa-cog"></a>
+                    <span class="user-profile" [class.open]="openUserProfile" (click)="toggleUserProfile()">
+                        <div class="menu">
+                            <div class="user-name">
+                                <span class="name">{{state.user?.name?.split(" ")[0]}}</span>
+                                <span class="email">{{state.user?.userId}}</span>
+                            </div>
+                            <button class="btn btn-pill btn-primary" (click)="logout()">Logout</button>
+                            <button class="btn btn-pill" disabled>Switch User</button>
+                        </div>
+                        <a class="avatar small"></a>
+                    </span>
 				</span>
 			</span>
         </div>
@@ -44,19 +79,31 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 export class HeaderComponent {
     public title = 'Pathway';
 
-	private state: ApplicationState;
+    private state: ApplicationState;
     private selectedProject: string = '--select project--';
     private showDropdown: boolean = false;
     private showMenu: boolean = false;
     private projects: Array<string>;
+    private openUserProfile: boolean = false;
 
-    constructor(private dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) {
+    /**
+     * Creates an instance of HeaderComponent.
+     * 
+     * @param {Router} router (description)
+     * @param {Dispatcher} dispatcher (description)
+     * @param {ApplicationStateObservable} stateObservable (description)
+     */
+    constructor(
+        private router: Router,
+        private dispatcher: Dispatcher,
+        private stateObservable: ApplicationStateObservable
+    ) {
         this.projects = ['Mobile in web', 'Angular 2', 'TCS SwaS', 'dreamUP', 'TCS data Tootle'];
     }
 
-	ngOnInit() {
-		this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-	}
+    ngOnInit() {
+        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+    }
 
     toggleDropdown() {
         this.showDropdown = !this.showDropdown;
@@ -68,6 +115,14 @@ export class HeaderComponent {
 
     selectProject(event: any) {
         this.selectedProject = event.target.innerText;
+    }
+
+    logout() {
+        this.dispatcher.next(new LogoutAction()).subscribe(() => this.router.navigate(['/Login']));
+    }
+
+    toggleUserProfile() {
+        this.openUserProfile = !this.openUserProfile;
     }
 
 }

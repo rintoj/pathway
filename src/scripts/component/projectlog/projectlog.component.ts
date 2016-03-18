@@ -77,9 +77,9 @@ export class ProjectlogComponent {
 
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        this.fetchPageAction = new Subject<Page<Projectlog>>();
-        this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
-        this.refresh();
+        // this.fetchPageAction = new Subject<Page<Projectlog>>();
+        // this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
+        // this.refresh();
     }
 
     create() {
@@ -102,7 +102,7 @@ export class ProjectlogComponent {
         this.fetchPageAction.next(this.state.projectlogs.page.next());
     }
 
-    private requestPage(page: Page<Projectlog>) {
+    protected requestPage(page: Page<Projectlog>) {
         console.log('request:', page);
 
         this.dispatcher.next(new FetchProjectlogAction(page))

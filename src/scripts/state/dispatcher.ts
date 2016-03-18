@@ -180,7 +180,7 @@ export class Dispatcher {
         let actionIdentity: any = action.constructor;
         let services: any[] = this.subscriptions[actionIdentity];
 
-        console.log('Processing action: ', action, services.length + ' service(s) found.');
+        console.log('Processing action: ', action, (services ? services.length : 0) + ' service(s) found.');
 
         if (services === undefined || services.length === 0) {
             return Observable.empty();

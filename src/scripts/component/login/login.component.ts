@@ -4,7 +4,6 @@ import {LoginAction, ValidateAuthAction} from '../../state/user';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {ROUTER_DIRECTIVES, Router} from 'angular2/router';
-import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
 @Component({
@@ -16,32 +15,32 @@ import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
         ROUTER_DIRECTIVES
     ],
     template: `
-		<form class="login-container" (ngSubmit)="onSubmit()" [ngFormModel]="loginForm">
+		<form class="login-container" [class.validating]="validating" (ngSubmit)="onSubmit()" [ngFormModel]="loginForm">
         	<div class="title">
 				<i class="avatar"></i>
 			</div>
             <div class="message-container">
-                <pw-loader [show]="loading"></pw-loader>
+                <pw-loader [show]="loading || validating"></pw-loader>
                 <div class="error-message dynamic-text login-message" [class.show]="errorMessage">
                     {{errorMessage}}
                 </div>
             </div>
             <div class="input-container">
 			    <i class="fa fa-envelope"></i> 
-                <input type="text" placeholder="Enter your email" ngControl="userId" autofocus>
+                <input type="text" placeholder="Enter your email" ngControl="userId" autofocus [disabled]="loading || validating">
                 <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null">Valid email is required.</div>
             </div>
             <div class="input-container">
                 <i class="fa fa-key"></i> 
-                <input type="password" placeholder="Enter your password" ngControl="password">
+                <input type="password" placeholder="Enter your password" ngControl="password" [disabled]="loading || validating">
                 <div class="foot-note error-message dynamic-text" 
                     [class.show]="password.touched && password.errors !== null">Password is required!</div>
             </div>
             <div class="input-container">
                 <button type="submit" 
                     class="btn submit-btn" 
-                    [disabled]="!loginForm.valid">Login</button>
+                    [disabled]="!loginForm.valid || loading || validating">Login</button>
             </div>
             <div class="signup-btn">
                 <a [routerLink]="['Register']">Create account</a> | <a>Help</a>
@@ -54,26 +53,23 @@ import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 })
 export class LoginComponent {
 
-    private state: ApplicationState;
-
     title: String = Config.APPLICATION_NAME;
     userId: Control;
     password: Control;
     loginForm: ControlGroup;
 
     loading: boolean = false;
+    validating: boolean = true;
     errorMessage: string;
 
     constructor(
         private router: Router,
         private builder: FormBuilder,
-        private dispatcher: Dispatcher,
-        private stateObservable: ApplicationStateObservable
+        private dispatcher: Dispatcher
     ) {
     }
 
     ngOnInit() {
-        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
         this.userId = new Control('admin@pathway.com', Validators.compose([Validators.required, this.validEmail]));
         this.password = new Control('sysadmin@123', Validators.required);
 
@@ -85,8 +81,12 @@ export class LoginComponent {
     }
 
     validateAuth() {
-        this.dispatcher.next(new ValidateAuthAction(this.state.user))
-            .subscribe(() => this.router.navigate(['/Home']));
+        this.dispatcher.next(new ValidateAuthAction())
+            .finally(() => this.validating = false)
+            .subscribe((data: any) => {
+                console.log('Valid user', data, 'Navigating to "/Home"');
+                this.router.navigate(['/Home']);
+            }, () => this.validating = false);
     }
 
     onSubmit() {
@@ -98,12 +98,11 @@ export class LoginComponent {
         })).subscribe(
             () => {
                 this.loading = false;
-                this.errorMessage = 'Login successful';
-                this.router.parent.navigate(['Home']);
+                this.validateAuth();
             },
             (error: any) => {
                 this.loading = false;
-                this.errorMessage = 'Login failed! Try again.';
+                this.errorMessage = 'Sorry, unauthorized! Check your credentials.';
             },
             () => {
                 this.loading = false;

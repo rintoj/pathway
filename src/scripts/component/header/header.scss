@@ -50,7 +50,7 @@ pw-header {
     }
   }
   .right {
-    margin: 10px 0;
+    vertical-align: middle;
     .fa {
       font-size: 1.5em;
       margin: 0 10px;
@@ -97,6 +97,82 @@ pw-header {
       margin: 0 5px;
       font-size: 1em;
       color: $secondary-text-color;
+    }
+  }
+  .user-profile {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 25px;
+    .menu {
+      background: $primary-color-text;
+      width: 40px;
+      height: 40px;
+      border-radius: 100px;
+      right: 0;
+      top: 0;
+      position: absolute;
+      transition: height .3s ease, width .2s ease, border-radius .1s .1s ease;
+      overflow: hidden;
+      span,
+      button {
+        opacity: 0;
+        transition: opacity .1s ease;
+      }
+      .btn {
+        padding: 4px;
+        margin: 4px 10px;
+        width: calc(100% - 20px);
+        font-weight: 300;
+      }
+    }
+    .avatar {
+      right: 0;
+      top: 0;
+      position: absolute;
+    }
+    .user-name {
+      background-color: $divider-color-light;
+      margin: 0;
+      height: 65px;
+      line-height: 23px;
+      width: 100%;
+      text-overflow: ellipsis;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px 5px;
+    }
+    .name {
+      width: calc(100% - 80px);
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      vertical-align: middle;
+    }
+    .email {
+      color: $divider-color;
+      font-size: .8em;
+      font-weight: 300;
+    }
+    &.open {
+      .menu {
+        @include shadow(2);
+        transition: height .3s ease, width .2s ease, border-radius .3s ease;
+        width: 200px;
+        height: 150px;
+        border-radius: 3px;
+        span,
+        button {
+          transition: opacity .3s .2s ease;
+          opacity: 1;
+        }
+      }
+      .avatar {
+        color: $primary-color;
+      }
     }
   }
 }
