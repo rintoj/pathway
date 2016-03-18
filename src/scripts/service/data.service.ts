@@ -6,7 +6,7 @@ import {Observable} from 'rxjs/Observable';
 import {RestService} from './rest.service';
 import {Injectable, Inject} from 'angular2/core';
 import {ApplicationStatus} from '../state/ui-state';
-import {User, LoginPayload} from '../state/user';
+import {User, UserBasicInfo} from '../state/user';
 import {ApplicationState, ApplicationStateObservable, RestoreAppStateAction} from '../state/application-state';
 
 export interface DataServiceOptions {
@@ -62,7 +62,7 @@ export class DataService {
         });
     }
 
-    protected mapResponse(response: Response, payload: LoginPayload): ApplicationState {
+    protected mapResponse(response: Response, payload: UserBasicInfo): ApplicationState {
         var json = response.json();
 
         let user: User = {

@@ -58,14 +58,19 @@ export class RestService {
                 .share()
                 .catch((response: Response): any => {
                     try {
-                        if (response.status === 401) { // unauthorized
-                            console.log('here unauthorized');
+                        if (response.status === 400) { // Bad request
+                            throw 'Bad Request';
+                        }
+                        if (response.status === 401) { // Unauthorized
                             throw 'User is unauthorized!';
                         }
+
+                        throw 'Unknown expcetion: ' + response.status;
                     } catch (error) {
                         observer.error({
                             status: response.status,
-                            message: error
+                            message: error,
+                            response: response.json()
                         });
                         observer.complete();
                     }

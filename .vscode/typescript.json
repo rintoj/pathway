@@ -52,6 +52,14 @@
             "import {ApplicationStateObservable} from '${1:..}/state/application-state';"
         ]
     },
+    "Service function": {
+        "prefix": "servicefun",
+        "body": [
+            "protected ${1:name}(state: ApplicationState, action: ${2:Action}): Observable<ApplicationState> {",
+            "",
+            "}"
+        ]
+    },
     "License": {
         "prefix": "license",
         "body": [

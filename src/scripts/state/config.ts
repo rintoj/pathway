@@ -57,7 +57,7 @@ class DefaultConfig {
         return /^[a-zA-Z]\w{3,14}$/;
     }
 
-    static get LOGIN_AUTH_HEADER(): string {
+    static get BASIC_AUTH_HEADER(): string {
         return 'Basic N2Q2NWQ5YjYtNWNhZS00ZGI3LWIxOWQtNTZjYmRkMjVlYWFiOmEwYzdiNzQxLWIxOGItNDdlYi1iNmRmLTQ4YTBiZDNjZGUyZQ==';
     }
 

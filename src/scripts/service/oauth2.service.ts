@@ -6,8 +6,8 @@ import {RestService} from './rest.service';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {ApplicationState} from '../state/application-state';
-import {LoginAction, LogoutAction, ValidateAuthAction} from '../state/user';
 import {Response, RequestMethod, RequestOptions, Headers} from 'angular2/http';
+import {LoginAction, LogoutAction, ValidateAuthAction, CreateUserAction, VerifyUserAction} from '../state/user';
 
 @Injectable()
 export class OAuth2Service {
@@ -25,13 +25,15 @@ export class OAuth2Service {
         dispatcher.subscribe([new LoginAction(null)], this.login.bind(this));
         dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
         dispatcher.subscribe([new ValidateAuthAction()], this.validateAuth.bind(this));
+        dispatcher.subscribe([new CreateUserAction(null)], this.createUser.bind(this));
+        dispatcher.subscribe([new VerifyUserAction(null)], this.verifyUser.bind(this));
     }
 
     protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
 
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('Authorization', Config.LOGIN_AUTH_HEADER);
+        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
         let options = new RequestOptions({
             method: RequestMethod.Post,
@@ -44,8 +46,7 @@ export class OAuth2Service {
             headers: headers
         });
 
-        return this.rest.request(options)
-            .map((response: Response): ApplicationState => this.mapLoginResponse(response, state, action));
+        return this.rest.request(options).map((response: Response): ApplicationState => this.mapLoginResponse(response, state, action));
     }
 
     protected mapLoginResponse(response: Response, state: ApplicationState, action: LoginAction): ApplicationState {
@@ -62,7 +63,7 @@ export class OAuth2Service {
         return state;
     }
 
-    protected logout(state: ApplicationState, action: LogoutAction): ApplicationState {
+    protected logout(state: ApplicationState, action: LogoutAction): Observable<ApplicationState> {
         console.log('logout', state, action);
         return Observable.create((observer: Observer<ApplicationState>) => {
             state.user = undefined;
@@ -71,7 +72,7 @@ export class OAuth2Service {
         });
     }
 
-    protected validateAuth(state: ApplicationState, action: ValidateAuthAction): ApplicationState {
+    protected validateAuth(state: ApplicationState, action: ValidateAuthAction): Observable<ApplicationState> {
         console.log('validateAuth', state, action);
         return Observable.create((observer: Observer<ApplicationState>) => {
 
@@ -117,5 +118,33 @@ export class OAuth2Service {
         return state;
     }
 
+    protected createUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
+        let options = new RequestOptions({
+            method: RequestMethod.Put,
+            url: `${this.url}/user`,
+            body: this.rest.serialize(action.user),
+            headers: headers
+        });
+
+        return this.rest.request(options).map((response: Response): ApplicationState => state);
+    }
+
+    protected verifyUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+
+        let options = new RequestOptions({
+            method: RequestMethod.Get,
+            url: `${this.url}/user`,
+            search: this.rest.serialize(action.user),
+            headers: headers
+        });
+
+        return this.rest.request(options).map((response: Response): ApplicationState => state);
+    }
 }

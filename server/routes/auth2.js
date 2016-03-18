@@ -370,11 +370,50 @@ var GenericService = require('./GenericService');
       });
     }
 
+    function registerUser(request, response, next) {
+      performBasicAuth(request, response, function(error, item) {
+        user.create(request, response, next);
+      });
+    }
+
+    function performBasicAuth(request, response, next) {
+      if (!request.headers.authorization) {
+        response.status(401);
+        response.send({
+          status: 401,
+          message: 'Missing authorization header!'
+        });
+      } else if (request.headers.authorization.indexOf('Basic ') !== 0) {
+        response.status(401);
+        response.send({
+          status: 401,
+          message: 'Malformed authorization header!'
+        });
+      } else {
+        var ids = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
+        Client.findOne({
+          _id: ids[0],
+          clientSecret: ids[1]
+        }, function(error, item) {
+          if (error || !item) {
+            response.status(401);
+            return response.send({
+              status: 401,
+              message: 'Unknown client. Invalid authorization header!'
+            });
+          }
+          console.log(request.body);
+          next(request, response, next);
+        })
+      }
+    }
+
     /**
      * Bind all the necessary api endpoints
      */
     function bind() {
 
+      // OPTIONS /token
       app.use(baseUrl + '/token', function(request, response, next) {
         if (request.method === 'OPTIONS') {
           response.status(200);
@@ -384,8 +423,6 @@ var GenericService = require('./GenericService');
         }
       });
 
-      //   OPTIONS / pathway / api / oauth / token
-
       // api to obtain access token
       app.use(baseUrl + '/token', app.oauth.grant());
 
@@ -394,6 +431,8 @@ var GenericService = require('./GenericService');
       app.use(function(request, response, next) {
         if (request.method === 'OPTIONS') {
           next();
+        } else if (request.originalUrl === baseUrl + '/user' && request.method === 'PUT') {
+          registerUser(request, response, next);
         } else {
           authorizeMethod(request, response, next);
         }

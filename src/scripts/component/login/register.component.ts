@@ -2,7 +2,9 @@ import {Config} from '../../state/config';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../../state/dispatcher';
+import {LoaderComponent} from '../loader/loader.component';
 import {Component, View} from 'angular2/core';
+import {CreateUserAction, VerifyUserAction} from '../../state/user';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
@@ -16,15 +18,19 @@ interface ValidationResult {
 })
 @View({
     directives: [
-        ROUTER_DIRECTIVES
+        ROUTER_DIRECTIVES,
+        LoaderComponent
     ],
     template: `
 		<form class="login-container" (ngSubmit)="onSubmit()" [ngFormModel]="loginForm">
         	<div class="title">
 				<i class="avatar"></i>
 			</div>
-            <div class="input-container error-message" *ngIf="errorMessage">
-                {{errorMessage}}
+             <div class="message-container">
+                <pw-loader [show]="loading || validating"></pw-loader>
+                <div class="error-message dynamic-text login-message" [class.show]="errorMessage">
+                    {{errorMessage}}
+                </div>
             </div>
              <div class="input-container">
 			    <i class="fa fa-user-secret"></i> 
@@ -83,6 +89,9 @@ export class RegisterComponent {
     confirmation: Control;
     loginForm: ControlGroup;
 
+    loading: boolean = false;
+    errorMessage: string;
+
     constructor(
         private builder: FormBuilder,
         private dispatcher: Dispatcher,
@@ -92,10 +101,11 @@ export class RegisterComponent {
 
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        this.name = new Control('', Validators.compose([Validators.required, this.validName]));
-        this.userId = new Control('', Validators.compose([Validators.required, this.validEmail]), this.userIdTaken);
-        this.password = new Control('', Validators.compose([Validators.required, this.validPassword]));
-        this.confirmation = new Control('', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
+        this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.validName]));
+        this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]),
+            this.userIdTaken.bind(this));
+        this.password = new Control('password', Validators.compose([Validators.required, this.validPassword]));
+        this.confirmation = new Control('password', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
 
         this.loginForm = this.builder.group({
             name: this.name,
@@ -106,7 +116,24 @@ export class RegisterComponent {
     }
 
     onSubmit() {
-        console.log('user:', this.userId, 'password:', this.password);
+        this.loading = true;
+        this.dispatcher.next(new CreateUserAction({
+            name: this.name.value,
+            userId: this.userId.value,
+            password: btoa(this.password.value)
+        })).subscribe(
+            () => {
+                this.loading = false;
+                this.errorMessage = 'User created!';
+            },
+            (error: any) => {
+                this.loading = false;
+                this.errorMessage = 'Sorry, could not create user!';
+            },
+            () => {
+                this.loading = false;
+            }
+            );
     }
 
     private validName(control: Control): any {
@@ -118,14 +145,16 @@ export class RegisterComponent {
 
     private userIdTaken(control: Control): Observable<ValidationResult> {
         return Observable.create((observer: Observer<any>) => {
-            setTimeout(() => {
-                if (control.value === 'rintoj@gmail.com') {
+            this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
+                () => {
                     observer.next({ userIdTaken: true });
-                } else {
+                    observer.complete();
+                },
+                (error: any) => {
                     observer.next(null);
-                }
-                observer.complete();
-            }, 5000);
+                    observer.complete();
+                },
+                () => observer.complete());
         });
     }
 

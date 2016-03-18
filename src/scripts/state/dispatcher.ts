@@ -206,6 +206,8 @@ export class Dispatcher {
                 .skipWhile((state: ApplicationState, i: number) => i + 1 < services.length)
                 .share();
 
+            console.log(observable);
+
             observable.subscribe(
                 (state: ApplicationState) => {
                     observer.next(state);

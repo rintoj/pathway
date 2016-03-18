@@ -7,7 +7,13 @@ export interface Auth {
     refresh_token: string;
 }
 
-export interface User {
+export interface UserBasicInfo {
+    name?: String;
+    userId: string;
+    password?: string;
+}
+
+export interface User extends UserBasicInfo {
     id: string;
     name: string;
     userId: string;
@@ -15,13 +21,8 @@ export interface User {
     auth: Auth;
 }
 
-export interface LoginPayload {
-    userId: string;
-    password: string;
-}
-
 export class LoginAction extends Action {
-    constructor(public user: LoginPayload) {
+    constructor(public user: UserBasicInfo) {
         super();
     }
 }
@@ -29,3 +30,15 @@ export class LoginAction extends Action {
 export class ValidateAuthAction extends Action { }
 
 export class LogoutAction extends Action { }
+
+export class CreateUserAction extends Action {
+    constructor(public user: UserBasicInfo) {
+        super();
+    }
+}
+
+export class VerifyUserAction extends Action {
+    constructor(public userId: string) {
+        super();
+    }
+}
