@@ -32,8 +32,7 @@ var bodyParser = require('body-parser');
 var projectlog = require('./services/projectlog');
 var cookieParser = require('cookie-parser');
 var OAuth2Server = require('./oauth-server/oauth2server');
-var propertiesReader = require('./util/properties.js');
-
+var propertiesReader = require('./util/propertiesReader');
 
 // read properties.
 var properties = propertiesReader('app.dev.properties');
