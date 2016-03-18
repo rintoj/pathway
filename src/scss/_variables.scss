@@ -19,6 +19,7 @@ $blue-grey: #607d8b;
 $grey: #9e9e9e;
 // DEVICE SIZE
 $small-device: 768px;
+$font-family: 'Roboto', sans-serif;
 /** MIXINS **/
 @mixin shadow($depth, $inset: '') {
   $top: 0;

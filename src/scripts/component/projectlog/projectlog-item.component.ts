@@ -76,10 +76,11 @@ export class ProjectlogItemComponent {
         description: ''
     };
 
-    statusOptions: DropdownOption[] = [{
-        text: 'new',
-        icon: 'fa fa-star'
-    }, {
+    statusOptions: DropdownOption[] = [
+        {
+            text: 'new',
+            icon: 'fa fa-star'
+        }, {
             text: 'doing',
             icon: 'fa fa-refresh'
         }, {
@@ -88,7 +89,8 @@ export class ProjectlogItemComponent {
         }, {
             text: 'hold',
             icon: 'fa fa-hand-grab-o'
-        }];
+        }
+    ];
 
 
     @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();

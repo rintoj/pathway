@@ -7,7 +7,7 @@ pw-header {
   height: auto;
   background: $primary-color;
   .nav-wrapper {
-    transition: height 0.2s 0.1s ease-in-out;
+    transition: height 0.2s ease-in-out;
     height: 50px;
     @media(max-width: $small-device) {
       overflow: hidden;
@@ -36,8 +36,11 @@ pw-header {
       cursor: not-allowed;
     }
     &:hover {
-      color: lighten($divider-color, 10%);
+      color: $primary-color-text;
     }
+  }
+  .icons {
+    line-height: 42px;
   }
   .sync-state {
     width: 23px;
@@ -55,6 +58,9 @@ pw-header {
       font-size: 1.5em;
       margin: 0 10px;
     }
+    .fa-bars {
+      line-height: 45px;
+    }
   }
   .menu {
     transition: opacity 0.2s ease-in-out;
@@ -64,11 +70,9 @@ pw-header {
       clear: both;
       width: 100%;
       margin: 0;
-      span,
-      .dropdown-btn {
-        display: block;
+      .project-list {
         width: 100%;
-        margin-top: 15px;
+        margin: 10px 0;
       }
     }
     &.open {
@@ -78,25 +82,19 @@ pw-header {
       }
     }
   }
-  .dropdown {
-    .dropdown-btn {
-      outline: none;
-      border-radius: 3px;
-      font-size: 0.9em;
-      padding: 2px 5px;
-      background-color: $primary-color-text;
-      margin-right: 10px;
-      color: $secondary-text-color;
-    }
-    .dropdown-menu {
-      @include shadow(6);
-      background-color: $primary-color-text;
-      color: $secondary-text-color;
-    }
+  .project-list {
+    font-size: 1.1em;
+    background: $transparent-color-dark;
+    border-radius: 3px;
+    width: 250px;
+    margin: 0 10px;
     .fa {
-      margin: 0 5px;
-      font-size: 1em;
-      color: $secondary-text-color;
+      font-size: 1.1em;
+    }
+    .dd-item-list {
+      .fa {
+        color: $primary-text-color;
+      }
     }
   }
   .user-profile {
@@ -104,7 +102,7 @@ pw-header {
     display: inline-block;
     width: 40px;
     height: 25px;
-    .menu {
+    .profile-details {
       background: $primary-color-text;
       width: 40px;
       height: 40px;
@@ -158,8 +156,8 @@ pw-header {
       font-weight: 300;
     }
     &.open {
-      .menu {
-        @include shadow(2);
+      .profile-details {
+        @include shadow(5);
         transition: height .3s ease, width .2s ease, border-radius .3s ease;
         width: 200px;
         height: 150px;
@@ -173,6 +171,11 @@ pw-header {
       .avatar {
         color: $primary-color;
       }
+    }
+    @media(max-width: $small-device) {
+      position: absolute;
+      right: 19px;
+      z-index: 1;
     }
   }
 }

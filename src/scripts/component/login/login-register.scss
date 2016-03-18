@@ -27,7 +27,7 @@ pw-register {
     &.validating {
       .input-container {
         max-height: 0;
-        padding: 0px;
+        padding: 0;
         overflow: hidden;
       }
       .signup-btn {
@@ -62,7 +62,7 @@ pw-register {
     padding: 15px;
     margin: 0 auto;
     max-height: 500px;
-    transition: max-height .3s ease, padding .3s ease;
+    transition: max-height .3s ease;
   }
   .fa {
     display: inline-block;

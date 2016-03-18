@@ -1,38 +1,46 @@
 @import 'scss/variables';
 dropdown {
   display: inline-block;
+  position: relative;
+  transition: width .2s ease;
   .dd-input {
     position: relative;
-    padding: 2px 20px 2px 5px;
+    width: calc(100% - 25px);
     &:before {
       content: '\f0d7';
       position: absolute;
-      padding: 2px 5px;
       right: 0;
     }
   }
   .dd-item-list {
-    min-width: 50px;
+    max-width: 500px;
+    max-height: 0;
+    width: 100%;
     position: absolute;
     background: $primary-color-text;
     color: $primary-text-color;
-    max-height: 0;
     overflow: hidden;
-    transition: max-height .1s ease;
+    transition: max-height .4s ease, top .2s ease;
+    z-index: 10;
+    top: 25px;
+    left: 0;
     border-radius: 3px;
-    z-index: 1;
     &.open {
       @include shadow(1);
       max-height: 500px;
-      border: 1px solid $divider-color;
+      top: 0;
     }
   }
   .dd-item {
     border: 0;
     padding: 5px 10px;
+    white-space: nowrap;
     &:hover {
       background: $primary-color-light;
     }
+  }
+  .dd-text {
+    padding-right: 30px;
   }
   .dd-icon {
     width: 20px;
