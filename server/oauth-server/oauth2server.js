@@ -24,23 +24,23 @@
  **/
 
 var uuid = require('uuid');
-var User = require('../models/User');
+var User = require('./user');
+var Token = require('./token');
+var Client = require('./client');
 var Base64 = require('../util/Base64');
-var Client = require('../models/Client');
 var express = require('express');
-var Token = require('../models/Token');
 var oauthserver = require('oauth2-server');
-var GenericService = require('./GenericService');
+var GenericService = require('../services/generic-service');
 
 (function() {
 
   /**
-   * OAuthService enables oAuth 2 security to the given path. This implementation is based on 'npm-oauth2-server' module
+   * OAuth2Server enables oAuth 2 security to the given path. This implementation is based on 'npm-oauth2-server' module
    * 
    * @param app express.js application refrerence
    * @param baseUrl The base url for the api
    */
-  var OAuthService = function OAuthService(app, baseUrl) {
+  var OAuth2Server = function OAuth2Server(app, baseUrl) {
 
     var client, user;
     var model = {};
@@ -474,6 +474,6 @@ var GenericService = require('./GenericService');
 
   };
 
-  module.exports = OAuthService;
+  module.exports = OAuth2Server;
 
 })();

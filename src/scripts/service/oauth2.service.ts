@@ -130,10 +130,6 @@ export class OAuth2Service {
             url: `${this.url}/user?userId=${action.userId}`,
             headers: headers
         });
-        // return Observable.create((observer: Observer<ApplicationState>) => {
-        //     observer.next(state);
-        //     observer.complete();
-        // }).share();
 
         return this.rest.request(options).map((response: Response): ApplicationState => state);
     }

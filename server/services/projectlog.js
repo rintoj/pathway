@@ -1,6 +1,6 @@
 var Counter = require('../models/Counter');
 var Projectlog = require('../models/Projectlog');
-var GenericService = require('./GenericService');
+var GenericService = require('./generic-service');
 
 (function ProjectlogService() {
 
