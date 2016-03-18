@@ -13,4 +13,11 @@
 }, {
     "key": "cmd+shift+w",
     "command": "workbench.files.action.closeAllFiles"
+}, {
+    "key": "cmd+i",
+    "command": "workbench.action.openSnippets",
+    "when": "editorTextFocus"
+}, {
+    "key": "cmd+o",
+    "command": "workbench.action.quickOpen"
 }]
