@@ -370,6 +370,12 @@ var GenericService = require('./GenericService');
       });
     }
 
+    function getUser(request, response, next) {
+      performBasicAuth(request, response, function(error, item) {
+        user.list(request, response, next);
+      });
+    }
+
     function registerUser(request, response, next) {
       performBasicAuth(request, response, function(error, item) {
         user.create(request, response, next);
@@ -377,18 +383,24 @@ var GenericService = require('./GenericService');
     }
 
     function performBasicAuth(request, response, next) {
+
       if (!request.headers.authorization) {
         response.status(401);
         response.send({
           status: 401,
           message: 'Missing authorization header!'
         });
+
+      } else if (request.headers.authorization.indexOf('Bearer ') === 0) {
+        app.authorize(request, response, next);
+
       } else if (request.headers.authorization.indexOf('Basic ') !== 0) {
         response.status(401);
         response.send({
           status: 401,
           message: 'Malformed authorization header!'
         });
+
       } else {
         var ids = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
         Client.findOne({
@@ -402,7 +414,6 @@ var GenericService = require('./GenericService');
               message: 'Unknown client. Invalid authorization header!'
             });
           }
-          console.log(request.body);
           next(request, response, next);
         })
       }
@@ -427,14 +438,16 @@ var GenericService = require('./GenericService');
       app.use(baseUrl + '/token', app.oauth.grant());
 
       // use authorization
-      var authorizeMethod = app.oauth.authorise();
+      app.authorize = app.oauth.authorise();
       app.use(function(request, response, next) {
         if (request.method === 'OPTIONS') {
           next();
         } else if (request.originalUrl === baseUrl + '/user' && request.method === 'PUT') {
           registerUser(request, response, next);
+        } else if (request.originalUrl.indexOf(baseUrl + '/user') === 0 && request.method === 'GET') {
+          getUser(request, response, next);
         } else {
-          authorizeMethod(request, response, next);
+          app.authorize(request, response, next);
         }
       });
 

@@ -44,8 +44,8 @@ interface ValidationResult {
                 <div class="foot-note error-message dynamic-text" 
                     [class.show]="userId.touched && userId.errors !== null && !userId.errors.userIdTaken">Valid email is required.</div>
                 <div class="foot-note error-message dynamic-text" 
-                    [class.show]="userId.touched && userId.errors !== null && userId.errors.userIdTaken">
-                    This id is already registered.</div>
+                    [class.show]="userId.errors !== null && userId.errors.userIdTaken">
+                    This id is already taken.</div>
             </div>
             <div class="input-container">
                 <i class="fa fa-key"></i> 
@@ -60,7 +60,7 @@ interface ValidationResult {
                 <i class="fa fa-key"></i> 
                 <input type="password" placeholder="Confirm your password" ngControl="confirmation">
                 <div class="foot-note error-message dynamic-text" 
-                    [class.show]="confirmation.touched && confirmation.errors !== null">
+                    [class.show]="(password.touched || confirmation.touched) && confirmation.errors !== null">
                     Passwords don't match!
                     </div>
             </div>
@@ -146,8 +146,8 @@ export class RegisterComponent {
     private userIdTaken(control: Control): Observable<ValidationResult> {
         return Observable.create((observer: Observer<any>) => {
             this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
-                () => {
-                    observer.next({ userIdTaken: true });
+                (data: any) => {
+                    observer.next(data.count() > 0 ? { userIdTaken: true } : null);
                     observer.complete();
                 },
                 (error: any) => {
@@ -155,7 +155,7 @@ export class RegisterComponent {
                     observer.complete();
                 },
                 () => observer.complete());
-        });
+        }).share();
     }
 
     private validEmail(control: Control): any {

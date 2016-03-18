@@ -73,35 +73,22 @@ export class OAuth2Service {
     }
 
     protected validateAuth(state: ApplicationState, action: ValidateAuthAction): Observable<ApplicationState> {
-        console.log('validateAuth', state, action);
-        return Observable.create((observer: Observer<ApplicationState>) => {
 
-            var headers = new Headers();
-            headers.append('Content-Type', 'application/json');
-            headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
 
-            let options = new RequestOptions({
-                method: RequestMethod.Get,
-                url: `${this.url}/user`,
-                body: this.rest.serialize({
-                    userId: state.user && state.user.userId
-                }),
-                headers: headers
-            });
-
-            this.rest.request(options)
-                .map((response: Response): ApplicationState => this.mapUserResponse(response, state, action))
-                .subscribe(
-                (data: any) => {
-                    observer.next(data);
-                    observer.complete();
-                },
-                (error: any) => {
-                    observer.error(error);
-                    observer.complete();
-                },
-                () => observer.complete());
+        let options = new RequestOptions({
+            method: RequestMethod.Get,
+            url: `${this.url}/user`,
+            body: this.rest.serialize({
+                userId: state.user && state.user.userId
+            }),
+            headers: headers
         });
+
+        return this.rest.request(options)
+            .map((response: Response): ApplicationState => this.mapUserResponse(response, state, action));
     }
 
     protected mapUserResponse(response: Response, state: ApplicationState, action: ValidateAuthAction): ApplicationState {
@@ -133,18 +120,21 @@ export class OAuth2Service {
         return this.rest.request(options).map((response: Response): ApplicationState => state);
     }
 
-    protected verifyUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
+    protected verifyUser(state: ApplicationState, action: VerifyUserAction): Observable<ApplicationState> {
         var headers = new Headers();
-        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('Content-Type', 'application/json');
         headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
-        let options = new RequestOptions({
-            method: RequestMethod.Get,
-            url: `${this.url}/user`,
-            search: this.rest.serialize(action.user),
-            headers: headers
-        });
+        // let options = new RequestOptions({
+        //     method: RequestMethod.Get,
+        //     url: `${this.url}/user?userId=${action.userId}`,
+        //     headers: headers
+        // });
+        return Observable.create((observer: Observer<ApplicationState>) => {
+            observer.next(state);
+            observer.complete();
+        }).share();
 
-        return this.rest.request(options).map((response: Response): ApplicationState => state);
+        // return Observable.empty(); // this.rest.request(options).map((response: Response): ApplicationState => state);
     }
 }
