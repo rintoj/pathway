@@ -102,7 +102,7 @@ export class LoginComponent {
             },
             (error: any) => {
                 this.loading = false;
-                this.errorMessage = 'Sorry, unauthorized! Check your credentials.';
+                this.errorMessage = 'Sorry, your are not authorized!';
             },
             () => {
                 this.loading = false;

@@ -73,16 +73,19 @@ app.use(cookieParser());
 // enable Cross-Orgin-Resource-Sharing - CORS
 if (properties.api.cors.enabled === true) {
   app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Origin', properties.api.cors.allowed.origin);
+    res.header('Access-Control-Allow-Methods', properties.api.cors.allowed.methods);
+    res.header('Access-Control-Allow-Headers', properties.api.cors.allowed.headers);
     next();
   });
+  console.log('CORS is enabled for', [properties.api.cors.allowed.origin,
+    properties.api.cors.allowed.methods, properties.api.cors.allowed.headers
+  ].join(' / '));
 }
 
 // enable authentication module
-if (properties.auth.enabled === true) {
-  app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth');
+if (properties.api.auth && properties.api.auth.enabled === true) {
+  app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth', properties.api.auth);
 }
 
 // register apis
@@ -104,28 +107,28 @@ function handle404() {
 
 // return '500' error any other error that couldn't be sloved to this point
 // development error handler and this will print stacktrace
-// @if isDev
-app.use(function(error, req, res, next) {
-  res.status(error.status || 500);
-  res.json({
-    message: error.message,
-    error: error
+if (properties.api.environment === 'development') {
+  app.use(function(error, req, res, next) {
+    res.status(error.status || 500);
+    res.json({
+      message: error.message,
+      error: error
+    });
   });
-});
-// @endif
+}
 
 // production error handler and this will not leake stacktraces to user
-// @if isProd
-app.use(function(error, req, res, next) {
-  res.status(error.status || 500);
-  res.json({
-    message: error.message
+if (properties.api.environment === 'production') {
+  app.use(function(error, req, res, next) {
+    res.status(error.status || 500);
+    res.json({
+      message: error.message
+    });
   });
-});
-// @endif
+}
 
 // set application port
-// app.set('port', parseInt(properties.api.port));
+app.set('port', parseInt(properties.api.port));
 
 // export module
 module.exports = app;
