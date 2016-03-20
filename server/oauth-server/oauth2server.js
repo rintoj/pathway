@@ -30,7 +30,7 @@ var Client = require('./client');
 var Base64 = require('../util/Base64');
 var express = require('express');
 var oauthserver = require('oauth2-server');
-var GenericService = require('../services/generic-service');
+var ServiceEndpoint = require('../services/generic-service');
 
 /**
  * OAuth2Server enables oAuth 2 security to the given path. This implementation is based on 'npm-oauth2-server' module
@@ -46,22 +46,6 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
   baseUrl = baseUrl || '';
 
-
-  // private functions
-
-  /**
-   * Given a url, this function will return the first url that match
-   * 
-   * @param url (description)
-   */
-  function matchRule(url) {
-    rules.map(function(rule) {
-      if (rule.pattern.test(url)) {
-        return rule;
-      }
-    });
-  }
-
   // process rules
   if (properties.rules) {
     for (var index in properties.rules) {
@@ -71,18 +55,22 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
       }
       var rule = key.replace(/(\t|\s)+/g, '|').split('|');
       rules.push({
-        type: rule[0],
-        roles: rule[1].split(','),
-        patternDef: rule[2],
-        pattern: new RegExp('^' + rule[2].replace(/\*\*/g, '([^/]+(/[^/]+)~~~)')
+        type: rule[0].toUpperCase(),
+        roles: rule[1].toUpperCase().split(','),
+        methods: rule[2].toUpperCase().split(','),
+        patternDef: rule[3],
+        pattern: new RegExp('^' + rule[3]
+          .replace(/\*\*/g, '([^/]+(/[^/]+)~~~)')
           .replace(/\*/g, '([^/]+)')
           .replace(/~~~/g, '*')
-          .replace(/\?/g, '[^/]?') + '$')
+          .replace(/\?/g, '[^/]?') + '/?$')
       });
     }
+    console.log('************ rules ************');
+    console.log(rules);
   }
 
-  // setup default user and client if specified
+  // setup default user if specified
   if (properties.default && properties.default.user) {
     User.remove({
       userId: properties.default.user.userId
@@ -100,7 +88,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     });
   }
 
-  // setup default client
+  // setup default client if specified
   if (properties.default && properties.default.client) {
     Client.remove({
       _id: properties.default.client.id
@@ -122,31 +110,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     });
   }
 
-  // create service end point for managing clients
-  client = new GenericService(Client);
-  client.bind();
-
-  // create service end point for managing clients
-  user = new GenericService(User, {
-    // post process each response
-    postprocess: function(requeset, response, error, item) {
-      if (item && item.password) {
-        item.password = undefined;
-        delete item.password;
-      }
-      if (item instanceof Array) {
-        for (i of item) {
-          i.password = undefined;
-          delete i.password;
-        }
-      }
-    }
-  });
-  user.bind();
-
-  /**
-   * Create the model for performing authentication. The current implementation is using database models 'users', 'clients' and 'tokens'
-   */
+  // Create the model for performing authentication. The current implementation is using database models 'users', 'clients' and 'tokens'
   app.oauth = oauthserver({
     grants: ['password', 'refresh_token'],
     debug: true,
@@ -352,91 +316,113 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     }
   });
 
+  // apply auth rules and authorization
+  app.authorize = app.oauth.authorise();
+  app.use(function(request, response, next) {
+    for (var index in rules) {
+      var rule = rules[index];
+      if (
+        // test url
+        rule.pattern.test(request.path) &&
 
-  function getUser(request, response, next) {
-    performBasicAuth(request, response, function(error, item) {
-      user.list(request, response, next);
-    });
-  }
+        // match methods
+        (rule.methods.indexOf(request.method) >= 0 || rule.methods.indexOf('*'))
 
-  function registerUser(request, response, next) {
-    performBasicAuth(request, response, function(error, item) {
-      user.create(request, response, next);
-    });
-  }
-
-  function performBasicAuth(request, response, next) {
-
-    if (!request.headers.authorization) {
-      response.status(401);
-      response.send({
-        status: 401,
-        message: 'Missing authorization header!'
-      });
-
-    } else if (request.headers.authorization.indexOf('Bearer ') === 0) {
-      app.authorize(request, response, next);
-
-    } else if (request.headers.authorization.indexOf('Basic ') !== 0) {
-      response.status(401);
-      response.send({
-        status: 401,
-        message: 'Malformed authorization header!'
-      });
-
-    } else {
-      var ids = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
-      Client.findOne({
-        _id: ids[0],
-        clientSecret: ids[1]
-      }, function(error, item) {
-        if (error || !item) {
-          response.status(401);
-          return response.send({
-            status: 401,
-            message: 'Unknown client. Invalid authorization header!'
-          });
-        }
-        next(request, response, next);
-      })
+      ) {
+        console.log('Applying rule: ', rule.methods, rule.patternDef, "for", request.method, request.path)
+        return next(request, response, next);
+      }
     }
-  }
-
-  /**
-   * Bind all the necessary api endpoints
-   */
-  // OPTIONS /token
-  app.use(baseUrl + '/token', function(request, response, next) {
-    if (request.method === 'OPTIONS') {
-      response.status(200);
-      response.send('POST');
-    } else {
-      next();
-    }
+    
+    app.authorize(request, response, next);
   });
+
+  //   app.use(baseUrl + '/token', function(request, response, next) {
+  //     if (request.method === 'OPTIONS') {
+  //       response.status(200);
+  //       response.send('POST');
+  //     } else {
+  //       next();
+  //     }
+  //   });
 
   // api to obtain access token
   app.use(baseUrl + '/token', app.oauth.grant());
 
-  // use authorization
-  app.authorize = app.oauth.authorise();
-  app.use(function(request, response, next) {
-    if (request.method === 'OPTIONS') {
-      next();
-    } else if (request.originalUrl === baseUrl + '/user' && request.method === 'PUT') {
-      registerUser(request, response, next);
-    } else if (request.originalUrl.indexOf(baseUrl + '/user') === 0 && request.method === 'GET') {
-      getUser(request, response, next);
-    } else {
-      app.authorize(request, response, next);
-    }
-  });
 
-  // add client creation url
+
+  //   app.use(function(request, response, next) {
+  //     if (request.method === 'OPTIONS') {
+  //       next();
+  //     } else if (request.originalUrl === baseUrl + '/user' && request.method === 'PUT') {
+  //       registerUser(request, response, next);
+  //     } else if (request.originalUrl.indexOf(baseUrl + '/user') === 0 && request.method === 'GET') {
+  //       getUser(request, response, next);
+  //     } else {
+  //       app.authorize(request, response, next);
+  //     }
+  //   });
+
+  // create service end point for managing clients
+  client = new ServiceEndpoint(Client);
+  client.bind();
   app.use(baseUrl + '/client', client.router);
 
-  // add user creation url
+  // create service end point for managing clients
+  user = new ServiceEndpoint(User, {
+    // post process each response and remove password from each
+    postprocess: function(requeset, response, error, item) {
+      if (item && item.password) {
+        item.password = undefined;
+        delete item.password;
+      }
+      if (item instanceof Array) {
+        for (var index in item) {
+          item[index].password = undefined;
+          delete item[index].password;
+        }
+      }
+    }
+  });
+  user.bind();
   app.use(baseUrl + '/user', user.router);
+
+  //   function performBasicAuth(request, response, next) {
+
+  //     if (!request.headers.authorization) {
+  //       response.status(401);
+  //       response.send({
+  //         status: 401,
+  //         message: 'Missing authorization header!'
+  //       });
+
+  //     } else if (request.headers.authorization.indexOf('Bearer ') === 0) {
+  //       app.authorize(request, response, next);
+
+  //     } else if (request.headers.authorization.indexOf('Basic ') !== 0) {
+  //       response.status(401);
+  //       response.send({
+  //         status: 401,
+  //         message: 'Malformed authorization header!'
+  //       });
+
+  //     } else {
+  //       var ids = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
+  //       Client.findOne({
+  //         _id: ids[0],
+  //         clientSecret: ids[1]
+  //       }, function(error, item) {
+  //         if (error || !item) {
+  //           response.status(401);
+  //           return response.send({
+  //             status: 401,
+  //             message: 'Unknown client. Invalid authorization header!'
+  //           });
+  //         }
+  //         next(request, response, next);
+  //       })
+  //     }
+  //   }
 
   // Overrides default error handler
   app.use(function(error, req, res, next) {

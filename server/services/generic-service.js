@@ -1,6 +1,6 @@
 var express = require('express');
 
-module.exports = function GenericService(Model, override) {
+module.exports = function ServiceEndpoint(Model, override) {
 
   if (!Model) {
     throw "'Model' cannot be undefined!";
