@@ -330,6 +330,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       ) {
         console.log('Applying rule: ', rule.methods, rule.patternDef, "for", request.method, request.path)
+        
+        
+        
+        
         return next(request, response, next);
       }
     }
