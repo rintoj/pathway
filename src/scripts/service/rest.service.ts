@@ -74,6 +74,7 @@ export class RestService {
                         });
                         observer.complete();
                     }
+                    return Observable.empty();
                 })
                 .finally(() => {
                     this.requestsInFlight[requestId] = undefined;

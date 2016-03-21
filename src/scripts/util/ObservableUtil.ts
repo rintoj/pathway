@@ -9,6 +9,7 @@ export class ObservableUtil {
                 .catch((error: any): any => {
                     observer.error(error);
                     observer.complete();
+                    return Observable.empty();
                 })
                 .subscribe(
                 (value: R) => {

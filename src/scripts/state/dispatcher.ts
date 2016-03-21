@@ -202,11 +202,10 @@ export class Dispatcher {
                     console.error(error);
                     observer.error(error);
                     observer.complete();
+                    return Observable.empty();
                 })
                 .skipWhile((state: ApplicationState, i: number) => i + 1 < services.length)
                 .share();
-
-            console.log(observable);
 
             observable.subscribe(
                 (state: ApplicationState) => {
