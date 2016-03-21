@@ -57,7 +57,7 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
                     <span class="user-profile" [class.open]="openUserProfile" (click)="toggleUserProfile()">
                         <div class="profile-details">
                             <div class="user-name">
-                                <span class="name">{{state.user?.name?.split(" ")[0]}}</span>
+                                <span class="name">{{userName}}</span>
                                 <span class="email">{{state.user?.userId}}</span>
                             </div>
                             <button class="btn btn-pill btn-primary" (click)="logout()">Logout</button>
@@ -133,6 +133,10 @@ export class HeaderComponent {
 
     toggleUserProfile() {
         this.openUserProfile = !this.openUserProfile;
+    }
+
+    get userName() {
+        return this.state && this.state.user && this.state.user.name && this.state.user.name.split(' ')[0];
     }
 
 }

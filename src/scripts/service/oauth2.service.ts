@@ -66,11 +66,11 @@ export class OAuth2Service {
     protected logout(state: ApplicationState, action: LogoutAction): Observable<ApplicationState> {
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+        headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
 
         let options = new RequestOptions({
-            method: RequestMethod.Delete,
-            url: `${this.url}/token/${state.user.auth.access_token}`,
+            method: RequestMethod.Post,
+            url: `${this.url}/revoke`,
             headers: headers
         });
 
@@ -89,6 +89,13 @@ export class OAuth2Service {
 
     protected validateAuth(state: ApplicationState, action: ValidateAuthAction): Observable<ApplicationState> {
 
+        if (!state.user) {
+            return Observable.create((observer: Observer<ApplicationState>) => {
+                observer.error('No user');
+                observer.complete();
+            }).share();
+        }
+
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
@@ -96,7 +103,7 @@ export class OAuth2Service {
         let options = new RequestOptions({
             method: RequestMethod.Get,
             url: `${this.url}/user`,
-            body: this.rest.serialize({
+            search: this.rest.serialize({
                 userId: state.user && state.user.userId
             }),
             headers: headers
@@ -127,7 +134,7 @@ export class OAuth2Service {
 
         let options = new RequestOptions({
             method: RequestMethod.Put,
-            url: `${this.url}/user`,
+            url: `${this.url}/register`,
             body: this.rest.serialize(action.user),
             headers: headers
         });

@@ -1,10 +1,10 @@
 import {Config} from '../../state/config';
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+// import {Observer} from 'rxjs/Observer';
+// import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../../state/dispatcher';
 import {LoaderComponent} from '../loader/loader.component';
 import {Component, View} from 'angular2/core';
-import {CreateUserAction, VerifyUserAction} from '../../state/user';
+import {CreateUserAction} from '../../state/user';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
@@ -102,8 +102,8 @@ export class RegisterComponent {
     ngOnInit() {
         this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
         this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.validName]));
-        this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]),
-            this.userIdTaken.bind(this));
+        this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]));
+        // this.userIdTaken.bind(this));
         this.password = new Control('password', Validators.compose([Validators.required, this.validPassword]));
         this.confirmation = new Control('password', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
 
@@ -121,7 +121,8 @@ export class RegisterComponent {
             name: this.name.value,
             userId: this.userId.value,
             password: btoa(this.password.value)
-        })).subscribe(
+        }))
+            .subscribe(
             () => {
                 this.loading = false;
                 this.errorMessage = 'User created!';
@@ -143,20 +144,20 @@ export class RegisterComponent {
         return null;
     }
 
-    private userIdTaken(control: Control): Observable<ValidationResult> {
-        return Observable.create((observer: Observer<any>) => {
-            this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
-                (data: any) => {
-                    observer.next(data.count() > 0 ? { userIdTaken: true } : null);
-                    observer.complete();
-                },
-                (error: any) => {
-                    observer.next(null);
-                    observer.complete();
-                },
-                () => observer.complete());
-        }).share();
-    }
+    // private userIdTaken(control: Control): Observable<ValidationResult> {
+    //     return Observable.create((observer: Observer<any>) => {
+    //         this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
+    //             (data: any) => {
+    //                 observer.next(data.count() > 0 ? { userIdTaken: true } : null);
+    //                 observer.complete();
+    //             },
+    //             (error: any) => {
+    //                 observer.next(null);
+    //                 observer.complete();
+    //             },
+    //             () => observer.complete());
+    //     }).share();
+    // }
 
     private validEmail(control: Control): any {
         if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {

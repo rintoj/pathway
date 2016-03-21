@@ -110,250 +110,282 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     });
   }
 
-  // Create the model for performing authentication. The current implementation is using database models 'users', 'clients' and 'tokens'
+  // Create the model for performing authentication. The current implementation is using database models 'users', 'clients' and 'tokens'      
+  var model = {
+
+    /**
+     * Checks if access token is valid entry in 'tokens' collection
+     *
+     * @param token The token to be validated
+     * @param callback function(error, callback)
+     */
+    getAccessToken: function getAccessToken(token, callback) {
+      this.getToken(token, 'access', function(error, item) {
+        if (error) return callback(error);
+        if (!item) return callback(new Error('Invalid access token!'));
+        var accessToken = {
+          accessToken: item.token,
+          clientId: item.clientId,
+          user: {
+            id: item.userId,
+            roles: item.roles
+          },
+          expires: item.expires
+        };
+        callback(null, accessToken);
+      });
+    },
+
+    /**
+     * Checks if refresh token is valid entry in 'tokens' collection, if so return clientId, userId and expires details
+     *
+     * @param token The token to be validated
+     * @param callback function(error, callback)
+     */
+    getRefreshToken: function getRefreshToken(token, callback) {
+      this.getToken(token, 'refresh', function(error, item) {
+        if (error) return callback(error);
+        if (!item) return callback(new Error('Invalid refresh token!'));
+        var refreshToken = {
+          refreshToken: item.token,
+          clientId: item.clientId,
+          user: item.user,
+          expires: item.expires
+        };
+        callback(null, refreshToken);
+      });
+    },
+
+    /**
+     * Generic implementation to fetch 'access' or 'refresh' token from 'tokens' collection
+     *
+     * @param token The token to be fetched
+     * @param type The type of token, valid values are 'access' and 'refresh'
+     * @param callback function(error, callback)
+     */
+    getToken: function getAccessToken(token, type, callback) {
+      Token.findOne({
+        token: token,
+        type: type
+      }, function(error, item) {
+        if (error) return callback(error);
+        callback(null, item);
+      });
+    },
+
+    /**
+     * Given an id and secret, retrive the client. This implementation mandates clientSecret
+     *
+     * @param clientId id of the client
+     * @param clientSecret Client's secret
+     * @param callback function(error, client)
+     */
+    getClient: function(clientId, clientSecret, callback) {
+      Client.findOne({
+        _id: clientId,
+        clientSecret: clientSecret,
+        active: true
+      }, function(error, item) {
+        if (error) return callback(error);
+        if (!item) return callback(new Error('Invalid client!'));
+        callback(null, item);
+      });
+    },
+
+    /**
+     * Check if grant type is allowed for the given client
+     *
+     * @param clientId The id of the client
+     * @param grantType Type of grant requested ('password' or 'refres_token')
+     * @param callback function(error, valid: boolean);
+     */
+    grantTypeAllowed: function grantTypeAllowed(clientId, grantType, callback) {
+      Client.find({
+        _id: clientId,
+        active: true,
+        grantType: {
+          "$in": [grantType]
+        }
+      }, function(error, item) {
+        if (error) return callback(error);
+        if (!item) return callback(new Error('Invalid client!'));
+        callback(null, true);
+      });
+    },
+
+    /**
+     * Get user given the id and password
+     *
+     * @param userId The id of the user to be matched
+     * @param password Base64 encoded password
+     * @param callback function(error, user: Object)
+     */
+    getUser: function getUser(userId, password, callback) {
+      User.findOne({
+        userId: userId,
+        password: password,
+        active: true
+      }, function(error, item) {
+        if (error) return callback(error);
+        if (!item) return callback(new Error('Invalid user!'));
+
+        callback(null, {
+          name: item.name,
+          userId: item.userId,
+          date: item.date,
+          active: item.active,
+          roles: item.roles
+        });
+      });
+    },
+
+    /**
+     * Save the access token into 'tokens' collection
+     *
+     * @param accessToken The access token to be saved
+     * @param clientId client id as string
+     * @param expires Expiry date
+     * @param user User as object with a mandatory property 'id'
+     * @param callback function(error, status)
+     */
+    saveAccessToken: function saveAccessToken(accessToken, clientId, expires, user, callback) {
+      this.saveToken(accessToken, clientId, expires, user, 'access', callback);
+    },
+
+    /**
+     * Save the refresh token into 'tokens' collection
+     *
+     * @param refreshToken The refresh token to be saved
+     * @param clientId client id as string
+     * @param expires Expiry date
+     * @param user User object with a mandatory property 'id'
+     * @param callback function(error, status)
+     */
+    saveRefreshToken: function saveRefreshToken(refreshToken, clientId, expires, user, callback) {
+      this.saveToken(refreshToken, clientId, expires, user, 'refresh', callback);
+    },
+
+    /**
+     * Generic implementation to save 'access' or 'refresh' token
+     *
+     * @param token 'access' or 'refresh' token to be saved
+     * @param clientId client id as string
+     * @param expires Expiry date as date
+     * @param userId The id of the user as string
+     * @param type 'access' or 'refresh'
+     * @param callback function(error, status)
+     */
+    saveToken: function saveToken(token, clientId, expires, user, type, callback) {
+      console.log('Save Token => ', 'token: ', token, 'clientId: ', clientId, 'expires: ', expires, 'user: ', user, 'type: ', type);
+      Token.remove({
+        userId: user && user.userId,
+        clientId: clientId,
+        type: type
+      }, function(error, item) {
+        if (error) return callback(error);
+        Token.create({
+          token: token,
+          clientId: clientId,
+          expires: expires,
+          userId: user && user.userId,
+          roles: user && user.roles,
+          type: type
+        }, callback);
+      });
+    },
+
+    /**
+     * Revoke access token
+     * 
+     * @param token (description)
+     * @param callback (description)
+     */
+    revokeAccessToken: function revokeAccessToken(token, callback) {
+      Token.findOneAndRemove({
+        token: token,
+        type: 'access'
+      }, null, function(error, item) {
+        if (!item) {
+          return callback({
+            status: 'failed',
+            message: 'Invalid access token!'
+          });
+        }
+        Token.findOneAndRemove({
+          userId: item.userId,
+          type: 'refresh'
+        }, null, function(error, item) {
+          callback(null, {
+            status: 'revoked',
+            type: 'access',
+            message: token
+          });
+        });
+      });
+    },
+
+    /**
+     * Delete refresh token
+     *
+     * @param token The refresh token to be deleted
+     * @param callback function(error, status)
+     */
+    revokeRefreshToken: function revokeRefreshToken(token, callback) {
+      this.revokeToken(token, 'refresh', callback);
+    },
+
+    /**
+     * Generic implementation to delete 'access' or 'refresh' token
+     *
+     * @param token 'access' or 'refresh' token to be removed
+     * @param type 'access' or 'refresh' as string
+     * @param callback function(error, status)
+     */
+    revokeToken: function revokeToken(token, type, callback) {
+      console.log('revoke token: ', type, token);
+      Token.remove({
+        token: token,
+        type: type
+      }, callback);
+    }
+  };
+
+  // oauth server 
   app.oauth = oauthserver({
     grants: ['password', 'refresh_token'],
     debug: true,
-    model: {
-
-      /**
-       * Checks if access token is valid entry in 'tokens' collection
-       *
-       * @param token The token to be validated
-       * @param callback function(error, callback)
-       */
-      getAccessToken: function getAccessToken(token, callback) {
-        this.getToken(token, 'access', function(error, item) {
-          if (error) return callback(error);
-          if (!item) return callback(new Error('Invalid access token!'));
-          var accessToken = {
-            accessToken: item.token,
-            clientId: item.clientId,
-            user: {
-              id: item.userId,
-              roles: item.roles
-            },
-            expires: item.expires
-          };
-          callback(null, accessToken);
-        });
-      },
-
-      /**
-       * Checks if refresh token is valid entry in 'tokens' collection, if so return clientId, userId and expires details
-       *
-       * @param token The token to be validated
-       * @param callback function(error, callback)
-       */
-      getRefreshToken: function getRefreshToken(token, callback) {
-        this.getToken(token, 'refresh', function(error, item) {
-          if (error) return callback(error);
-          if (!item) return callback(new Error('Invalid refresh token!'));
-          var refreshToken = {
-            refreshToken: item.token,
-            clientId: item.clientId,
-            user: item.user,
-            expires: item.expires
-          };
-          callback(null, refreshToken);
-        });
-      },
-
-      /**
-       * Generic implementation to fetch 'access' or 'refresh' token from 'tokens' collection
-       *
-       * @param token The token to be fetched
-       * @param type The type of token, valid values are 'access' and 'refresh'
-       * @param callback function(error, callback)
-       */
-      getToken: function getAccessToken(token, type, callback) {
-        Token.findOne({
-          token: token,
-          type: type
-        }, function(error, item) {
-          if (error) return callback(error);
-          callback(null, item);
-        });
-      },
-
-      /**
-       * Given an id and secret, retrive the client. This implementation mandates clientSecret
-       *
-       * @param clientId id of the client
-       * @param clientSecret Client's secret
-       * @param callback function(error, client)
-       */
-      getClient: function(clientId, clientSecret, callback) {
-        Client.findOne({
-          _id: clientId,
-          clientSecret: clientSecret,
-          active: true
-        }, function(error, item) {
-          if (error) return callback(error);
-          if (!item) return callback(new Error('Invalid client!'));
-          callback(null, item);
-        });
-      },
-
-      /**
-       * Check if grant type is allowed for the given client
-       *
-       * @param clientId The id of the client
-       * @param grantType Type of grant requested ('password' or 'refres_token')
-       * @param callback function(error, valid: boolean);
-       */
-      grantTypeAllowed: function grantTypeAllowed(clientId, grantType, callback) {
-        Client.find({
-          _id: clientId,
-          active: true,
-          grantType: {
-            "$in": [grantType]
-          }
-        }, function(error, item) {
-          if (error) return callback(error);
-          if (!item) return callback(new Error('Invalid client!'));
-          callback(null, true);
-        });
-      },
-
-      /**
-       * Get user given the id and password
-       *
-       * @param userId The id of the user to be matched
-       * @param password Base64 encoded password
-       * @param callback function(error, user: Object)
-       */
-      getUser: function getUser(userId, password, callback) {
-        User.findOne({
-          userId: userId,
-          password: password,
-          active: true
-        }, function(error, item) {
-          if (error) return callback(error);
-          if (!item) return callback(new Error('Invalid user!'));
-
-          callback(null, {
-            name: item.name,
-            userId: item.userId,
-            date: item.date,
-            active: item.active,
-            roles: item.roles
-          });
-        });
-      },
-
-      /**
-       * Save the access token into 'tokens' collection
-       *
-       * @param accessToken The access token to be saved
-       * @param clientId client id as string
-       * @param expires Expiry date
-       * @param user User as object with a mandatory property 'id'
-       * @param callback function(error, status)
-       */
-      saveAccessToken: function saveAccessToken(accessToken, clientId, expires, user, callback) {
-        this.saveToken(accessToken, clientId, expires, user, 'access', callback);
-      },
-
-      /**
-       * Save the refresh token into 'tokens' collection
-       *
-       * @param refreshToken The refresh token to be saved
-       * @param clientId client id as string
-       * @param expires Expiry date
-       * @param user User object with a mandatory property 'id'
-       * @param callback function(error, status)
-       */
-      saveRefreshToken: function saveRefreshToken(refreshToken, clientId, expires, user, callback) {
-        this.saveToken(refreshToken, clientId, expires, user, 'refresh', callback);
-      },
-
-      /**
-       * Generic implementation to save 'access' or 'refresh' token
-       *
-       * @param token 'access' or 'refresh' token to be saved
-       * @param clientId client id as string
-       * @param expires Expiry date as date
-       * @param userId The id of the user as string
-       * @param type 'access' or 'refresh'
-       * @param callback function(error, status)
-       */
-      saveToken: function saveToken(token, clientId, expires, user, type, callback) {
-        console.log('Save Token => ', 'token: ', token, 'clientId: ', clientId, 'expires: ', expires, 'user: ', user, 'type: ', type);
-        Token.remove({
-          userId: user && user.userId,
-          clientId: clientId,
-          type: type
-        }, function(error, item) {
-          if (error) return callback(error);
-          Token.create({
-            token: token,
-            clientId: clientId,
-            expires: expires,
-            userId: user && user.userId,
-            roles: user && user.roles,
-            type: type
-          }, callback);
-        });
-      },
-
-      /**
-       * Delete refresh token
-       *
-       * @param token The refresh token to be deleted
-       * @param callback function(error, status)
-       */
-      revokeRefreshToken: function revokeRefreshToken(token, callback) {
-        this.revokeToken(token, 'refresh', callback);
-      },
-
-      /**
-       * Generic implementation to delete 'access' or 'refresh' token
-       *
-       * @param token 'access' or 'refresh' token to be removed
-       * @param type 'access' or 'refresh' as string
-       * @param callback function(error, status)
-       */
-      revokeToken: function revokeToken(token, type, callback) {
-        console.log('revoke token: ', type, token);
-        Token.remove({
-          token: token,
-          type: type
-        }, callback);
-      }
-    }
+    model: model
   });
+
+  // authorization handler
+  app.authorize = app.oauth.authorise();
 
   // defining /token end point
   var tokenRouter = express.Router();
-  tokenRouter.post('/', app.oauth.grant());
-  tokenRouter.delete('/:id', function(request, response, next) {
-    Token.findOneAndRemove({
-      token: request.params.id,
-      type: 'access'
-    }, null, function(error, item) {
-      if (error) return next(error);
-      if (!item) {
+  tokenRouter.post('/token', app.oauth.grant());
+  tokenRouter.post('/revoke', function(request, response, next) {
+    return app.authorize(request, response, function(error) {
+      if (error) {
         response.status(400);
         return response.json({
-          status: 'failed',
-          message: 'Invalid token!'
+          error: 400,
+          message: 'Invalid access token'
         });
       }
-      Token.findOneAndRemove({
-        userId: item.userId,
-        type: 'refresh'
-      }, null, function(error, item) {
-        if (error) return next(error);
+      var accessToken = request.headers.authorization.replace('Bearer ', '');
+      model.revokeAccessToken(accessToken, function(error, item) {
+        if (error) {
+          response.status(400);
+          return response.json(error);
+        }
+
         response.status(200);
-        response.json({
-          status: "revoked",
-          message: request.params.id
-        });
+        return response.json(item);
       });
     });
   });
-  app.use(baseUrl + '/token', tokenRouter);
+
+  app.use(baseUrl, tokenRouter);
 
   // register user
   var userRegRouter = express.Router();
@@ -397,7 +429,6 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   app.use(baseUrl + '/register', userRegRouter);
 
   // apply auth rules and authorization
-  app.authorize = app.oauth.authorise();
   app.use(function(request, response, next) {
 
     var headerType = 'None';
@@ -528,6 +559,6 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   // auth own error handler
   app.use(app.oauth.errorHandler());
 
-};
+}
 
 module.exports = OAuth2Server;
