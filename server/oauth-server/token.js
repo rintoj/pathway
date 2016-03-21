@@ -19,6 +19,7 @@ var TokenSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  roles: [],
   type: String
 });
 

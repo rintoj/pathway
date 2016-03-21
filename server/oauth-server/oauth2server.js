@@ -34,7 +34,7 @@ var ServiceEndpoint = require('../services/generic-service');
 
 /**
  * OAuth2Server enables oAuth 2 security to the given path. This implementation is based on 'npm-oauth2-server' module
- * 
+ *
  * @param app express.js application refrerence
  * @param baseUrl The base url for the api
  */
@@ -55,7 +55,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
       }
       var rule = key.replace(/(\t|\s)+/g, '|').split('|');
       rules.push({
-        type: rule[0].toUpperCase(),
+        type: rule[0],
         roles: rule[1].toUpperCase().split(','),
         methods: rule[2].toUpperCase().split(','),
         patternDef: rule[3],
@@ -118,7 +118,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Checks if access token is valid entry in 'tokens' collection
-       * 
+       *
        * @param token The token to be validated
        * @param callback function(error, callback)
        */
@@ -129,7 +129,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
           var accessToken = {
             accessToken: item.token,
             clientId: item.clientId,
-            userId: item.userId,
+            user: {
+              id: item.userId,
+              roles: item.roles
+            },
             expires: item.expires
           };
           callback(null, accessToken);
@@ -138,7 +141,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Checks if refresh token is valid entry in 'tokens' collection, if so return clientId, userId and expires details
-       * 
+       *
        * @param token The token to be validated
        * @param callback function(error, callback)
        */
@@ -149,7 +152,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
           var refreshToken = {
             refreshToken: item.token,
             clientId: item.clientId,
-            userId: item.userId,
+            user: item.user,
             expires: item.expires
           };
           callback(null, refreshToken);
@@ -158,7 +161,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Generic implementation to fetch 'access' or 'refresh' token from 'tokens' collection
-       * 
+       *
        * @param token The token to be fetched
        * @param type The type of token, valid values are 'access' and 'refresh'
        * @param callback function(error, callback)
@@ -175,7 +178,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Given an id and secret, retrive the client. This implementation mandates clientSecret
-       * 
+       *
        * @param clientId id of the client
        * @param clientSecret Client's secret
        * @param callback function(error, client)
@@ -193,8 +196,8 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
       },
 
       /**
-       * Check if grant type is allowed for the given client 
-       * 
+       * Check if grant type is allowed for the given client
+       *
        * @param clientId The id of the client
        * @param grantType Type of grant requested ('password' or 'refres_token')
        * @param callback function(error, valid: boolean);
@@ -215,7 +218,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Get user given the id and password
-       * 
+       *
        * @param userId The id of the user to be matched
        * @param password Base64 encoded password
        * @param callback function(error, user: Object)
@@ -230,14 +233,18 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
           if (!item) return callback(new Error('Invalid user!'));
 
           callback(null, {
-            id: item.userId
+            name: item.name,
+            userId: item.userId,
+            date: item.date,
+            active: item.active,
+            roles: item.roles
           });
         });
       },
 
       /**
        * Save the access token into 'tokens' collection
-       * 
+       *
        * @param accessToken The access token to be saved
        * @param clientId client id as string
        * @param expires Expiry date
@@ -245,12 +252,12 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
        * @param callback function(error, status)
        */
       saveAccessToken: function saveAccessToken(accessToken, clientId, expires, user, callback) {
-        this.saveToken(accessToken, clientId, expires, user.id, 'access', callback);
+        this.saveToken(accessToken, clientId, expires, user, 'access', callback);
       },
 
       /**
        * Save the refresh token into 'tokens' collection
-       * 
+       *
        * @param refreshToken The refresh token to be saved
        * @param clientId client id as string
        * @param expires Expiry date
@@ -258,12 +265,12 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
        * @param callback function(error, status)
        */
       saveRefreshToken: function saveRefreshToken(refreshToken, clientId, expires, user, callback) {
-        this.saveToken(refreshToken, clientId, expires, user.id, 'refresh', callback);
+        this.saveToken(refreshToken, clientId, expires, user, 'refresh', callback);
       },
 
       /**
        * Generic implementation to save 'access' or 'refresh' token
-       * 
+       *
        * @param token 'access' or 'refresh' token to be saved
        * @param clientId client id as string
        * @param expires Expiry date as date
@@ -271,10 +278,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
        * @param type 'access' or 'refresh'
        * @param callback function(error, status)
        */
-      saveToken: function saveToken(token, clientId, expires, userId, type, callback) {
-        console.log('Save Token => ', 'token: ', token, 'clientId: ', clientId, 'expires: ', expires, 'userId: ', userId, 'type: ', type);
+      saveToken: function saveToken(token, clientId, expires, user, type, callback) {
+        console.log('Save Token => ', 'token: ', token, 'clientId: ', clientId, 'expires: ', expires, 'user: ', user, 'type: ', type);
         Token.remove({
-          userId: userId,
+          userId: user && user.userId,
           clientId: clientId,
           type: type
         }, function(error, item) {
@@ -283,7 +290,8 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
             token: token,
             clientId: clientId,
             expires: expires,
-            userId: userId,
+            userId: user && user.userId,
+            roles: user && user.roles,
             type: type
           }, callback);
         });
@@ -291,7 +299,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Delete refresh token
-       * 
+       *
        * @param token The refresh token to be deleted
        * @param callback function(error, status)
        */
@@ -301,7 +309,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       /**
        * Generic implementation to delete 'access' or 'refresh' token
-       * 
+       *
        * @param token 'access' or 'refresh' token to be removed
        * @param type 'access' or 'refresh' as string
        * @param callback function(error, status)
@@ -316,9 +324,63 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     }
   });
 
+  // defining /token end point
+  app.use(baseUrl + '/token', app.oauth.grant());
+
+
+
+  // register user
+  var registerUser = express.Router();
+  registerUser.put('/', function(request, response, next) {
+    if (request.method !== 'PUT') {
+      return next();
+    }
+
+    if (!request.body.userId || !request.body.password || !request.body.name) {
+      response.status(400);
+      return response.json({
+        status: 400,
+        message: 'Missing one of the attributes: userId, password or name!'
+      });
+    }
+
+    // check if user exists
+    User.findOne({
+      userId: request.body.userId
+    }, function(error, item) {
+      if (error || item) {
+        response.status(400);
+        return response.json({
+          status: 400,
+          message: 'User is already registered!'
+        });
+      }
+
+      // create user
+      User.create({
+        userId: request.body.userId,
+        password: request.body.password,
+        roles: ['User'],
+        active: true
+      }, function(error, item) {
+        response.status(200);
+        return response.json(item);
+      })
+    })
+  });
+  app.use(baseUrl + '/register', registerUser);
+
   // apply auth rules and authorization
   app.authorize = app.oauth.authorise();
   app.use(function(request, response, next) {
+
+    var headerType = 'None';
+    if (request.headers.authorization && request.headers.authorization.indexOf('Basic ') === 0) {
+      headerType = 'Basic';
+    } else if (request.headers.authorization && request.headers.authorization.indexOf('Bearer ') === 0) {
+      headerType = 'Bearer';
+    }
+
     for (var index in rules) {
       var rule = rules[index];
       if (
@@ -326,46 +388,63 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
         rule.pattern.test(request.path) &&
 
         // match methods
-        (rule.methods.indexOf(request.method) >= 0 || rule.methods.indexOf('*'))
+        (rule.methods.indexOf(request.method) >= 0 || rule.methods.indexOf('*') >= 0)
 
       ) {
-        console.log('Applying rule: ', rule.methods, rule.patternDef, "for", request.method, request.path)
-        
-        
-        
-        
-        return next(request, response, next);
+        console.log('Applying rule: ', rule.type, rule.methods, rule.patternDef, "for", headerType, request.method, request.path)
+
+        if (rule.type !== 'None' && headerType !== rule.type) {
+          response.status(401);
+          return response.json({
+            status: 401,
+            message: 'Invalid auth type. ' + rule.type + ' is expected!'
+          });
+        }
+
+        switch (rule.type) {
+          case 'Bearer':
+            return app.authorize(request, response, function() {
+              console.log(request, rule.roles, request.user.roles);
+              if (rule.roles.filter(function(item) {
+                  return item === '*' || request.user.roles.map(function(item) {
+                    return item.toUpperCase();
+                  }).indexOf(item) >= 0;
+                }).length <= 0) {
+                response.status(401);
+                return response.json({
+                  status: 401,
+                  message: 'Your role is not sufficient to access this resource!'
+                });
+              }
+
+              next();
+            });
+
+          case 'Basic':
+            var authorizationHeaders = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
+            return Client.findOne({
+              _id: authorizationHeaders[0],
+              clientSecret: authorizationHeaders[1],
+              active: true
+            }, function(error, item) {
+              if (error || !item) {
+                return response.json({
+                  status: 401,
+                  message: 'Invalid auth header!'
+                });
+              }
+
+              next();
+            });
+
+          case 'None':
+            return next();
+        }
       }
     }
-    
+
     app.authorize(request, response, next);
   });
-
-  //   app.use(baseUrl + '/token', function(request, response, next) {
-  //     if (request.method === 'OPTIONS') {
-  //       response.status(200);
-  //       response.send('POST');
-  //     } else {
-  //       next();
-  //     }
-  //   });
-
-  // api to obtain access token
-  app.use(baseUrl + '/token', app.oauth.grant());
-
-
-
-  //   app.use(function(request, response, next) {
-  //     if (request.method === 'OPTIONS') {
-  //       next();
-  //     } else if (request.originalUrl === baseUrl + '/user' && request.method === 'PUT') {
-  //       registerUser(request, response, next);
-  //     } else if (request.originalUrl.indexOf(baseUrl + '/user') === 0 && request.method === 'GET') {
-  //       getUser(request, response, next);
-  //     } else {
-  //       app.authorize(request, response, next);
-  //     }
-  //   });
 
   // create service end point for managing clients
   client = new ServiceEndpoint(Client);
@@ -391,43 +470,6 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   user.bind();
   app.use(baseUrl + '/user', user.router);
 
-  //   function performBasicAuth(request, response, next) {
-
-  //     if (!request.headers.authorization) {
-  //       response.status(401);
-  //       response.send({
-  //         status: 401,
-  //         message: 'Missing authorization header!'
-  //       });
-
-  //     } else if (request.headers.authorization.indexOf('Bearer ') === 0) {
-  //       app.authorize(request, response, next);
-
-  //     } else if (request.headers.authorization.indexOf('Basic ') !== 0) {
-  //       response.status(401);
-  //       response.send({
-  //         status: 401,
-  //         message: 'Malformed authorization header!'
-  //       });
-
-  //     } else {
-  //       var ids = Base64.decode(request.headers.authorization.replace('Basic ', '')).split(':');
-  //       Client.findOne({
-  //         _id: ids[0],
-  //         clientSecret: ids[1]
-  //       }, function(error, item) {
-  //         if (error || !item) {
-  //           response.status(401);
-  //           return response.send({
-  //             status: 401,
-  //             message: 'Unknown client. Invalid authorization header!'
-  //           });
-  //         }
-  //         next(request, response, next);
-  //       })
-  //     }
-  //   }
-
   // Overrides default error handler
   app.use(function(error, req, res, next) {
 
@@ -440,10 +482,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     }
 
     if (error) {
-      console.log(error);
+      console.log('ERROR:', error);
       return res.json({
         code: 400,
-        error: error.message
+        error: error.message || 'Unexcepted error occured!'
       });
     }
     next();
