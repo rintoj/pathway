@@ -61,7 +61,7 @@ var app = express();
 
 // server static content; comment this line if this application is only api
 app.use(require('serve-static')(__dirname + '/../build'));
-// app.use(logger('combined'));
+app.use(logger('common'));
 
 // basic api configuration
 app.use(bodyParser.json());
