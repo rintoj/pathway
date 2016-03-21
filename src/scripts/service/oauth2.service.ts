@@ -64,12 +64,27 @@ export class OAuth2Service {
     }
 
     protected logout(state: ApplicationState, action: LogoutAction): Observable<ApplicationState> {
-        console.log('logout', state, action);
-        return Observable.create((observer: Observer<ApplicationState>) => {
-            state.user = undefined;
-            observer.next(state);
-            observer.complete();
+        var headers = new Headers();
+        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+
+        let options = new RequestOptions({
+            method: RequestMethod.Delete,
+            url: `${this.url}/token/${state.user.auth.access_token}`,
+            headers: headers
         });
+
+        return Observable.create((observer: Observer<ApplicationState>) => {
+            this.rest.request(options).subscribe(() => {
+                state.user = undefined;
+                observer.next(state);
+                observer.complete();
+            }, (error: any) => {
+                state.user = undefined;
+                observer.next(state);
+                observer.complete();
+            }, () => observer.complete());
+        }).share();
     }
 
     protected validateAuth(state: ApplicationState, action: ValidateAuthAction): Observable<ApplicationState> {
@@ -117,7 +132,7 @@ export class OAuth2Service {
             headers: headers
         });
 
-        return this.rest.request(options).map((response: Response): ApplicationState => state);
+        return this.rest.request(options).map((response: Response): ApplicationState => state).share();
     }
 
     protected verifyUser(state: ApplicationState, action: VerifyUserAction): Observable<ApplicationState> {

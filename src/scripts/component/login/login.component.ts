@@ -70,7 +70,7 @@ export class LoginComponent {
     }
 
     ngOnInit() {
-        this.userId = new Control('admin@pathway.com', Validators.compose([Validators.required, this.validEmail]));
+        this.userId = new Control('superuser@pathway.com', Validators.compose([Validators.required, this.validEmail]));
         this.password = new Control('sysadmin@123', Validators.required);
 
         this.loginForm = this.builder.group({

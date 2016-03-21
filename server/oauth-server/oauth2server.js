@@ -325,13 +325,39 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   });
 
   // defining /token end point
-  app.use(baseUrl + '/token', app.oauth.grant());
-
-
+  var tokenRouter = express.Router();
+  tokenRouter.post('/', app.oauth.grant());
+  tokenRouter.delete('/:id', function(request, response, next) {
+    Token.findOneAndRemove({
+      token: request.params.id,
+      type: 'access'
+    }, null, function(error, item) {
+      if (error) return next(error);
+      if (!item) {
+        response.status(400);
+        return response.json({
+          status: 'failed',
+          message: 'Invalid token!'
+        });
+      }
+      Token.findOneAndRemove({
+        userId: item.userId,
+        type: 'refresh'
+      }, null, function(error, item) {
+        if (error) return next(error);
+        response.status(200);
+        response.json({
+          status: "revoked",
+          message: request.params.id
+        });
+      });
+    });
+  });
+  app.use(baseUrl + '/token', tokenRouter);
 
   // register user
-  var registerUser = express.Router();
-  registerUser.put('/', function(request, response, next) {
+  var userRegRouter = express.Router();
+  userRegRouter.put('/', function(request, response, next) {
     if (request.method !== 'PUT') {
       return next();
     }
@@ -368,7 +394,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
       })
     })
   });
-  app.use(baseUrl + '/register', registerUser);
+  app.use(baseUrl + '/register', userRegRouter);
 
   // apply auth rules and authorization
   app.authorize = app.oauth.authorise();
@@ -404,7 +430,15 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
         switch (rule.type) {
           case 'Bearer':
             return app.authorize(request, response, function() {
-              console.log(request, rule.roles, request.user.roles);
+
+              if (!request.user || !request.user.roles) {
+                response.status(401);
+                return response.json({
+                  status: 401,
+                  message: 'Could not authenticate user!'
+                });
+              }
+
               if (rule.roles.filter(function(item) {
                   return item === '*' || request.user.roles.map(function(item) {
                     return item.toUpperCase();
