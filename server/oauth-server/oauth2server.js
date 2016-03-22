@@ -416,6 +416,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
 
       // create user
       User.create({
+        name: request.body.name,
         userId: request.body.userId,
         password: request.body.password,
         roles: ['User'],
