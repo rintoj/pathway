@@ -4,15 +4,14 @@ import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ProjectlogComponent} from '../projectlog/projectlog.component';
 
 @Component({
-    selector: 'pw-main'
+  selector: 'pw-main'
 })
 @View({
-    directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
-    template: `
+  directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
+  template: `
 		<pw-header></pw-header>
 		<main>
 			<pw-projectlog></pw-projectlog>
-            div>span*3  
 		</main>
 		<footer>
 			Pathway™ - Powered by Angular 2. © 2016 Copyright rintoj (Rinto Jose).
