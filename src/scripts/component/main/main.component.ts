@@ -12,6 +12,7 @@ import {ProjectlogComponent} from '../projectlog/projectlog.component';
 		<pw-header></pw-header>
 		<main>
 			<pw-projectlog></pw-projectlog>
+            div>span*3  
 		</main>
 		<footer>
 			Pathway™ - Powered by Angular 2. © 2016 Copyright rintoj (Rinto Jose).
