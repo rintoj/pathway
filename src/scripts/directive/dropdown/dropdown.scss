@@ -3,9 +3,11 @@ dropdown {
   display: inline-block;
   position: relative;
   transition: width .2s ease;
+  outline: none;
   .dd-input {
     position: relative;
     width: calc(100% - 25px);
+    cursor: pointer;
     &:before {
       content: '\f0d7';
       position: absolute;
@@ -35,6 +37,7 @@ dropdown {
     border: 0;
     padding: 5px 10px;
     white-space: nowrap;
+    cursor: pointer;
     &:hover {
       background: $primary-color-light;
     }

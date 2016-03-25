@@ -12,13 +12,13 @@ export interface DropdownOption {
 })
 @View({
     template: `
-		<div class="dd-item-list" [class.open]="showDropdown">
-			<div class="dd-item" *ngFor="#item of options" (click)="selectItem(item)"> 
-                <span [class]="'dd-icon ' + item.icon" *ngIf="item.icon !== undefined"></span>
-                <span class="dd-text">{{item.text}}</span>
-            </div>
-		</div>
-         <div class="dd-input fa" (click)="toggleDropdown()">
+        <div class="dd-item-list" [class.open]="showDropdown">
+          <div class="dd-item" *ngFor="#item of options" (click)="selectItem(item)"> 
+                    <span [class]="'dd-icon ' + item.icon" *ngIf="item.icon !== undefined"></span>
+                    <span class="dd-text">{{item.text}}</span>
+                </div>
+        </div>
+        <div class="dd-input fa" (click)="toggleDropdown()">
             <span [class]="'dd-icon ' + selectedItem?.icon"></span>
             <span class="dd-text">{{selectedItem?.text}}</span>            
         </div>

@@ -194,16 +194,17 @@
     left: 50%;
     background: $primary-text-color;
     color: $primary-color-text;
-    padding: 1px 5px 0;
+    padding: 3px 5px;
     border-radius: 4px;
     transition: top .3s ease, height .3s ease, transform .3s ease, opacity .3s ease;
     opacity: 0;
     height: 0;
-    font-size: 12px;
+    font-size: .7em;
     white-space: nowrap;
     transform: translateX(-50%);
-    line-height: 20px;
+    line-height: 15px;
     overflow: hidden;
+    font-family: $font-family;
   }
   &:hover {
     &:after {
@@ -219,11 +220,6 @@ $code-bg-color: #EFEFEF;
   padding: 2px 5px;
   font-size: 14px;
   border: 1px solid darken($code-bg-color, 2%);
-}
-.dropdown {
-  .dropdown-btn {
-    border: 0;
-  }
 }
 .avatar {
   background: $divider-color-light;

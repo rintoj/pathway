@@ -130,5 +130,11 @@ if (properties.api.environment === 'production') {
 // set application port
 app.set('port', parseInt(properties.api.port));
 
+// start the application
+var server = app.listen(app.get('port'), function() {
+  console.log('Express server listening on port ' + server.address().port);
+});
+
 // export module
 module.exports = app;
+
