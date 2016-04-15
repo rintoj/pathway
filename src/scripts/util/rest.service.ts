@@ -1,57 +1,26 @@
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
-import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
+import {Http, Headers, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
 
-export interface Token {
-  token: string;
-  expiresIn?: number;
-  issuedOn?: Date;
+export interface RestService {
+  get(url: string, search?: Object): Observable<Response>;
+  post(url: string, body: Object, search?: Object): Observable<Response>;
+  put(url: string, body: Object, search?: Object): Observable<Response>;
+  delete(url: string, body?: Object, search?: Object): Observable<Response>;
+  request(url: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response>;
 }
 
-export interface RestServiceOptions {
-  baseUrl: string;
-  contentType: string;
-  cacheRequest: boolean;
-  accessToken?: Token;
-  refreshToken?: Token;
-  clientId?: string;
-  clientSecret?: string;
-}
-
-// export class RestRequestOptions extends BaseRequestOptions {
-
-//   constructor(public baseUrl: string = '', public cacheRequest: boolean = true) {
-//     super();
-//     this.headers.append('Content-Type', 'application/json');
-//   }
-
-//   get contentType() {
-//     return this.headers.get('Content-Type');
-//   }
-
-//   set contentType(contentType: string) {
-//     this.setHeader('Content-Type', contentType);
-//   }
-
-//   private setHeader(type: string, value: string) {
-//     if (value === undefined) {
-//       this.headers.delete(type);
-//     } else {
-//       this.headers.set(type, value);
-//     }
-//   }
-// }
-
-class Service {
+@Injectable()
+export class BaseRestService implements RestService {
 
   private requestsInFlight: Object = {};
 
   constructor(
-    private http: Http,
-    private options: RequestOptions,
-    private baseUrl: string = '',
-    private cacheRequest: boolean = true
+    protected http: Http,
+    protected requestOptions: RequestOptions,
+    protected baseUrl: string = '',
+    protected cacheRequest: boolean = true
   ) { }
 
   get(url: string, search?: Object): Observable<Response> {
@@ -71,7 +40,7 @@ class Service {
   }
 
   request(url: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
-    return this.sendRequest(new RequestOptions(this.options.merge({
+    return this.httpRequest(new RequestOptions(this.requestOptions.merge({
       url: this.baseUrl + url,
       body: JSON.stringify(body),
       search: this.serialize(search),
@@ -79,7 +48,7 @@ class Service {
     })));
   }
 
-  sendRequest(options: RequestOptions) {
+  httpRequest(options: RequestOptions) {
 
     let requestId = JSON.stringify(options, null, 4);
     let request: Observable<Response> = this.requestsInFlight[requestId];
@@ -147,25 +116,56 @@ class Service {
   // }
 }
 
-export enum AuthType {
-  ACCESS_TOKEN, REFRESH_TOKEN, CLIENT
+export interface RestServiceOptions {
+  baseUrl: string;
+  contentType: string;
+  cacheRequest: boolean;
+  cacheControl?: string;
+}
+
+export interface Token {
+  token: string;
+  expiresIn?: number;
+}
+
+export interface RestServiceWithOAuth2Options extends RestServiceOptions {
+  authUrl: string;
+  clientId: string;
+  clientSecret: String;
+  accessToken: Token;
+  refreshToken: Token;
 }
 
 @Injectable()
-export class RestService {
+export class RestServiceWithOAuth extends BaseRestService {
 
-  constructor(private options: RestServiceOptions) { }
+  constructor(protected http: Http, protected options: RestServiceWithOAuth2Options) {
+    super(http, new BaseRequestOptions(), options.baseUrl, options.cacheRequest);
+  }
 
-  auth(authType: AuthType) {
-    var requestOptions = new BaseRequestOptions();
+  authorize(userName: string, password: string): Observable<boolean> {
+    var headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('Authorization', 'Base ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
 
-    // set content type; default is 'application/json'
-    requestOptions.headers.set('Content-Type', this.options.contentType || 'application/json');
+    let options = new RequestOptions({
+      method: RequestMethod.Post,
+      url: this.options.authUrl || `${this.options.baseUrl}/token`,
+      headers: headers,
+      body: this.serialize({
+        username: userName,
+        password: password,
+        grant_type: 'password'
+      })
+    });
 
-    switch (authType) {
-      case AuthType.ACCESS_TOKEN:
-        requestOptions.headers.set('Authorization', this.options.accessToken.token);
-        break;
-    }
+    return Observable.create((observer: Observer<boolean>) => {
+      this.httpRequest(options).map((response: Response) => response.json())
+        .subscribe((data: any) => {
+          this.options.accessToken.token = data.access_token;
+          this.options.accessToken.expiresIn = data.expires_in;
+          this.options.refreshToken.token = data.refresh_token;
+        });
+    });
   }
 }
