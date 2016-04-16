@@ -104,8 +104,6 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
         function(error, item) {
           if (error) return callback(error);
           console.log('Default client "' + properties.default.client.name + '" created!');
-          console.log('For login use: "Authorization: Basic ' +
-            Base64.encode(properties.default.client.id + ':' + properties.default.client.secret) + '"');
         });
     });
   }

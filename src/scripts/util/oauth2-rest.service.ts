@@ -32,6 +32,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
 
   authorize(userName: string, password: string): Observable<AuthInfo> {
     var headers = new Headers();
+    headers.append('Cache-Control', 'no-cache');
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
     headers.append('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
 
