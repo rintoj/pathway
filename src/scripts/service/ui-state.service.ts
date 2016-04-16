@@ -2,7 +2,7 @@ import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../state/dispatcher';
 import {ApplicationState} from '../state/application-state';
-import {SetApplicationStatusAction} from '../state/ui-state';
+import {SetApplicationStatusAction} from '../state/action';
 import {ApplicationStateObservable} from '../state/application-state';
 import {Injectable} from 'angular2/core';
 

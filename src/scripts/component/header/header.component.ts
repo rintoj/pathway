@@ -24,17 +24,17 @@
  */
 import {Router} from 'angular2/router';
 import {Dispatcher} from '../../state/dispatcher';
-import {LogoutAction} from '../../state/user';
+import {LogoutAction} from '../../state/action';
 import {Component, View} from 'angular2/core';
 import {Dropdown, DropdownOption} from '../../directive/dropdown/dropdown';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 
 @Component({
-    selector: 'pw-header'
+  selector: 'pw-header'
 })
 @View({
-    directives: [Dropdown],
-    template: `
+  directives: [Dropdown],
+  template: `
 		<div class="nav-wrapper" [class.open]="showMenu">
 			<a class="title">
 				<img src="images/logo.svg" width="48">
@@ -71,72 +71,72 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 	`
 })
 export class HeaderComponent {
-    public title = 'Pathway';
+  public title = 'Pathway';
 
-    private state: ApplicationState;
-    private selectedProject: string = '--select project--';
-    private showDropdown: boolean = false;
-    private showMenu: boolean = false;
-    private openUserProfile: boolean = false;
+  private state: ApplicationState;
+  private selectedProject: string = '--select project--';
+  private showDropdown: boolean = false;
+  private showMenu: boolean = false;
+  private openUserProfile: boolean = false;
 
-    projectList: DropdownOption[] = [
-        {
-            text: 'Mobile in web',
-            icon: 'fa fa-home'
-        }, {
-            text: 'Angular 2',
-            icon: 'fa fa-home'
-        }, {
-            text: 'TCS SwaS',
-            icon: 'fa fa-home'
-        }, {
-            text: 'dreamUP',
-            icon: 'fa fa-home'
-        }, {
-            text: 'TCS data Tootle',
-            icon: 'fa fa-home'
-        }
-    ];
-
-    /**
-     * Creates an instance of HeaderComponent.
-     * 
-     * @param {Router} router (description)
-     * @param {Dispatcher} dispatcher (description)
-     * @param {ApplicationStateObservable} stateObservable (description)
-     */
-    constructor(
-        private router: Router,
-        private dispatcher: Dispatcher,
-        private stateObservable: ApplicationStateObservable
-    ) { }
-
-    ngOnInit() {
-        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+  projectList: DropdownOption[] = [
+    {
+      text: 'Mobile in web',
+      icon: 'fa fa-home'
+    }, {
+      text: 'Angular 2',
+      icon: 'fa fa-home'
+    }, {
+      text: 'TCS SwaS',
+      icon: 'fa fa-home'
+    }, {
+      text: 'dreamUP',
+      icon: 'fa fa-home'
+    }, {
+      text: 'TCS data Tootle',
+      icon: 'fa fa-home'
     }
+  ];
 
-    toggleDropdown() {
-        this.showDropdown = !this.showDropdown;
-    }
+  /**
+   * Creates an instance of HeaderComponent.
+   * 
+   * @param {Router} router (description)
+   * @param {Dispatcher} dispatcher (description)
+   * @param {ApplicationStateObservable} stateObservable (description)
+   */
+  constructor(
+    private router: Router,
+    private dispatcher: Dispatcher,
+    private stateObservable: ApplicationStateObservable
+  ) { }
 
-    toggleMenu() {
-        this.showMenu = !this.showMenu;
-    }
+  ngOnInit() {
+    this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+  }
 
-    selectProject(event: any) {
-        this.selectedProject = event.target.innerText;
-    }
+  toggleDropdown() {
+    this.showDropdown = !this.showDropdown;
+  }
 
-    logout() {
-        this.dispatcher.next(new LogoutAction()).subscribe(() => this.router.navigate(['/Login']));
-    }
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
+  }
 
-    toggleUserProfile() {
-        this.openUserProfile = !this.openUserProfile;
-    }
+  selectProject(event: any) {
+    this.selectedProject = event.target.innerText;
+  }
 
-    get userName() {
-        return this.state && this.state.user && this.state.user.name && this.state.user.name.split(' ')[0];
-    }
+  logout() {
+    this.dispatcher.next(new LogoutAction()).subscribe(() => this.router.navigate(['/Login']));
+  }
+
+  toggleUserProfile() {
+    this.openUserProfile = !this.openUserProfile;
+  }
+
+  get userName() {
+    return this.state && this.state.user && this.state.user.name && this.state.user.name.split(' ')[0];
+  }
 
 }

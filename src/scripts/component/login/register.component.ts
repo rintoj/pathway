@@ -1,27 +1,25 @@
 import {Config} from '../../state/config';
-// import {Observer} from 'rxjs/Observer';
-// import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../../state/dispatcher';
 import {LoaderComponent} from '../loader/loader.component';
 import {Component, View} from 'angular2/core';
-import {CreateUserAction} from '../../state/user';
+import {CreateUserAction} from '../../state/action';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
 interface ValidationResult {
-    [key: string]: boolean;
+  [key: string]: boolean;
 }
 
 @Component({
-    selector: 'pw-register'
+  selector: 'pw-register'
 })
 @View({
-    directives: [
-        ROUTER_DIRECTIVES,
-        LoaderComponent
-    ],
-    template: `
+  directives: [
+    ROUTER_DIRECTIVES,
+    LoaderComponent
+  ],
+  template: `
 		<form class="login-container" (ngSubmit)="onSubmit()" [ngFormModel]="loginForm">
         	<div class="title">
 				<i class="avatar"></i>
@@ -80,104 +78,104 @@ interface ValidationResult {
 })
 export class RegisterComponent {
 
-    private state: ApplicationState;
+  private state: ApplicationState;
 
-    title: String = Config.APPLICATION_NAME;
-    name: Control;
-    userId: Control;
-    password: Control;
-    confirmation: Control;
-    loginForm: ControlGroup;
+  title: String = Config.APPLICATION_NAME;
+  name: Control;
+  userId: Control;
+  password: Control;
+  confirmation: Control;
+  loginForm: ControlGroup;
 
-    loading: boolean = false;
-    errorMessage: string;
+  loading: boolean = false;
+  errorMessage: string;
 
-    constructor(
-        private builder: FormBuilder,
-        private dispatcher: Dispatcher,
-        private stateObservable: ApplicationStateObservable
-    ) {
+  constructor(
+    private builder: FormBuilder,
+    private dispatcher: Dispatcher,
+    private stateObservable: ApplicationStateObservable
+  ) {
+  }
+
+  ngOnInit() {
+    this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+    this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.validName]));
+    this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]));
+    // this.userIdTaken.bind(this));
+    this.password = new Control('password', Validators.compose([Validators.required, this.validPassword]));
+    this.confirmation = new Control('password', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
+
+    this.loginForm = this.builder.group({
+      name: this.name,
+      userId: this.userId,
+      password: this.password,
+      confirmation: this.confirmation
+    });
+  }
+
+  onSubmit() {
+    this.loading = true;
+    this.dispatcher.next(new CreateUserAction({
+      name: this.name.value,
+      userId: this.userId.value,
+      password: btoa(this.password.value)
+    }))
+      .subscribe(
+      () => {
+        this.loading = false;
+        this.errorMessage = 'User created!';
+      },
+      (error: any) => {
+        this.loading = false;
+        this.errorMessage = 'Sorry, could not create user!';
+      },
+      () => {
+        this.loading = false;
+      }
+      );
+  }
+
+  private validName(control: Control): any {
+    if (!Config.NAME_VALIDATE_REGEXP.test(control.value.trim())) {
+      return { validEmail: true };
     }
+    return null;
+  }
 
-    ngOnInit() {
-        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.validName]));
-        this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]));
-        // this.userIdTaken.bind(this));
-        this.password = new Control('password', Validators.compose([Validators.required, this.validPassword]));
-        this.confirmation = new Control('password', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
+  // private userIdTaken(control: Control): Observable<ValidationResult> {
+  //     return Observable.create((observer: Observer<any>) => {
+  //         this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
+  //             (data: any) => {
+  //                 observer.next(data.count() > 0 ? { userIdTaken: true } : null);
+  //                 observer.complete();
+  //             },
+  //             (error: any) => {
+  //                 observer.next(null);
+  //                 observer.complete();
+  //             },
+  //             () => observer.complete());
+  //     }).share();
+  // }
 
-        this.loginForm = this.builder.group({
-            name: this.name,
-            userId: this.userId,
-            password: this.password,
-            confirmation: this.confirmation
-        });
+  private validEmail(control: Control): any {
+    if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
+      return { validEmail: true };
     }
+    return null;
+  }
 
-    onSubmit() {
-        this.loading = true;
-        this.dispatcher.next(new CreateUserAction({
-            name: this.name.value,
-            userId: this.userId.value,
-            password: btoa(this.password.value)
-        }))
-            .subscribe(
-            () => {
-                this.loading = false;
-                this.errorMessage = 'User created!';
-            },
-            (error: any) => {
-                this.loading = false;
-                this.errorMessage = 'Sorry, could not create user!';
-            },
-            () => {
-                this.loading = false;
-            }
-            );
+  private validPassword(control: Control): any {
+    if (!Config.PASSWORD_VALIDATE_REGEXP.test(control.value)) {
+      return { validPassword: true };
     }
+    return null;
+  }
 
-    private validName(control: Control): any {
-        if (!Config.NAME_VALIDATE_REGEXP.test(control.value.trim())) {
-            return { validEmail: true };
-        }
-        return null;
+  private validPasswordMatch(control: Control): any {
+    if (this.password && control.value.trim() !== this.password.value.trim()) {
+      return { validPasswordMatch: true };
     }
-
-    // private userIdTaken(control: Control): Observable<ValidationResult> {
-    //     return Observable.create((observer: Observer<any>) => {
-    //         this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
-    //             (data: any) => {
-    //                 observer.next(data.count() > 0 ? { userIdTaken: true } : null);
-    //                 observer.complete();
-    //             },
-    //             (error: any) => {
-    //                 observer.next(null);
-    //                 observer.complete();
-    //             },
-    //             () => observer.complete());
-    //     }).share();
-    // }
-
-    private validEmail(control: Control): any {
-        if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
-            return { validEmail: true };
-        }
-        return null;
-    }
-
-    private validPassword(control: Control): any {
-        if (!Config.PASSWORD_VALIDATE_REGEXP.test(control.value)) {
-            return { validPassword: true };
-        }
-        return null;
-    }
-
-    private validPasswordMatch(control: Control): any {
-        if (this.password && control.value.trim() !== this.password.value.trim()) {
-            return { validPasswordMatch: true };
-        }
-        return null;
-    }
+    return null;
+  }
 
 }

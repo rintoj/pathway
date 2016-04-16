@@ -73,21 +73,11 @@ class DefaultConfig {
 // override or add configurations for development environment
 class DevConfig extends DefaultConfig {
 
-  static get SERVICE_URL(): string {
-    return '//localhost:3000/api';
-  }
 }
 
 // override or add configurations for production environment
 class ProdConfig extends DefaultConfig {
 
-  static get SERVICE_ACCESS_DELAY(): number {
-    return 0;
-  }
-
-  static get SERVICE_URL(): string {
-    return '//rintoj.github.io/pathway/';
-  }
 }
 
 // Change 'extends' to 'DevConfig/ProdConfig' to switch between dev and prod configs

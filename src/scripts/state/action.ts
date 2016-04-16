@@ -22,5 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import {Page} from './pagination';
+import {Projectlog} from './projectlog';
+import {UserBasicInfo} from './user';
+import {ApplicationStatus} from './ui-state';
 
 export class Action { }
+
+// User Actions
+export class LoginAction extends Action { constructor(public user: UserBasicInfo) { super(); } }
+export class ValidateUserAction extends Action { }
+export class LogoutAction extends Action { }
+export class CreateUserAction extends Action { constructor(public user: UserBasicInfo) { super(); } }
+export class VerifyUserAction extends Action { constructor(public userId: string) { super(); } }
+
+// Application-State action
+export class RestoreAppStateAction extends Action { }
+
+// UI-State actions
+export class SetApplicationStatusAction extends Action { constructor(public applicationStatus: ApplicationStatus) { super(); } }
+
+// Projectlog actions
+export class CreateProjectlogAction extends Action { constructor(public projectlog: Projectlog) { super(); } }
+export class FetchProjectlogAction extends Action { constructor(public page: Page<Projectlog>) { super(); } }
+export class DeleteProjectlogAction extends Action { constructor(public projectlog: Projectlog) { super(); } }
+

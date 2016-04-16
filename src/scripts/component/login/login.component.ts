@@ -1,20 +1,20 @@
 import {Config} from '../../state/config';
 import {Dispatcher} from '../../state/dispatcher';
-import {LoginAction, ValidateAuthAction} from '../../state/user';
+import {LoginAction, ValidateUserAction} from '../../state/action';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {ROUTER_DIRECTIVES, Router} from 'angular2/router';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 
 @Component({
-    selector: 'pw-login'
+  selector: 'pw-login'
 })
 @View({
-    directives: [
-        LoaderComponent,
-        ROUTER_DIRECTIVES
-    ],
-    template: `
+  directives: [
+    LoaderComponent,
+    ROUTER_DIRECTIVES
+  ],
+  template: `
 		<form class="login-container" [class.validating]="validating" (ngSubmit)="onSubmit()" [ngFormModel]="loginForm">
         	<div class="title">
 				<i class="avatar"></i>
@@ -53,67 +53,66 @@ import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 })
 export class LoginComponent {
 
-    title: String = Config.APPLICATION_NAME;
-    userId: Control;
-    password: Control;
-    loginForm: ControlGroup;
+  title: String = Config.APPLICATION_NAME;
+  userId: Control;
+  password: Control;
+  loginForm: ControlGroup;
 
-    loading: boolean = false;
-    validating: boolean = true;
-    errorMessage: string;
+  loading: boolean = false;
+  validating: boolean = true;
+  errorMessage: string;
 
-    constructor(
-        private router: Router,
-        private builder: FormBuilder,
-        private dispatcher: Dispatcher
-    ) {
-    }
+  constructor(
+    private router: Router,
+    private builder: FormBuilder,
+    private dispatcher: Dispatcher
+  ) { }
 
-    ngOnInit() {
-        this.userId = new Control('superuser@pathway.com', Validators.compose([Validators.required, this.validEmail]));
-        this.password = new Control('sysadmin@123', Validators.required);
+  ngOnInit() {
+    this.userId = new Control('superuser@pathway.com', Validators.compose([Validators.required, this.validEmail]));
+    this.password = new Control('sysadmin@123', Validators.required);
 
-        this.loginForm = this.builder.group({
-            userId: this.userId,
-            password: this.password
-        });
+    this.loginForm = this.builder.group({
+      userId: this.userId,
+      password: this.password
+    });
+    this.validateAuth();
+  }
+
+  validateAuth() {
+    this.dispatcher.next(new ValidateUserAction())
+      .finally(() => this.validating = false)
+      .subscribe((data: any) => {
+        console.log('Valid user', data, 'Navigating to "/Home"');
+        this.router.navigate(['/Home']);
+      }, () => this.validating = false);
+  }
+
+  onSubmit() {
+    this.loading = true;
+    this.errorMessage = undefined;
+    this.dispatcher.next(new LoginAction({
+      userId: this.userId.value,
+      password: btoa(this.password.value)
+    })).subscribe(
+      () => {
+        this.loading = false;
         this.validateAuth();
-    }
+      },
+      (error: any) => {
+        this.loading = false;
+        this.errorMessage = 'Invalid user or password!';
+      },
+      () => {
+        this.loading = false;
+      });
+    return null;
+  }
 
-    validateAuth() {
-        this.dispatcher.next(new ValidateAuthAction())
-            .finally(() => this.validating = false)
-            .subscribe((data: any) => {
-                console.log('Valid user', data, 'Navigating to "/Home"');
-                this.router.navigate(['/Home']);
-            }, () => this.validating = false);
+  private validEmail(control: Control): any {
+    if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
+      return { validEmail: true };
     }
-
-    onSubmit() {
-        this.loading = true;
-        this.errorMessage = undefined;
-        this.dispatcher.next(new LoginAction({
-            userId: this.userId.value,
-            password: btoa(this.password.value)
-        })).subscribe(
-            () => {
-                this.loading = false;
-                this.validateAuth();
-            },
-            (error: any) => {
-                this.loading = false;
-                this.errorMessage = 'Sorry, your are not authorized!';
-            },
-            () => {
-                this.loading = false;
-            });
-        return null;
-    }
-
-    private validEmail(control: Control): any {
-        if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
-            return { validEmail: true };
-        }
-        return null;
-    }
+    return null;
+  }
 }

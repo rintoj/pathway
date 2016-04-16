@@ -538,7 +538,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   app.use(function(error, req, res, next) {
 
     res.status(401);
-    if (error && error.error_description === "The access token was is not found") {
+    if (error && error.error_description === "The access token is not found") {
       return res.json({
         code: 401,
         error: "Unauthorized!"

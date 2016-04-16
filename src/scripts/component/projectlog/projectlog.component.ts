@@ -1,6 +1,7 @@
 import {Page} from '../../state/pagination';
-import {Dispatcher} from '../../state/dispatcher';
 import {Subject} from 'rxjs/Subject';
+import {Dispatcher} from '../../state/dispatcher';
+import {Projectlog} from '../../state/projectlog';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
@@ -8,19 +9,19 @@ import {ProjectlogService} from '../../service/projectlog.service';
 import {UploaderComponent} from '../uploader/uploader.component';
 import {ProjectlogItemComponent} from './projectlog-item.component';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
-import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/projectlog';
+import {FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/action';
 
 @Component({
-    selector: 'pw-projectlog'
+  selector: 'pw-projectlog'
 })
 @View({
-    directives: [
-        ProjectlogItemComponent,
-        LoaderComponent,
-        UploaderComponent,
-        InfiniteScroller
-    ],
-    template: `
+  directives: [
+    ProjectlogItemComponent,
+    LoaderComponent,
+    UploaderComponent,
+    InfiniteScroller
+  ],
+  template: `
 
 		<!-- action buttons -->
 		<div class="actions">
@@ -57,93 +58,93 @@ import {Projectlog, FetchProjectlogAction, CreateProjectlogAction, DeleteProject
 })
 export class ProjectlogComponent {
 
-    private state: ApplicationState;
-    private selectedCount: number = 0;
-    private selectAllOn: boolean = false;
-    private sortAsc: boolean = true;
-    private loading: boolean;
-    private error: string;
-    private showUploader: boolean = false;
+  private state: ApplicationState;
+  private selectedCount: number = 0;
+  private selectAllOn: boolean = false;
+  private sortAsc: boolean = true;
+  private loading: boolean;
+  private error: string;
+  private showUploader: boolean = false;
 
-    private fetchPageAction: Subject<Page<Projectlog>>;
+  private fetchPageAction: Subject<Page<Projectlog>>;
 
-    constructor(
-        private service: ProjectlogService,
-        private dispatcher: Dispatcher,
-        private stateObservable: ApplicationStateObservable
-    ) {
+  constructor(
+    private service: ProjectlogService,
+    private dispatcher: Dispatcher,
+    private stateObservable: ApplicationStateObservable
+  ) {
+    this.loading = false;
+  }
+
+  ngOnInit() {
+    this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
+    // this.fetchPageAction = new Subject<Page<Projectlog>>();
+    // this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
+    // this.refresh();
+  }
+
+  create() {
+    console.log('Create is yet to be implemented');
+    this.dispatcher.next(new CreateProjectlogAction(null));
+  }
+
+  refresh() {
+    this.loading = true;
+    this.error = undefined;
+    this.fetchPageAction.next(new Page(0).setFilters(this.filters));
+  }
+
+  nextPage() {
+    if (this.loading) {
+      return null; // do nothing
+    }
+    this.loading = true;
+    this.error = undefined;
+    this.fetchPageAction.next(this.state.projectlogs.page.next());
+  }
+
+  protected requestPage(page: Page<Projectlog>) {
+    console.log('request:', page);
+
+    this.dispatcher.next(new FetchProjectlogAction(page))
+      .finally(() => {
         this.loading = false;
-    }
+      }).subscribe((state: ApplicationState) => {
+        console.log('response:', this.state.projectlogs.page);
+      }, (error: any) => {
+        this.error = 'Error occured';
+        console.error('error', error);
+      });
+  }
 
-    ngOnInit() {
-        this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-        // this.fetchPageAction = new Subject<Page<Projectlog>>();
-        // this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
-        // this.refresh();
-    }
+  get filters() {
+    return { sort: { index: { order: this.sortAsc ? 'asc' : 'desc' } } };
+  }
 
-    create() {
-        console.log('Create is yet to be implemented');
-        this.dispatcher.next(new CreateProjectlogAction(null));
-    }
+  showUploadPopup() {
+    this.showUploader = true;
+  }
 
-    refresh() {
-        this.loading = true;
-        this.error = undefined;
-        this.fetchPageAction.next(new Page(0).setFilters(this.filters));
-    }
+  toggleAll() {
+    this.selectAllOn = !this.selectAllOn;
+    // for (var item of this.logs) {
+    // 	item.uiState.selected = this.selectAllOn;
+    // }
+    // this.selectedCount = this.selectAllOn ? this.logs.length : 0;
+  }
 
-    nextPage() {
-        if (this.loading) {
-            return null; // do nothing
-        }
-        this.loading = true;
-        this.error = undefined;
-        this.fetchPageAction.next(this.state.projectlogs.page.next());
-    }
+  toggleSort() {
+    this.sortAsc = !this.sortAsc;
+    this.refresh();
+  }
 
-    protected requestPage(page: Page<Projectlog>) {
-        console.log('request:', page);
+  onItemUpdate(item: Projectlog) {
+    this.selectedCount += item.uiState.selected ? 1 : -1;
+    // this.selectAllOn = this.selectedCount === this.logs.length;
+  }
 
-        this.dispatcher.next(new FetchProjectlogAction(page))
-			.finally(() => {
-				this.loading = false;
-			}).subscribe((state: ApplicationState) => {
-                console.log('response:', this.state.projectlogs.page);
-            }, (error: any) => {
-				this.error = 'Error occured';
-				console.error('error', error);
-			});
-    }
-
-    get filters() {
-        return { sort: { index: { order: this.sortAsc ? 'asc' : 'desc' } } };
-    }
-
-    showUploadPopup() {
-        this.showUploader = true;
-    }
-
-    toggleAll() {
-        this.selectAllOn = !this.selectAllOn;
-        // for (var item of this.logs) {
-        // 	item.uiState.selected = this.selectAllOn;
-        // }
-        // this.selectedCount = this.selectAllOn ? this.logs.length : 0;
-    }
-
-    toggleSort() {
-        this.sortAsc = !this.sortAsc;
-        this.refresh();
-    }
-
-    onItemUpdate(item: Projectlog) {
-        this.selectedCount += item.uiState.selected ? 1 : -1;
-        // this.selectAllOn = this.selectedCount === this.logs.length;
-    }
-
-    deleteSelected() {
-        this.dispatcher.next(new DeleteProjectlogAction(null));
-        // this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
-    }
+  deleteSelected() {
+    this.dispatcher.next(new DeleteProjectlogAction(null));
+    // this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
+  }
 }

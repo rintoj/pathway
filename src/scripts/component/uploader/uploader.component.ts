@@ -7,12 +7,12 @@ import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
 @Component({
-    selector: 'pw-uploader',
-    providers: [RestService]
+  selector: 'pw-uploader',
+  providers: [RestService]
 })
 @View({
-    directives: [DialogBox, LoaderComponent],
-    template: `
+  directives: [DialogBox, LoaderComponent],
+  template: `
 		<dialog-box [title]="'Data Setup Wizard'" [showTitle]="true" [show]="show" (autoHide)="onAutoHide()">
 				<div class="dialog-message" [ngSwitch]="status">
 		      <span *ngSwitchWhen="0">
@@ -95,53 +95,55 @@ enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR
 })
 export class UploaderComponent {
 
-    @Input() show: boolean;
-    @Output() autoHide = new EventEmitter();
-    private status: UploadStatus = UploadStatus.DEFAULT;
+  @Input() show: boolean;
+  @Output() autoHide = new EventEmitter();
+  private status: UploadStatus = UploadStatus.DEFAULT;
 
-    serverUrl: string = Config.SERVICE_URL;
-    dataEndpoint: string = Config.SERVICE_URL + '/projectlog';
-    sampleDataUrl: string = Config.DATA_PROJECTLOGS_URL;
+  // TODO: Review this logic
+  serverUrl: string = ''; // Config.SERVICE_URL;
+  dataEndpoint: string = ''; // Config.SERVICE_URL + '/projectlog';
 
-    constructor(private service: RestService) {
-        this.show = true;
+  sampleDataUrl: string = Config.DATA_PROJECTLOGS_URL;
+
+  constructor(private service: RestService) {
+    this.show = true;
+  }
+
+  private partition(items: Array<any>, size: number): any[] {
+    var p = [];
+    for (var i = Math.floor(items.length / size); i-- > 0;) {
+      p[i] = items.slice(i * size, (i + 1) * size);
     }
+    return p;
+  }
 
-    private partition(items: Array<any>, size: number): any[] {
-        var p = [];
-        for (var i = Math.floor(items.length / size); i-- > 0;) {
-            p[i] = items.slice(i * size, (i + 1) * size);
-        }
-        return p;
-    }
+  upload() {
+    this.status = UploadStatus.UPLOADING;
+    this.service.fetch(this.sampleDataUrl)
+      .map((res: any) => res.json())
+      .flatMap((data: any): any => this.partition(data, 100))
+      .subscribe((data: any[]) => {
+        console.log(data);
+        this.service.createOrUpdate(this.dataEndpoint, data)
+          .subscribe(() => this.status = UploadStatus.UPLOADED, () => this.status = UploadStatus.UPLOAD_FAILED);
+      }, () => this.status = UploadStatus.UPLOAD_FAILED);
+  }
 
-    upload() {
-        this.status = UploadStatus.UPLOADING;
-        this.service.fetch(this.sampleDataUrl)
-            .map((res: any) => res.json())
-            .flatMap((data: any): any => this.partition(data, 100))
-            .subscribe((data: any[]) => {
-                console.log(data);
-                this.service.createOrUpdate(this.dataEndpoint, data)
-                    .subscribe(() => this.status = UploadStatus.UPLOADED, () => this.status = UploadStatus.UPLOAD_FAILED);
-            }, () => this.status = UploadStatus.UPLOAD_FAILED);
-    }
+  clear() {
+    this.status = UploadStatus.CLEARING;
+    this.service.delete(this.dataEndpoint)
+      .subscribe(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
+  }
 
-    clear() {
-        this.status = UploadStatus.CLEARING;
-        this.service.delete(this.dataEndpoint)
-            .subscribe(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
-    }
+  close() {
+    this.status = UploadStatus.DEFAULT;
+    this.show = false;
+    this.autoHide.next(this.show);
+  }
 
-    close() {
-        this.status = UploadStatus.DEFAULT;
-        this.show = false;
-        this.autoHide.next(this.show);
-    }
-
-    onAutoHide() {
-        this.status = UploadStatus.DEFAULT;
-        this.show = false;
-        this.autoHide.next(this.show);
-    }
+  onAutoHide() {
+    this.status = UploadStatus.DEFAULT;
+    this.show = false;
+    this.autoHide.next(this.show);
+  }
 }
