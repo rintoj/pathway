@@ -33,7 +33,7 @@ export class OAuth2Service {
 
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+        // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
         let options = new RequestOptions({
             method: RequestMethod.Post,
@@ -130,7 +130,7 @@ export class OAuth2Service {
     protected createUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
-        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+        // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
         let options = new RequestOptions({
             method: RequestMethod.Put,
@@ -145,7 +145,7 @@ export class OAuth2Service {
     protected verifyUser(state: ApplicationState, action: VerifyUserAction): Observable<ApplicationState> {
         var headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        headers.append('Authorization', Config.BASIC_AUTH_HEADER);
+        // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
 
         let options = new RequestOptions({
             method: RequestMethod.Get,
