@@ -11,9 +11,14 @@ export interface Token {
 }
 
 export interface RestServiceWithOAuth2Options extends RestServiceOptions {
-  authUrl: string;
+  authUrl?: string;
   clientId: string;
   clientSecret: String;
+  accessToken: Token;
+  refreshToken: Token;
+}
+
+export interface AuthInfo {
   accessToken: Token;
   refreshToken: Token;
 }
@@ -25,28 +30,40 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     super(http, new BaseRequestOptions(), options.baseUrl, options.cacheRequest);
   }
 
-  authorize(userName: string, password: string): Observable<boolean> {
+  authorize(userName: string, password: string): Observable<AuthInfo> {
     var headers = new Headers();
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    headers.append('Authorization', 'Base ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
+    headers.append('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
 
     let options = new RequestOptions({
       method: RequestMethod.Post,
-      url: this.options.authUrl || `${this.options.baseUrl}/token`,
-      headers: headers,
+      url: this.options.authUrl || `${this.options.baseUrl}/oauth2/token`,
       body: this.serialize({
         username: userName,
         password: password,
         grant_type: 'password'
-      })
+      }),
+      headers: headers
     });
 
-    return Observable.create((observer: Observer<boolean>) => {
+    return Observable.create((observer: Observer<AuthInfo>) => {
       this.httpRequest(options).map((response: Response) => response.json())
         .subscribe((data: any) => {
-          this.options.accessToken.token = data.access_token;
-          this.options.accessToken.expiresIn = data.expires_in;
-          this.options.refreshToken.token = data.refresh_token;
+          this.options.accessToken = {
+            token: data.access_token,
+            expiresIn: data.expires_in
+          };
+          this.options.refreshToken = {
+            token: data.refresh_token
+          };
+          observer.next({
+            accessToken: this.options.accessToken,
+            refreshToken: this.options.refreshToken
+          });
+          observer.complete();
+        }, (error: any) => {
+          observer.error(error);
+          observer.complete();
         });
     });
   }

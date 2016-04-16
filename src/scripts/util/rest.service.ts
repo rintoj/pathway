@@ -56,7 +56,7 @@ export class BaseRestService implements RestService {
 
   httpRequest(options: RequestOptions) {
 
-    let requestId = JSON.stringify(options, null, 4);
+    let requestId = JSON.stringify(options);
     let request: Observable<Response> = this.requestsInFlight[requestId];
 
     // if a request is in flight ignore this request and return the previous observable
@@ -69,7 +69,7 @@ export class BaseRestService implements RestService {
         .share()
         .catch((response: Response) => this.processError(response, observer))
         .finally(() => this.requestsInFlight[requestId] = undefined)
-        .subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete);
+        .subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete());
     });
   }
 

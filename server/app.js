@@ -85,7 +85,7 @@ if (properties.api.cors.enabled === true) {
 
 // enable authentication module
 if (properties.api.auth && properties.api.auth.enabled === true) {
-  app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth', properties.api.auth);
+  app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth2', properties.api.auth);
 }
 
 // register apis

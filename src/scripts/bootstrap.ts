@@ -3,6 +3,7 @@ import {bootstrap} from 'angular2/platform/browser';
 import {Dispatcher} from './state/dispatcher';
 import {AppComponent} from './app';
 import {HTTP_PROVIDERS} from 'angular2/http';
+import {RestService, RestOptions} from './service/rest.service';
 import {ApplicationStateObservable} from './state/application-state';
 import {enableProdMode, provide, Inject} from 'angular2/core';
 import {LocationStrategy, HashLocationStrategy} from 'angular2/router';
@@ -19,6 +20,7 @@ enableProdMode();
 
 bootstrap(AppComponent, [
   HTTP_PROVIDERS,
+  RestOptions, RestService,
   provide('DataServiceOptions', { useValue: Config.DATA_SERVICE_OPTIONS }),
   provide('DataService', { useClass: RestServiceWithOAuth2 }),
   provide(LocationStrategy, { useClass: HashLocationStrategy }),

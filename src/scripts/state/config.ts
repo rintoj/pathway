@@ -62,7 +62,6 @@ class DefaultConfig {
       baseUrl: '//localhost:3000/api',
       contentType: 'application/json',
       cacheRequest: true,
-      authUrl: '//localhost:3000/api/oauth/token',
       clientId: '7d65d9b6-5cae-4db7-b19d-56cbdd25eaab',
       clientSecret: 'a0c7b741-b18b-47eb-b6df-48a0bd3cde2e',
       accessToken: null,

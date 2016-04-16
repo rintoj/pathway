@@ -1,6 +1,6 @@
 import {Dispatcher} from './state/dispatcher';
 import {DataService} from './service/data.service';
-import {OAuth2Service} from './service/oauth2.service';
+import {UserStore} from './service/user.store';
 import {MainComponent} from './component/main/main.component';
 import {LoginComponent} from './component/login/login.component';
 import {UIStateService} from './service/ui-state.service';
@@ -19,7 +19,7 @@ import 'rxjs/add/operator/merge';
     selector: 'pw-app',
     providers: [
         DataService,
-        OAuth2Service,
+        UserStore,
         UIStateService,
         ROUTER_PROVIDERS,
         ProjectlogService
@@ -40,7 +40,7 @@ export class AppComponent {
     constructor(
         private dispatcher: Dispatcher,
         private dataService: DataService,
-        private oAuth2Service: OAuth2Service,
+        private userStore: UserStore,
         private uiStateService: UIStateService,
         private projectlogService: ProjectlogService
     ) {
