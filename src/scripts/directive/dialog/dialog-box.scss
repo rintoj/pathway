@@ -1,5 +1,4 @@
 @import 'scss/variables';
-
 dialog-box {
   .dialog {
     .overlay {
@@ -13,7 +12,6 @@ dialog-box {
       z-index: 200;
       transition: opacity 0.6s ease, height 0.0s 0.0s ease;
     }
-
     .dialog-body {
       @include shadow(5);
       @include align-middle;
@@ -27,31 +25,25 @@ dialog-box {
       min-height: 150px;
       width: 95%;
       transition: top 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04), opacity 0.3s cubic-bezier(0.18, 0.89, 0.16, 1.04);
-
       > * {
         padding: 20px;
       }
-
       .dialog-header {
         @include shadow(1);
         background: $primary-color;
         color: $primary-color-text;
         font-size: 19px;
       }
-
       .dialog-content {
         height: calc(100% - 178px);
         overflow: hidden;
-
         .dialog-message {
           margin: 8%;
           text-align: center;
-          vertical-align: middle;
           position: relative;
           display: block;
         }
       }
-
       .dialog-footer {
         left: 0;
         bottom: 0;
@@ -60,36 +52,39 @@ dialog-box {
         overflow: hidden;
         background: $divider-color-light;
         padding: 8px;
-
         .btn {
           float: right;
         }
       }
     }
-
+    @media(max-width: $small-device) {
+      .dialog-body {
+        bottom: 0;
+        left: 0;
+        transform: translateX(0%) translateY(0%);
+        width: 100%;
+        border-radius: 0;
+      }
+    }
     &.no-title {
       .dialog-header {
         display: none;
       }
-
       .dialog-content {
         height: calc(100% - 80px);
       }
     }
-
     &:not(.open) {
       .overlay {
         opacity: 0;
         height: 0;
         transition: opacity 0.3s 0.1s ease, height 0.0s 0.3s ease;
       }
-
       .dialog-body {
         top: 150%;
         height: 0;
         transition: top 0.2s cubic-bezier(0.38, 0.1, 1, 1), opacity 0.2s cubic-bezier(0.38, 0.1, 1, 1), height 0.0s 0.6s ease;
       }
-
       &.from-top {
         .dialog-body {
           top: -150%;
