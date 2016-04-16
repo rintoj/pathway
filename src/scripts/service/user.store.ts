@@ -6,14 +6,14 @@ import {RestService} from './rest.service';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {ApplicationState} from '../state/application-state';
-import {RestServiceWithOAuth2} from '../util/oauth2-rest.service';
+import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
 import {Response, RequestMethod, RequestOptions, Headers} from 'angular2/http';
 import {LoginAction, LogoutAction, ValidateAuthAction, CreateUserAction, VerifyUserAction} from '../state/user';
 
 @Injectable()
 export class UserStore {
 
-  private url: string = Config.SERVICE_URL + '/oauth';
+  private url: string = Config.SERVICE_URL + '/oauth2';
 
   constructor(
     private rest: RestService,
@@ -34,12 +34,12 @@ export class UserStore {
   protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
     return this.dataService
       .authorize(action.user.userId, action.user.password)
-      .map((auth: any) => {
+      .map((auth: AuthInfo) => {
         let user: User = {
           id: null,
           name: 'User',
           userId: action.user.userId,
-          auth: null
+          auth: auth
         };
 
         state.user = user;
@@ -47,44 +47,11 @@ export class UserStore {
       });
   }
 
-  protected logi1n(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
-
-    var headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
-
-    let options = new RequestOptions({
-      method: RequestMethod.Post,
-      url: `${this.url}/token`,
-      body: this.rest.serialize({
-        username: action.user.userId,
-        password: action.user.password,
-        grant_type: 'password'
-      }),
-      headers: headers
-    });
-
-    return this.rest.request(options).map((response: Response): ApplicationState => this.mapLoginResponse(response, state, action));
-  }
-
-  protected mapLoginResponse(response: Response, state: ApplicationState, action: LoginAction): ApplicationState {
-    var json = response.json();
-
-    let user: User = {
-      id: null,
-      name: 'User',
-      userId: action.user.userId,
-      auth: json
-    };
-
-    state.user = user;
-    return state;
-  }
-
   protected logout(state: ApplicationState, action: LogoutAction): Observable<ApplicationState> {
     var headers = new Headers();
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
+    headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.accessToken
+      && state.user.auth.accessToken.token));
 
     let options = new RequestOptions({
       method: RequestMethod.Post,
@@ -116,7 +83,8 @@ export class UserStore {
 
     var headers = new Headers();
     headers.append('Content-Type', 'application/json');
-    headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.access_token));
+    headers.append('Authorization', 'Bearer ' + (state.user && state.user.auth && state.user.auth.accessToken
+      && state.user.auth.accessToken.token));
 
     let options = new RequestOptions({
       method: RequestMethod.Get,

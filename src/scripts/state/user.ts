@@ -1,11 +1,5 @@
 import {Action} from './action';
-
-export interface Auth {
-    token_type: string;
-    access_token: string;
-    expires_in: string;
-    refresh_token: string;
-}
+import {AuthInfo} from '../util/oauth2-rest.service';
 
 export interface UserBasicInfo {
     name?: String;
@@ -18,7 +12,7 @@ export interface User extends UserBasicInfo {
     name: string;
     userId: string;
     profilePic?: string;
-    auth: Auth;
+    auth?: AuthInfo;
 }
 
 export class LoginAction extends Action {
