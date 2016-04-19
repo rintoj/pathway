@@ -90,12 +90,7 @@ export class RegisterComponent {
   loading: boolean = false;
   errorMessage: string;
 
-  constructor(
-    private builder: FormBuilder,
-    private dispatcher: Dispatcher,
-    private stateObservable: ApplicationStateObservable
-  ) {
-  }
+  constructor(private builder: FormBuilder, private dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) { }
 
   ngOnInit() {
     this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
@@ -127,7 +122,11 @@ export class RegisterComponent {
       },
       (error: any) => {
         this.loading = false;
-        this.errorMessage = 'Sorry, could not create user!';
+        if (error.status === 409) {
+          this.errorMessage = 'User is already registered!';
+        } else {
+          this.errorMessage = 'Sorry, could not create user!';
+        }
       },
       () => {
         this.loading = false;

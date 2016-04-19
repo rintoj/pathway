@@ -76,16 +76,24 @@ export class LoginComponent {
       userId: this.userId,
       password: this.password
     });
-    this.validateAuth();
+    this.validateAuth(true);
   }
 
-  validateAuth() {
+  validateAuth(noError: boolean = false) {
     this.dispatcher.next(new ValidateUserAction())
       .finally(() => this.validating = false)
       .subscribe((data: any) => {
         console.log('Valid user', data, 'Navigating to "/Home"');
         this.router.navigate(['/Home']);
-      }, () => this.validating = false);
+      }, (error: any) => {
+        this.loading = false;
+        if (!noError) {
+          this.errorMessage = 'Invalid user or password!';
+        }
+      },
+      () => {
+        this.loading = false;
+      });
   }
 
   onSubmit() {

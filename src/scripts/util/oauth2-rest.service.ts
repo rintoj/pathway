@@ -29,6 +29,11 @@ export class RestServiceWithOAuth2 extends BaseRestService {
 
   constructor(protected http: Http, @Inject('DataServiceOptions') protected options: RestServiceWithOAuth2Options) {
     super(http, new BaseRequestOptions(), options.baseUrl, options.cacheRequest);
+
+    if (!options.cacheRequest) {
+      this.requestOptions.headers.append('Cache-Control', 'no-cache');
+    }
+    this.requestOptions.headers.append('Content-Type', options.contentType || 'application/json');
   }
 
   authorize(userName: string, password: string): Observable<AuthInfo> {

@@ -405,9 +405,9 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
       userId: request.body.userId
     }, function(error, item) {
       if (error || item) {
-        response.status(400);
+        response.status(409);
         return response.json({
-          status: 400,
+          status: 409,
           message: 'User is already registered!'
         });
       }

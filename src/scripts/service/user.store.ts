@@ -43,7 +43,7 @@ export class UserStore {
     return this.dataService
       .revokeAuthorization()
       .map((response: Response) => {
-        state.user = null;
+        state.user = undefined;
         return state;
       });
   }
@@ -57,7 +57,7 @@ export class UserStore {
       }).share();
     }
 
-    return this.dataService.get(`${this.url}/user`)
+    return this.dataService.get(`${this.url}/user/`, {userId: state.user.userId})
       .map((response: Response): ApplicationState => {
         var json = response.json()[0];
         state.user = {
@@ -71,18 +71,10 @@ export class UserStore {
   }
 
   protected createUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
-    var headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
-    // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
-
-    let options = new RequestOptions({
-      method: RequestMethod.Put,
-      url: `${this.url}/register`,
-      body: this.rest.serialize(action.user),
-      headers: headers
-    });
-
-    return this.rest.request(options).map((response: Response): ApplicationState => state).share();
+    return this.dataService.put(`${this.url}/register`, action.user)
+      .map((response: Response): ApplicationState => {
+        return state;
+      });
   }
 
   protected verifyUser(state: ApplicationState, action: VerifyUserAction): Observable<ApplicationState> {
