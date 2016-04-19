@@ -24,8 +24,8 @@
  */
 import {Page} from './pagination';
 import {Projectlog} from './projectlog';
-import {UserBasicInfo} from './user';
 import {ApplicationStatus} from './ui-state';
+import {Role, UserBasicInfo} from './user';
 
 export class Action { }
 export class StatelessAction { }
@@ -36,7 +36,7 @@ export class LogoutAction extends Action { }
 export class ValidateUserAction extends Action { }
 export class CreateUserAction extends Action { constructor(public user: UserBasicInfo) { super(); } }
 export class CheckUserAction extends StatelessAction { constructor(public userId: string) { super(); } }
-export class AuthorizeAction extends StatelessAction { constructor(public roles: string[]) { super(); } }
+export class AuthorizeAction extends StatelessAction { constructor(public roles: Role[]) { super(); } }
 
 // Application-State action
 export class RestoreAppStateAction extends Action { }

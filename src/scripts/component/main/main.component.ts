@@ -1,18 +1,14 @@
-import {Dispatcher} from '../../state/dispatcher';
-import {applicationRef} from '../../util/application-ref';
+import {Role} from '../../state/user';
+import {authorize} from '../../util/authorization-service';
 import {HeaderComponent} from '../header/header.component';
 import {Component, View} from 'angular2/core';
-import {AuthorizeAction} from '../../state/action';
 import {ProjectlogComponent} from '../projectlog/projectlog.component';
 import {ROUTER_DIRECTIVES, CanActivate, ComponentInstruction} from 'angular2/router';
 
 @Component({
   selector: 'pw-main'
 })
-@CanActivate((next: ComponentInstruction, previous: ComponentInstruction): boolean => {
-	let dispatcher: Dispatcher = applicationRef().injector.get(Dispatcher);
-	return dispatcher.next(new AuthorizeAction(['Admin'])).toPromise();
-})
+@CanActivate((next: ComponentInstruction, prev: ComponentInstruction) => authorize(next, prev, [Role.ADMIN]))
 @View({
   directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
   template: `

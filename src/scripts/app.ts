@@ -8,7 +8,7 @@ import {Component, View} from 'angular2/core';
 import {RegisterComponent} from './component/login/register.component';
 import {ProjectlogService} from './service/projectlog.service';
 import {ApplicationStatus} from './state/ui-state';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from 'angular2/router';
+import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 import {SetApplicationStatusAction, RestoreAppStateAction} from './state/action';
 
 import 'rxjs/add/operator/share';
@@ -21,7 +21,6 @@ import 'rxjs/add/operator/merge';
     AppStateStore,
     UserStore,
     UIStateService,
-    ROUTER_PROVIDERS,
     ProjectlogService
   ]
 })

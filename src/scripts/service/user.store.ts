@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+import {Role} from '../state/user';
 import {Observer} from 'rxjs/Observer';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
@@ -73,10 +74,10 @@ export class UserStore {
       });
   }
 
-  protected authorize(state: ApplicationState, action: AuthorizeAction): Observable<ApplicationState> {
+  protected authorize(state: ApplicationState, action: AuthorizeAction): Observable<boolean> {
     return Observable.create((observer: Observer<boolean>) => {
       observer.next(state.user && state.user.roles &&
-        state.user.roles.filter((value: string) => action.roles.indexOf(value) >= 0).length > 0);
+        state.user.roles.filter((value: Role) => action.roles.indexOf(value) >= 0).length > 0);
       observer.complete();
     }).share();
   }
@@ -96,7 +97,7 @@ export class UserStore {
         state.user = {
           id: json._id,
           name: json.name,
-          roles: json.roles,
+          roles: json.roles.map((value: string) => <Role>Role[value.toUpperCase()]),
           userId: json.userId,
           auth: state.user && state.user.auth
         };
