@@ -42,7 +42,7 @@ export function authorize(next: ComponentInstruction, previous: ComponentInstruc
   return Observable.create((observer: Observer<boolean>) => {
     dispatcher.next(new AuthorizeAction(roles || [])).subscribe((ok: boolean) => {
       if (!ok) {
-        router.navigate(['Login']);
+        router.navigate(['Login', { authorized: false }]);
       }
       observer.next(ok);
       observer.complete();

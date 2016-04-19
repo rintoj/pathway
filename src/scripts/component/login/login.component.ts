@@ -3,8 +3,8 @@ import {Dispatcher} from '../../state/dispatcher';
 import {LoginAction, ValidateUserAction} from '../../state/action';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
-import {ROUTER_DIRECTIVES, Router} from 'angular2/router';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
+import {ROUTER_DIRECTIVES, Router, RouteParams, OnActivate} from 'angular2/router';
 
 @Component({
   selector: 'pw-login'
@@ -51,7 +51,7 @@ import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
 		</form>        
 	`
 })
-export class LoginComponent {
+export class LoginComponent implements OnActivate {
 
   title: String = Config.APPLICATION_NAME;
   userId: Control;
@@ -64,6 +64,7 @@ export class LoginComponent {
 
   constructor(
     private router: Router,
+    private routeParams: RouteParams,
     private builder: FormBuilder,
     private dispatcher: Dispatcher
   ) { }
@@ -76,6 +77,13 @@ export class LoginComponent {
       userId: this.userId,
       password: this.password
     });
+  }
+
+  routerOnActivate() {
+    if (this.routeParams.get('authorized') === 'false') {
+      this.errorMessage = 'You are not authorized or session expired! Login again.';
+    }
+
     this.validateAuth(true);
   }
 
@@ -83,16 +91,12 @@ export class LoginComponent {
     this.dispatcher.next(new ValidateUserAction())
       .finally(() => this.validating = false)
       .subscribe((data: any) => {
-        console.log('Valid user', data, 'Navigating to "/Home"');
-        this.router.navigate(['/Home']);
+        this.router.navigate([this.routeParams.get('callback') || '/Home']);
       }, (error: any) => {
         this.loading = false;
         if (!noError) {
           this.errorMessage = 'Invalid user or password!';
         }
-      },
-      () => {
-        this.loading = false;
       });
   }
 

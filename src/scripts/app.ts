@@ -29,10 +29,10 @@ import 'rxjs/add/operator/merge';
   template: `<router-outlet></router-outlet>`
 })
 @RouteConfig([
-  { path: '/login', name: 'Login', component: LoginComponent, useAsDefault: true },
+  { path: '/home', name: 'Home', component: MainComponent, useAsDefault: true },
+  { path: '/login', name: 'Login', component: LoginComponent },
   { path: '/register', name: 'Register', component: RegisterComponent },
-  { path: '/home', name: 'Home', component: MainComponent },
-  { path: '/**', redirectTo: ['Login'] }
+  { path: '/**', redirectTo: ['Home'] }
 ])
 export class AppComponent {
 
