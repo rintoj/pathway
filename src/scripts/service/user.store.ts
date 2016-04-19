@@ -1,10 +1,9 @@
-import {User} from '../state/user';
-import {Dispatcher} from '../state/dispatcher';
-import {Inject, Injectable} from 'angular2/core';
-import {RestService} from './rest.service';
 import {Observer} from 'rxjs/Observer';
+import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
+import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
+import {Inject, Injectable} from 'angular2/core';
 import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
 import {Response, RequestMethod, RequestOptions, Headers} from 'angular2/http';
 import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, VerifyUserAction} from '../state/action';
@@ -14,11 +13,7 @@ export class UserStore {
 
   private url: string = '/oauth2';
 
-  constructor(
-    private rest: RestService,
-    @Inject('DataService') private dataService: RestServiceWithOAuth2,
-    dispatcher: Dispatcher
-  ) {
+  constructor(private rest: RestService, @Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
     this.subscribeToDispatcher(dispatcher);
   }
 
@@ -65,15 +60,12 @@ export class UserStore {
     return this.dataService.get(`${this.url}/user`)
       .map((response: Response): ApplicationState => {
         var json = response.json()[0];
-
-        let user: User = {
+        state.user = {
           id: json._id,
           name: json.name,
           userId: json.userId,
           auth: state.user && state.user.auth
         };
-
-        state.user = user;
         return state;
       });
   }

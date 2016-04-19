@@ -191,8 +191,10 @@ export class Dispatcher {
           return service(this.state, action);
         })
         .map((state: ApplicationState) => {
+          console.debug('state changed?:', this.state === state, JSON.stringify(this.state) === JSON.stringify(state));
           this.state = state;
           // @if isDev
+          console.debug('ApplicationState:', state);
           state = this.makeImmutable(state);
           // @endif
           this.stateObserver.next(state);

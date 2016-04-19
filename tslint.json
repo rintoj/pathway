@@ -21,8 +21,7 @@
 		"no-arg": true,
 		"no-bitwise": true,
 		"no-console": [true,
-			"debug",
-            "info",
+      "info",
 			"trace"
 		],
 		"no-construct": true,
