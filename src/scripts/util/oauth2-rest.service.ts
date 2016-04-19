@@ -36,7 +36,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     this.requestOptions.headers.append('Content-Type', options.contentType || 'application/json');
   }
 
-  authorize(userName: string, password: string): Observable<AuthInfo> {
+  authenticate(userName: string, password: string): Observable<AuthInfo> {
     var headers = new Headers();
     headers.append('Cache-Control', 'no-cache');
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
@@ -75,7 +75,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     }).share();
   }
 
-  revokeAuthorization() {
+  revokeAuthentication(): Observable<any> {
     var headers = new Headers();
     headers.append('Cache-Control', 'no-cache');
     headers.append('Content-Type', 'application/json');

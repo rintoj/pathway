@@ -30,7 +30,7 @@ import {ApplicationState} from '../state/application-state';
 import {Inject, Injectable} from 'angular2/core';
 import {Response, RequestMethod} from 'angular2/http';
 import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
-import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction} from '../state/action';
+import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction, AuthorizeAction} from '../state/action';
 
 @Injectable()
 export class UserStore {
@@ -47,11 +47,12 @@ export class UserStore {
     dispatcher.subscribe([new ValidateUserAction()], this.validateUser.bind(this));
     dispatcher.subscribe([new CreateUserAction(null)], this.createUser.bind(this));
     dispatcher.subscribe([new CheckUserAction(null)], this.checkUser.bind(this));
+    dispatcher.subscribe([new AuthorizeAction(null)], this.authorize.bind(this));
   }
 
   protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
     return this.dataService
-      .authorize(action.user.userId, action.user.password)
+      .authenticate(action.user.userId, action.user.password)
       .map((auth: AuthInfo) => {
         state.user = {
           id: null,
@@ -65,11 +66,19 @@ export class UserStore {
 
   protected logout(state: ApplicationState, action: LogoutAction): Observable<ApplicationState> {
     return this.dataService
-      .revokeAuthorization()
+      .revokeAuthentication()
       .map((response: Response) => {
         state.user = undefined;
         return state;
       });
+  }
+
+  protected authorize(state: ApplicationState, action: AuthorizeAction): Observable<ApplicationState> {
+    return Observable.create((observer: Observer<boolean>) => {
+      observer.next(state.user && state.user.roles &&
+        state.user.roles.filter((value: string) => action.roles.indexOf(value) >= 0).length > 0);
+      observer.complete();
+    }).share();
   }
 
   protected validateUser(state: ApplicationState, action: ValidateUserAction): Observable<ApplicationState> {
@@ -87,6 +96,7 @@ export class UserStore {
         state.user = {
           id: json._id,
           name: json.name,
+          roles: json.roles,
           userId: json.userId,
           auth: state.user && state.user.auth
         };

@@ -28,7 +28,7 @@ import {UserBasicInfo} from './user';
 import {ApplicationStatus} from './ui-state';
 
 export class Action { }
-export class StatelessAction {}
+export class StatelessAction { }
 
 // User Actions
 export class LoginAction extends Action { constructor(public user: UserBasicInfo) { super(); } }
@@ -36,6 +36,7 @@ export class LogoutAction extends Action { }
 export class ValidateUserAction extends Action { }
 export class CreateUserAction extends Action { constructor(public user: UserBasicInfo) { super(); } }
 export class CheckUserAction extends StatelessAction { constructor(public userId: string) { super(); } }
+export class AuthorizeAction extends StatelessAction { constructor(public roles: string[]) { super(); } }
 
 // Application-State action
 export class RestoreAppStateAction extends Action { }
