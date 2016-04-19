@@ -112,6 +112,23 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     })));
   }
 
+  requestWithBasicAuth(url: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
+    return this.httpRequestWithBasicAuth(new RequestOptions(this.requestOptions.merge({
+      url: this.baseUrl + url,
+      body: JSON.stringify(body),
+      search: this.serialize(search),
+      method: method
+    })));
+  }
+
+  httpRequestWithBasicAuth(options: RequestOptions) {
+    if (this.options.clientId && this.options.clientSecret) {
+      options.headers.set('Content-Type', 'application/x-www-form-urlencoded');
+      options.headers.set('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
+    }
+    return this.httpRequest(options);
+  }
+
   httpRequestWithAuth(options: RequestOptions) {
     if (this.options.accessToken && this.options.accessToken.token) {
       options.headers.set('Authorization', 'Bearer ' + this.options.accessToken.token);

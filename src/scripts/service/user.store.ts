@@ -1,10 +1,34 @@
+/**
+ * @author rintoj (Rinto Jose)
+ * @license The MIT License (MIT)
+ *
+ * Copyright (c) 2016 rintoj
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the " Software "), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED " AS IS ", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 import {Observer} from 'rxjs/Observer';
-import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
-import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
 import {Inject, Injectable} from 'angular2/core';
+import {Response, RequestMethod} from 'angular2/http';
 import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
 import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction} from '../state/action';
 
@@ -13,7 +37,7 @@ export class UserStore {
 
   private url: string = '/oauth2';
 
-  constructor(private rest: RestService, @Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
+  constructor( @Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
     this.subscribeToDispatcher(dispatcher);
   }
 
@@ -57,7 +81,7 @@ export class UserStore {
       }).share();
     }
 
-    return this.dataService.get(`${this.url}/user`, { userId: state.user.userId })
+    return this.dataService.requestWithBasicAuth(`${this.url}/user`, RequestMethod.Get, null, { userId: state.user.userId })
       .map((response: Response): ApplicationState => {
         var json = response.json()[0];
         state.user = {
@@ -77,10 +101,8 @@ export class UserStore {
       });
   }
 
-  protected checkUser(state: ApplicationState, action: CheckUserAction): Observable<ApplicationState> {
-    return this.dataService.get(`${this.url}/user`, { userId: state.user && state.user.userId })
-      .map((response: Response): ApplicationState => {
-        return state;
-      });
+  protected checkUser(state: ApplicationState, action: CheckUserAction): Observable<any> {
+    return this.dataService.requestWithBasicAuth(`${this.url}/user`, RequestMethod.Get, null, { userId: action.userId })
+      .map((response: Response): any => response.json());
   }
 }

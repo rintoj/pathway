@@ -68,8 +68,13 @@ export class BaseRestService implements RestService {
       this.requestsInFlight[requestId] = this.http.request(new Request(options))
         .share()
         .catch((response: Response) => this.processError(response, observer))
-        .finally(() => this.requestsInFlight[requestId] = undefined)
-        .subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete());
+        .finally(() => this.requestsInFlight[requestId] = undefined);
+
+      this.requestsInFlight[requestId].subscribe(
+        (data: any) => observer.next(data),
+        (error: any) => observer.error(error),
+        () => observer.complete()
+      );
     });
   }
 

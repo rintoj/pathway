@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-import {Action} from './action';
 import {Observer} from 'rxjs/Observer';
 import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/Rx';
+import {Action, StatelessAction} from './action';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
 
 /**
@@ -178,19 +178,30 @@ export class Dispatcher {
   next(action: Action): Observable<ApplicationState> {
 
     let actionIdentity: any = action.constructor;
+    let statelessAction: boolean = (action instanceof StatelessAction);
     let services: any[] = this.subscriptions[actionIdentity];
 
-    console.log('Processing action: ', action, (services ? services.length : 0) + ' service(s) found.');
+    console.log('Action: ', action,
+      ', Type:', (statelessAction ? 'stateless' : 'stateful'),
+      ', Services: ', (services ? services.length : 0) + ' found.');
 
     if (services === undefined || services.length === 0) {
       return Observable.empty();
     }
+
+
     return Observable.create((observer: Observer<ApplicationState>) => {
       let observable: Observable<ApplicationState> = Observable.from(services)
         .flatMap((service: ServiceFunction): any => {
           return service(this.state, action);
         })
         .map((state: ApplicationState) => {
+          if (statelessAction) {
+            observer.next(state);
+            observer.complete();
+            return state;
+          }
+
           console.debug('state changed?:', this.state === state, JSON.stringify(this.state) === JSON.stringify(state));
           this.state = state;
           // @if isDev

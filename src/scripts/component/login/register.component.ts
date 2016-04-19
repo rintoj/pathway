@@ -155,7 +155,7 @@ export class RegisterComponent {
     return Observable.create((observer: Observer<any>) => {
       this.dispatcher.next(new CheckUserAction(control.value)).subscribe(
         (data: any) => {
-          observer.next(data.count() > 0 ? { userIdTaken: true } : null);
+          observer.next(data.length > 0 ? { userIdTaken: true } : null);
           observer.complete();
         },
         (error: any) => {

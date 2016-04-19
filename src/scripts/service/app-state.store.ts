@@ -3,36 +3,25 @@ import {Observer} from 'rxjs/Observer';
 import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
-import {RestService} from './rest.service';
-import {Injectable, Inject} from 'angular2/core';
+import {Injectable} from 'angular2/core';
 import {ApplicationStatus} from '../state/ui-state';
 import {User, UserBasicInfo} from '../state/user';
 import {RestoreAppStateAction} from '../state/action';
 import {ApplicationState, ApplicationStateObservable} from '../state/application-state';
 
-export interface DataServiceOptions {
-  offline: boolean;
-};
-
 @Injectable()
-export class DataService {
+export class AppStateStore {
 
   constructor(
     dispatcher: Dispatcher,
-    private rest: RestService,
-    private stateObservable: ApplicationStateObservable,
-    @Inject('DataServiceOptions') private options: DataServiceOptions
+    private stateObservable: ApplicationStateObservable
   ) {
     this.subscribeToDispatcher(dispatcher);
-    if (this.options.offline) {
-      this.stateObservable.subscribe(this.saveApplicationState.bind(this));
-    }
+    this.stateObservable.subscribe(this.saveApplicationState.bind(this));
   }
 
   private subscribeToDispatcher(dispatcher: Dispatcher) {
-    if (this.options.offline) {
-      dispatcher.subscribe([new RestoreAppStateAction()], this.restoreAppState.bind(this));
-    }
+    dispatcher.subscribe([new RestoreAppStateAction()], this.restoreAppState.bind(this));
   }
 
   protected saveApplicationState(immutableState: any) {

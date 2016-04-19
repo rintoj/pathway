@@ -1,6 +1,6 @@
 import {Dispatcher} from './state/dispatcher';
-import {DataService} from './service/data.service';
 import {UserStore} from './service/user.store';
+import {AppStateStore} from './service/app-state.store';
 import {MainComponent} from './component/main/main.component';
 import {LoginComponent} from './component/login/login.component';
 import {UIStateService} from './service/ui-state.service';
@@ -18,7 +18,7 @@ import 'rxjs/add/operator/merge';
 @Component({
   selector: 'pw-app',
   providers: [
-    DataService,
+    AppStateStore,
     UserStore,
     UIStateService,
     ROUTER_PROVIDERS,
@@ -39,7 +39,7 @@ export class AppComponent {
 
   constructor(
     private dispatcher: Dispatcher,
-    private dataService: DataService,
+    private appStateStore: AppStateStore,
     private userStore: UserStore,
     private uiStateService: UIStateService,
     private projectlogService: ProjectlogService
