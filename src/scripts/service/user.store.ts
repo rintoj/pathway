@@ -1,12 +1,12 @@
 import {Observer} from 'rxjs/Observer';
+import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {RestService} from './rest.service';
 import {ApplicationState} from '../state/application-state';
 import {Inject, Injectable} from 'angular2/core';
 import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
-import {Response, RequestMethod, RequestOptions, Headers} from 'angular2/http';
-import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, VerifyUserAction} from '../state/action';
+import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction} from '../state/action';
 
 @Injectable()
 export class UserStore {
@@ -22,7 +22,7 @@ export class UserStore {
     dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
     dispatcher.subscribe([new ValidateUserAction()], this.validateUser.bind(this));
     dispatcher.subscribe([new CreateUserAction(null)], this.createUser.bind(this));
-    dispatcher.subscribe([new VerifyUserAction(null)], this.verifyUser.bind(this));
+    dispatcher.subscribe([new CheckUserAction(null)], this.checkUser.bind(this));
   }
 
   protected login(state: ApplicationState, action: LoginAction): Observable<ApplicationState> {
@@ -57,7 +57,7 @@ export class UserStore {
       }).share();
     }
 
-    return this.dataService.get(`${this.url}/user/`, {userId: state.user.userId})
+    return this.dataService.get(`${this.url}/user`, { userId: state.user.userId })
       .map((response: Response): ApplicationState => {
         var json = response.json()[0];
         state.user = {
@@ -77,17 +77,10 @@ export class UserStore {
       });
   }
 
-  protected verifyUser(state: ApplicationState, action: VerifyUserAction): Observable<ApplicationState> {
-    var headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    // headers.append('Authorization', Config.BASIC_AUTH_HEADER);
-
-    let options = new RequestOptions({
-      method: RequestMethod.Get,
-      url: `${this.url}/user?userId=${action.userId}`,
-      headers: headers
-    });
-
-    return this.rest.request(options).map((response: Response): ApplicationState => state);
+  protected checkUser(state: ApplicationState, action: CheckUserAction): Observable<ApplicationState> {
+    return this.dataService.get(`${this.url}/user`, { userId: state.user && state.user.userId })
+      .map((response: Response): ApplicationState => {
+        return state;
+      });
   }
 }

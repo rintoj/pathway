@@ -1,8 +1,11 @@
 import {Config} from '../../state/config';
+import {Observer} from 'rxjs/Observer';
+import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../../state/dispatcher';
 import {LoaderComponent} from '../loader/loader.component';
 import {Component, View} from 'angular2/core';
 import {CreateUserAction} from '../../state/action';
+import {CheckUserAction} from '../../state/action';
 import {ROUTER_DIRECTIVES} from 'angular2/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
@@ -45,23 +48,25 @@ interface ValidationResult {
                     [class.show]="userId.errors !== null && userId.errors.userIdTaken">
                     This id is already taken.</div>
             </div>
-            <div class="input-container">
-                <i class="fa fa-key"></i> 
-                <input type="password" placeholder="Enter your password" ngControl="password">
-                <div class="foot-note error-message dynamic-text" 
-                    [class.show]="password.touched && password.errors !== null">
-                    Password Policy: The password's first character must be a letter, it must contain at least 4 characters and no more 
-                    than 15 characters and no characters other than letters, numbers and the underscore may be used
-                    </div>
-            </div>
-            <div class="input-container">
-                <i class="fa fa-key"></i> 
-                <input type="password" placeholder="Confirm your password" ngControl="confirmation">
-                <div class="foot-note error-message dynamic-text" 
-                    [class.show]="(password.touched || confirmation.touched) && confirmation.errors !== null">
-                    Passwords don't match!
-                    </div>
-            </div>
+            <span ngControlGroup="passwordGroup">
+              <div class="input-container">
+                  <i class="fa fa-key"></i> 
+                  <input type="password" placeholder="Enter your password" ngControl="password">
+                  <div class="foot-note error-message dynamic-text" 
+                      [class.show]="password.touched && password.errors !== null">
+                      Password Policy: The password's first character must be a letter, it must contain at least 4 characters and no more 
+                      than 15 characters and no characters other than letters, numbers and the underscore may be used
+                      </div>
+              </div>
+              <div class="input-container">
+                  <i class="fa fa-key"></i> 
+                  <input type="password" placeholder="Confirm your password" ngControl="confirmation">
+                  <div class="foot-note error-message dynamic-text" 
+                      [class.show]="(password.touched || confirmation.touched) && passwordGroup.errors !== null">
+                      Passwords don't match!
+                      </div>
+              </div>
+            </span>
             <div class="input-container">
                 <button type="submit" 
                     class="btn btn-primary submit-btn" 
@@ -86,6 +91,7 @@ export class RegisterComponent {
   password: Control;
   confirmation: Control;
   loginForm: ControlGroup;
+  passwordGroup: ControlGroup;
 
   loading: boolean = false;
   errorMessage: string;
@@ -94,17 +100,22 @@ export class RegisterComponent {
 
   ngOnInit() {
     this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
-    this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.validName]));
-    this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.validEmail]));
-    // this.userIdTaken.bind(this));
-    this.password = new Control('password', Validators.compose([Validators.required, this.validPassword]));
-    this.confirmation = new Control('password', Validators.compose([Validators.required, this.validPasswordMatch.bind(this)]));
+    this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.isValidName]));
+    this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.isValidEmail]),
+      this.isUserIdTaken.bind(this));
+
+    this.password = new Control('password', Validators.compose([Validators.required, this.isValidPassword.bind(this)]));
+    this.confirmation = new Control('password', Validators.compose([Validators.required]));
+    this.passwordGroup = this.builder.group({
+      password: this.password,
+      confirmation: this.confirmation
+    }, { validator: this.checkIfEqual.bind(this) });
+
 
     this.loginForm = this.builder.group({
       name: this.name,
       userId: this.userId,
-      password: this.password,
-      confirmation: this.confirmation
+      passwordGroup: this.passwordGroup
     });
   }
 
@@ -114,8 +125,7 @@ export class RegisterComponent {
       name: this.name.value,
       userId: this.userId.value,
       password: btoa(this.password.value)
-    }))
-      .subscribe(
+    })).subscribe(
       () => {
         this.loading = false;
         this.errorMessage = 'User created!';
@@ -134,47 +144,51 @@ export class RegisterComponent {
       );
   }
 
-  private validName(control: Control): any {
+  private isValidName(control: Control): any {
     if (!Config.NAME_VALIDATE_REGEXP.test(control.value.trim())) {
-      return { validEmail: true };
+      return { invalidEmail: true };
     }
     return null;
   }
 
-  // private userIdTaken(control: Control): Observable<ValidationResult> {
-  //     return Observable.create((observer: Observer<any>) => {
-  //         this.dispatcher.next(new VerifyUserAction(control.value)).subscribe(
-  //             (data: any) => {
-  //                 observer.next(data.count() > 0 ? { userIdTaken: true } : null);
-  //                 observer.complete();
-  //             },
-  //             (error: any) => {
-  //                 observer.next(null);
-  //                 observer.complete();
-  //             },
-  //             () => observer.complete());
-  //     }).share();
-  // }
+  private isUserIdTaken(control: Control): Observable<ValidationResult> {
+    return Observable.create((observer: Observer<any>) => {
+      this.dispatcher.next(new CheckUserAction(control.value)).subscribe(
+        (data: any) => {
+          observer.next(data.count() > 0 ? { userIdTaken: true } : null);
+          observer.complete();
+        },
+        (error: any) => {
+          observer.next(null);
+          observer.complete();
+        },
+        () => observer.complete());
+    }).share();
+  }
 
-  private validEmail(control: Control): any {
+  private isValidEmail(control: Control): any {
     if (!Config.EMAIL_VALIDATE_REGEXP.test(control.value)) {
-      return { validEmail: true };
+      return { invalidEmail: true };
     }
     return null;
   }
 
-  private validPassword(control: Control): any {
+  private isValidPassword(control: Control): any {
     if (!Config.PASSWORD_VALIDATE_REGEXP.test(control.value)) {
-      return { validPassword: true };
+      return { invalidPassword: true };
     }
     return null;
   }
 
-  private validPasswordMatch(control: Control): any {
-    if (this.password && control.value.trim() !== this.password.value.trim()) {
-      return { validPasswordMatch: true };
+  private checkIfEqual(group: ControlGroup) {
+    if (!this.password || !this.confirmation) {
+      return null;
     }
-    return null;
+    return this.password.value === this.confirmation.value ? null : {
+      notEqual: true
+    };
   }
 
 }
+
+
