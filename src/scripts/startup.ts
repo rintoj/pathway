@@ -38,7 +38,7 @@ System.config({
     }
   },
   'map': {
-    'dexie': 'libs/libs.js'
+    'dexie': 'libs/node_modules/dexie/dist/dexie.js'
   }
 });
 

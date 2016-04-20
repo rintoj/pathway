@@ -32,7 +32,9 @@ var env = {
   get isProd() {
     return this.NODE_ENV === 'production';
   },
-
+  get isCompile() {
+    return false;
+  },
   get paths() {
     return this.isDev ? paths.dev : paths.prod;
   }
@@ -236,10 +238,10 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  var libs = gulp.src(env.paths.libs.js, {
+  var libs = gulp.src([...env.paths.libs.js, ...env.paths.map], {
       base: '.'
     })
-    .pipe(plugins.concat('libs.js'))
+    .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
     })))
@@ -254,6 +256,10 @@ function assets() {
 function index() {
   var css = ['./build/css/**/*'];
   var libs = ['./build/libs/*'];
+
+  if (env.isDev) {
+    libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
+  }
 
   var source = gulp.src([...css, ...libs], {
     read: false

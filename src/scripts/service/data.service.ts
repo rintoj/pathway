@@ -1,5 +1,5 @@
 
-// import Dexie from 'dexie';
+import Dexie from 'dexie';
 import {Inject} from 'angular2/core';
 // import {RestService} from './rest.service';
 
@@ -13,7 +13,7 @@ export interface DataServiceOptions {
   };
 }
 
-class Dexie { }
+// class Dexie { }
 
 export class DataService extends Dexie {
 
@@ -22,13 +22,9 @@ export class DataService extends Dexie {
   constructor( @Inject('DataServiceOptions') protected options: DataServiceOptions) {
 
     // Define and open database
-    // super(options.database);
-    super();
+    super(options.database);
 
     // Create stores
-    // this.version(1).stores(options.stores);
-
+    this.version(1).stores(options.stores);
   }
-
-
 }
