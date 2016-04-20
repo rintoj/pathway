@@ -1,23 +1,47 @@
 /**
+ * @author rintoj (Rinto Jose)
+ * @license The MIT License (MIT)
+ *
+ * Copyright (c) 2016 rintoj
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the " Software "), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED " AS IS ", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ **/
+
+/**
  * Usage:
  * `$ NODE_ENV=<development/production> PORT=<port> gulp <task>`
  */
 
 var gulp = require('gulp');
-var plugins = require('gulp-load-plugins')();
-
 var del = require('del');
 var path = require('path');
 var exec = require('child_process').exec;
+var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
 var karma = require('karma');
 var merge = require('merge-stream');
+var filter = require('gulp-filter');
+var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 var webdriver = require('gulp-protractor').webdriver_update;
 var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
-
-var paths = require('./gulpfile.paths.js');
 
 process.env.NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
 process.env.PORT = process.env.PORT ? process.env.PORT : '8081';
@@ -154,7 +178,11 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(plugins.if(env.isDev, plugins.sourcemaps.init()))
     .pipe(plugins.typescript(project));
 
-  return result.js
+  const f = filter([`${filesRoot}/startup.js`], {
+    restore: true
+  });
+
+  var tsFiles = result.js
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
     })))
@@ -164,8 +192,23 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(plugins.size({
       title
     }))
+    
+    // filter a subset of the files 
+    .pipe(f)
+    .pipe(plugins.inject(gulp.src(paths.map), {
+      starttag: '  map: {',
+      endtag: '}',
+      transform: function(filepath, file, i, length) {
+        var fileName = filepath.split('/').splice(-1)[0];
+        return '  \'' + fileName.split('.').slice(0, -1).join('.') + '\': \'libs/map/' + fileName + '\'' + (i + 1 < length ? ',' : '');
+      }
+    }))
+    .pipe(f.restore)
+    
     .pipe(gulp.dest(filesDest))
     .pipe(plugins.connect.reload());
+
+  return tsFiles;
 }
 
 var tsProject = plugins.typescript.createProject('tsconfig.json', {
@@ -238,7 +281,7 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  var libs = gulp.src([...env.paths.libs.js, ...env.paths.map], {
+  var libs = gulp.src(env.paths.libs.js, {
       base: '.'
     })
     .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
@@ -250,12 +293,26 @@ function assets() {
     }))
     .pipe(gulp.dest('build/libs'));
 
-  return merge(images, fonts, libs, data);
+  var maps = gulp.src(paths.map, {
+      base: '.'
+    })
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.rename({
+      dirname: ''
+    }))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs/map'));
+
+  return merge(images, fonts, libs, maps, data);
 }
 
 function index() {
   var css = ['./build/css/**/*'];
-  var libs = ['./build/libs/*'];
+  var libs = ['./build/libs/**/*', './build/libs/!map/**/*'];
 
   if (env.isDev) {
     libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
@@ -358,7 +415,7 @@ function watch() {
   gulp.watch('src/**/*.css', css);
   gulp.watch('src/index.html', index);
   gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,js}', gulp.series(assets, index));
-  gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
+  // gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
 }
 
 function livereload() {

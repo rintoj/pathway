@@ -29,16 +29,15 @@ declare var System: any;
 // @if isDev
 System.config({
   packages: {
-    'js': {
+    js: {
       main: 'app.js',
     },
-    'lib': {
+    lib: {
       format: 'register',
       defaultExtension: 'js'
     }
   },
-  'map': {
-    'dexie': 'libs/node_modules/dexie/dist/dexie.js'
+  map: {
   }
 });
 
@@ -49,6 +48,8 @@ System.import('js').catch(console.error.bind(console));
 System.config({
   bundles: {
     'js/app.js': ['app']
+  },
+  map: {
   }
 });
 

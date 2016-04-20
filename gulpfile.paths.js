@@ -8,7 +8,6 @@ let baseLibs = [
   'node_modules/angular2/bundles/angular2.dev.js',
   'node_modules/angular2/bundles/router.dev.js',
   'node_modules/angular2/bundles/http.dev.js',
-  'node_modules/immutable/dist/immutable.js',
   'node_modules/lodash/index.js'
 ];
 
@@ -19,16 +18,18 @@ module.exports = {
     'typings/main.d.ts'
   ],
 
+  map: [
+    'node_modules/immutable/dist/immutable.js',
+    'node_modules/dexie/dist/dexie.js'
+  ],
+
   dev: {
     libs: {
       js: [
         ...baseLibs
         // Add dev only libs here - eg 'node_modules/debug-lib/index.js'
       ]
-    },
-    map: [
-      'node_modules/dexie/dist/dexie.js'
-    ]
+    }
   },
 
   prod: {

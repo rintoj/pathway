@@ -22,7 +22,7 @@ export class DataService extends Dexie {
   constructor( @Inject('DataServiceOptions') protected options: DataServiceOptions) {
 
     // Define and open database
-    super(options.database);
+    super(options.database, { autoOpen: true });
 
     // Create stores
     this.version(1).stores(options.stores);

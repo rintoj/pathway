@@ -23,8 +23,8 @@
  * SOFTWARE.
  */
 
+import Immutable from 'immutable';
 import {Observer} from 'rxjs/Observer';
-import {Immutable}  from './immutable';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {Action, StatelessAction} from './action';
