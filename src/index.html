@@ -10,7 +10,8 @@
 
   <title>..:: Pathway ::..</title>
 
-
+  <!-- inject:css -->
+  <!-- endinject -->
 </head>
 
 <body>
@@ -34,15 +35,12 @@
     </div>
   </pw-app>
 
-
   <!-- inject:js -->
   <!-- endinject -->
 
-  <!-- inject:css -->
-  <!-- endinject -->
-
   <!-- startup script -->
-  <script src="js/startup.js"></script>
+  <!-- @if isDev -->  <script src="js/startup.js"></script> <!-- @endif --> 
+  <!-- @if isProd -->  <script src="js/app.js"></script> <!-- @endif -->
 
 </body>
 

@@ -142,7 +142,6 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
 
-
   var result = merge(filesGlobal, gulp.src([...paths.typings]))
     .pipe(plugins.preprocess({
       context: env
@@ -255,10 +254,6 @@ function assets() {
 function index() {
   var css = ['./build/css/**/*'];
   var libs = ['./build/libs/*'];
-
-  // if (env.isDev) {
-  //   libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
-  // }
 
   var source = gulp.src([...css, ...libs], {
     read: false
