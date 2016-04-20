@@ -2,21 +2,18 @@ import {Page} from '../state/pagination';
 import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
-import {Injectable} from 'angular2/core';
-import {RestService} from './rest.service';
-import {ApplicationState} from '../state/application-state';
 import {Projectlog}  from '../state/projectlog';
+import {ApplicationState} from '../state/application-state';
+import {Injectable, Inject} from 'angular2/core';
+import {RestServiceWithOAuth2} from '../service/oauth2-rest.service';
 import {FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../state/action';
 
 @Injectable()
-export class ProjectlogService {
+export class ProjectlogStore {
 
-  private url: string = 'projectlog';
+  // private url: string = 'projectlog';
 
-  constructor(
-    private rest: RestService,
-    dispatcher: Dispatcher
-  ) {
+  constructor(@Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
     this.subscribeToDispatcher(dispatcher);
   }
 
@@ -39,20 +36,21 @@ export class ProjectlogService {
   }
 
   private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
-    return this.rest.fetch(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
-      .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
-      .map((s: ApplicationState) => {
-        if (s.projectlogs.page.currentPage === 0) {
-          state.projectlogs.list = s.projectlogs.list;
-        } else {
-          state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
-        }
-        state.projectlogs.page = s.projectlogs.page;
-        return state;
-      });
+    // return this.dataService.get(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
+    //   .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
+    //   .map((s: ApplicationState) => {
+    //     if (s.projectlogs.page.currentPage === 0) {
+    //       state.projectlogs.list = s.projectlogs.list;
+    //     } else {
+    //       state.projectlogs.list = state.projectlogs.list.concat(s.projectlogs.list);
+    //     }
+    //     state.projectlogs.page = s.projectlogs.page;
+    //     return state;
+    //   });
+    return null;
   }
 
-  private mapResponse(response: Response, page: Page<any>): ApplicationState {
+  protected mapResponse(response: Response, page: Page<any>): ApplicationState {
     var json = response.json();
 
     let nextPage: Page<Projectlog> = page ? page.setTotalItems(json.hits.total) : new Page<Projectlog>(json.hits.total);

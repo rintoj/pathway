@@ -1,7 +1,6 @@
 import {Content} from '../../directive/content/content';
 import {Dropdown, DropdownOption} from '../../directive/dropdown/dropdown';
 import {Projectlog} from '../../state/projectlog';
-import {ProjectlogService} from '../../service/projectlog.service';
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 
@@ -94,8 +93,6 @@ export class ProjectlogItemComponent {
 
 
     @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();
-
-    constructor(private service: ProjectlogService) { }
 
     private fireStatusUpdate() {
         this.statusUpdate.next(this.item);

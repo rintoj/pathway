@@ -5,7 +5,6 @@ pw-loader {
     margin: 0 auto;
     padding: 0;
     overflow: hidden;
-    // transition: max-height .3s ease, margin .3s ease, padding .3s ease;
     &.show {
       max-height: 100px;
       padding: 10px;

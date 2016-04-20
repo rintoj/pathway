@@ -1,5 +1,6 @@
 @import 'scss/bootstrap';
 @import 'scss/material';
+
 /*** BASE THEME ***/
 
 pw-app {
@@ -7,12 +8,23 @@ pw-app {
   padding: 0;
   min-width: 300px;
   display: block;
-
+  .splash {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: $primary-color;
+    .sk-circle {
+      .sk-child {
+        &:before {
+          background-color: $primary-color-text;
+        }
+      }
+    }
+  }
   main {
     height: 100%;
     padding: 25px;
   }
-
   footer {
     color: $divider-color;
     font-size: 0.8em;

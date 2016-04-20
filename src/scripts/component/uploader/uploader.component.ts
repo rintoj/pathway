@@ -1,14 +1,12 @@
 import {Config} from '../../state/config';
 import {DialogBox} from '../../directive/dialog/dialog-box';
-import {RestService} from '../../service/rest.service';
 import {LoaderComponent} from '../loader/loader.component';
 import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
 
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
 @Component({
-  selector: 'pw-uploader',
-  providers: [RestService]
+  selector: 'pw-uploader'
 })
 @View({
   directives: [DialogBox, LoaderComponent],
@@ -104,8 +102,9 @@ export class UploaderComponent {
   dataEndpoint: string = ''; // Config.SERVICE_URL + '/projectlog';
 
   sampleDataUrl: string = Config.DATA_PROJECTLOGS_URL;
+	service: any;
 
-  constructor(private service: RestService) {
+  constructor() {
     this.show = true;
   }
 

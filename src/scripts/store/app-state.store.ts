@@ -1,21 +1,16 @@
 import {Config} from '../state/config';
 import {Observer} from 'rxjs/Observer';
-import {Response} from 'angular2/http';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from 'angular2/core';
 import {ApplicationStatus} from '../state/ui-state';
-import {User, UserBasicInfo} from '../state/user';
 import {RestoreAppStateAction} from '../state/action';
 import {ApplicationState, ApplicationStateObservable} from '../state/application-state';
 
 @Injectable()
 export class AppStateStore {
 
-  constructor(
-    dispatcher: Dispatcher,
-    private stateObservable: ApplicationStateObservable
-  ) {
+  constructor(dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) {
     this.subscribeToDispatcher(dispatcher);
     this.stateObservable.subscribe(this.saveApplicationState.bind(this));
   }
@@ -50,18 +45,5 @@ export class AppStateStore {
       }
       observer.complete();
     });
-  }
-
-  protected mapResponse(response: Response, payload: UserBasicInfo): ApplicationState {
-    var json = response.json();
-
-    let user: User = {
-      id: null,
-      name: 'Unknown',
-      userId: payload.userId,
-      auth: json
-    };
-
-    return { user: user };
   }
 }

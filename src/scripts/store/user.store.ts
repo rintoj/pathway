@@ -30,7 +30,7 @@ import {Observable} from 'rxjs/Observable';
 import {ApplicationState} from '../state/application-state';
 import {Inject, Injectable} from 'angular2/core';
 import {Response, RequestMethod} from 'angular2/http';
-import {AuthInfo, RestServiceWithOAuth2} from '../util/oauth2-rest.service';
+import {AuthInfo, RestServiceWithOAuth2} from '../service/oauth2-rest.service';
 import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction, AuthorizeAction} from '../state/action';
 
 @Injectable()
@@ -38,7 +38,7 @@ export class UserStore {
 
   private url: string = '/oauth2';
 
-  constructor( @Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
+  constructor(@Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
     this.subscribeToDispatcher(dispatcher);
   }
 

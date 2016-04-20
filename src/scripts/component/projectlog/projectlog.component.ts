@@ -5,7 +5,6 @@ import {Projectlog} from '../../state/projectlog';
 import {Component, View} from 'angular2/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
-import {ProjectlogService} from '../../service/projectlog.service';
 import {UploaderComponent} from '../uploader/uploader.component';
 import {ProjectlogItemComponent} from './projectlog-item.component';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
@@ -68,11 +67,7 @@ export class ProjectlogComponent {
 
   private fetchPageAction: Subject<Page<Projectlog>>;
 
-  constructor(
-    private service: ProjectlogService,
-    private dispatcher: Dispatcher,
-    private stateObservable: ApplicationStateObservable
-  ) {
+  constructor(private dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) {
     this.loading = false;
   }
 

@@ -1,15 +1,13 @@
 import {Dispatcher} from './state/dispatcher';
-import {UserStore} from './service/user.store';
-import {AppStateStore} from './service/app-state.store';
+import {UserStore} from './store/user.store';
+import {AppStateStore} from './store/app-state.store';
 import {MainComponent} from './component/main/main.component';
 import {LoginComponent} from './component/login/login.component';
-import {UIStateService} from './service/ui-state.service';
 import {Component, View} from 'angular2/core';
+import {ProjectlogStore} from './store/projectlog.store';
 import {RegisterComponent} from './component/login/register.component';
-import {ProjectlogService} from './service/projectlog.service';
-import {ApplicationStatus} from './state/ui-state';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
-import {SetApplicationStatusAction, RestoreAppStateAction} from './state/action';
+import {RestoreAppStateAction} from './state/action';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -20,8 +18,7 @@ import 'rxjs/add/operator/merge';
   providers: [
     AppStateStore,
     UserStore,
-    UIStateService,
-    ProjectlogService
+    ProjectlogStore
   ]
 })
 @View({
@@ -40,11 +37,9 @@ export class AppComponent {
     private dispatcher: Dispatcher,
     private appStateStore: AppStateStore,
     private userStore: UserStore,
-    private uiStateService: UIStateService,
-    private projectlogService: ProjectlogService
+    private projectlogStore: ProjectlogStore
   ) {
     console.log('Application created!');
-    this.dispatcher.next(new SetApplicationStatusAction(ApplicationStatus.STARTED)).subscribe();
     this.dispatcher.next(new RestoreAppStateAction()).subscribe();
   }
 }

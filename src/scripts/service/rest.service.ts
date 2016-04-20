@@ -1,87 +1,98 @@
-import {Config} from '../state/config';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
-import {Injectable} from 'angular2/core';
-import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
+import { Injectable} from 'angular2/core';
+import {Http, Request, Response, RequestMethod, RequestOptions} from 'angular2/http';
 
-export class RestOptions extends BaseRequestOptions {
+export interface RestService {
+  get(url: string, search?: Object): Observable<Response>;
+  post(url: string, body: Object, search?: Object): Observable<Response>;
+  put(url: string, body: Object, search?: Object): Observable<Response>;
+  delete(url: string, body?: Object, search?: Object): Observable<Response>;
+  request(url: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response>;
+}
 
-  public baseUrl: string;
-  public accessToken: string;
-  public refreshToken: string;
-
-  constructor() {
-    super();
-    this.headers.append('Content-Type', 'application/json');
-  }
+export interface RestServiceOptions {
+  baseUrl: string;
+  contentType: string;
+  cacheRequest: boolean;
 }
 
 @Injectable()
-export class RestService {
+export class BaseRestService implements RestService {
 
   private requestsInFlight: Object = {};
 
-  constructor(private http: Http, private restOptions: RestOptions) { }
+  constructor(
+    protected http: Http,
+    protected requestOptions: RequestOptions,
+    protected baseUrl: string = '',
+    protected cacheRequest: boolean = true
+  ) { }
 
-  query(path: string, body: Object): Observable<Response> {
-    return this.makeRequest(path, RequestMethod.Post, body);
+  get(url: string, search?: Object): Observable<Response> {
+    return this.request(url, RequestMethod.Get, null, search);
   }
 
-  fetch(path: string, search?: Object, body?: Object): Observable<Response> {
-    if (body) {
-      return this.makeRequest(path, RequestMethod.Post, body, search);
-    }
-    return this.makeRequest(path, RequestMethod.Get, null, search);
+  post(url: string, body: Object, search?: Object): Observable<Response> {
+    return this.request(url, RequestMethod.Post, body, search);
   }
 
-  createOrUpdate(path: string, body: Object): Observable<Response> {
-    return this.makeRequest(path, RequestMethod.Put, body);
+  put(url: string, body: Object, search?: Object): Observable<Response> {
+    return this.request(url, RequestMethod.Put, body, search);
   }
 
-  delete(path: string): Observable<Response> {
-    return this.makeRequest(path, RequestMethod.Delete);
+  delete(url: string, body?: Object, search?: Object): Observable<Response> {
+    return this.request(url, RequestMethod.Delete, body, search);
   }
 
-  get defaultOptions() {
-    return this.restOptions;
+  request(url: string, method: RequestMethod, body?: Object, search?: Object): Observable<Response> {
+    return this.httpRequest(new RequestOptions(this.requestOptions.merge({
+      url: this.baseUrl + url,
+      body: JSON.stringify(body),
+      search: this.serialize(search),
+      method: method
+    })));
   }
 
-  request(options: RequestOptions, force: boolean = false) {
+  httpRequest(options: RequestOptions) {
 
-    let requestId = JSON.stringify(options, null, 4);
+    let requestId = JSON.stringify(options);
     let request: Observable<Response> = this.requestsInFlight[requestId];
 
-    if (request) {
-      // if a request is in flight ignore this request and return the previous observable
-      if (!force) {
-        return request;
-      }
+    // if a request is in flight ignore this request and return the previous observable
+    if (request && this.cacheRequest) {
+      return request;
     }
 
     return Observable.create((observer: Observer<any>) => {
       this.requestsInFlight[requestId] = this.http.request(new Request(options))
         .share()
-        .catch(this.processError.bind(this))
-        .finally(() => this.requestsInFlight[requestId] = undefined)
-        .subscribe((data: any) => observer.next(data), (error: any) => observer.error(error), () => observer.complete);
+        .catch((response: Response) => this.processError(response, observer))
+        .finally(() => this.requestsInFlight[requestId] = undefined);
+
+      this.requestsInFlight[requestId].subscribe(
+        (data: any) => observer.next(data),
+        (error: any) => observer.error(error),
+        () => observer.complete()
+      );
     });
   }
 
-  serialize(obj: Object): string {
-    var str = [];
-
-    for (let p in obj) {
-      if (obj.hasOwnProperty(p)) {
-        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+  protected serialize(object: Object): string {
+    var serializedString = [];
+    for (let property in object) {
+      if (object.hasOwnProperty(property)) {
+        serializedString.push(encodeURIComponent(property) + '=' + encodeURIComponent(object[property]));
       }
     }
 
-    return str.join('&');
+    return serializedString.join('&');
   }
 
   protected processError(response: Response, observer: Observer<any>) {
     try {
       switch (response.status) {
+
         case 400: // Bad request
           throw 'Bad Request';
 
@@ -92,7 +103,7 @@ export class RestService {
           throw 'User is forbidden from accessing this resource!';
 
         default:
-          throw 'Unknown expcetion: ' + response.status;
+          throw 'Unknown error occured! [' + response.status + ']';
       }
     } catch (error) {
       observer.error({
@@ -105,29 +116,14 @@ export class RestService {
     return Observable.empty();
   }
 
-  protected makeRequest(path: string,
-    method: RequestMethod,
-    body?: Object,
-    search?: Object,
-    force: boolean = false
-  ): Observable<Response> {
-    let options = new RequestOptions(this.restOptions.merge({
-      method: method,
-      url: path,
-      body: JSON.stringify(body),
-      search: this.serialize(search)
-    }));
-
-    return this.request(options, force);
-  }
-
-  protected retry(attempts: any) {
-    return Observable.range(1, Config.SERVICE_RETRY_COUNT)
-      .zip(attempts, (i: number) => i)
-      .flatMap((i: number) => {
-        console.log('Attempt ' + i + ' of ' + Config.SERVICE_RETRY_COUNT + ' within ' +
-          Config.SERVICE_RETRY_DELAY + ' milli-second(s)');
-        return Observable.timer(Config.SERVICE_RETRY_DELAY);
-      });
-  }
+  // protected retry(attempts: any) {
+  //   return Observable.range(1, Config.SERVICE_RETRY_COUNT)
+  //     .zip(attempts, (i: number) => i)
+  //     .flatMap((i: number) => {
+  //       console.log('Attempt ' + i + ' of ' + Config.SERVICE_RETRY_COUNT + ' within ' +
+  //         Config.SERVICE_RETRY_DELAY + ' milli-second(s)');
+  //       return Observable.timer(Config.SERVICE_RETRY_DELAY);
+  //     });
+  // }
 }
+

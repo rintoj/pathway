@@ -2,7 +2,7 @@ import {Page} from './pagination';
 import {Projectlog} from './projectlog';
 import {ApplicationStatus} from './ui-state';
 import {ApplicationState} from './application-state';
-import {RestServiceWithOAuth2Options} from '../util/oauth2-rest.service';
+import {RestServiceWithOAuth2Options} from '../service/oauth2-rest.service';
 
 // default configuration
 class DefaultConfig {

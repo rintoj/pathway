@@ -1,4 +1,4 @@
-import {AuthInfo} from '../util/oauth2-rest.service';
+import {AuthInfo} from '../service/oauth2-rest.service';
 
 export interface UserBasicInfo {
   name?: String;
