@@ -1,7 +1,8 @@
 import {Page} from './pagination';
 import {Projectlog} from './projectlog';
-import {ApplicationStatus} from './ui-state';
 import {ApplicationState} from './application-state';
+import {ApplicationStatus} from './ui-state';
+import {DataServiceOptions} from '../service/data.service';
 import {RestServiceWithOAuth2Options} from '../service/oauth2-rest.service';
 
 // default configuration
@@ -57,7 +58,7 @@ class DefaultConfig {
     return /^[a-zA-Z]\w{3,14}$/;
   }
 
-  static get DATA_SERVICE_OPTIONS(): RestServiceWithOAuth2Options {
+  static get REST_SERVICE_OPTIONS(): RestServiceWithOAuth2Options {
     return {
       baseUrl: '//localhost:3000/api',
       contentType: 'application/json',
@@ -66,6 +67,17 @@ class DefaultConfig {
       clientSecret: 'a0c7b741-b18b-47eb-b6df-48a0bd3cde2e',
       accessToken: null,
       refreshToken: null
+    };
+  }
+
+  static get DATA_SERVICE_OPTIONS(): DataServiceOptions {
+    return {
+      database: 'pathway',
+      stores: {
+        contacts: '++id, firstName, lastName',
+        emails: '++id, contactId, type, email',
+        phones: '++id, contactId, type, phone'
+      }
     };
   }
 }

@@ -9,7 +9,8 @@ let baseLibs = [
 	'node_modules/angular2/bundles/router.dev.js',
 	'node_modules/angular2/bundles/http.dev.js',
 	'node_modules/immutable/dist/immutable.js',
-    'node_modules/lodash/index.js'
+  'node_modules/lodash/index.js',
+	'node_modules/dexie/dist/dexie.js'
 ];
 
 module.exports = {

@@ -20,7 +20,7 @@ var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 var paths = require('./gulpfile.paths.js');
 
 process.env.NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
-process.env.PORT = process.env.PORT ? process.env.PORT : '8080';
+process.env.PORT = process.env.PORT ? process.env.PORT : '8081';
 
 var env = {
   NODE_ENV: process.env.NODE_ENV,
@@ -240,7 +240,7 @@ function assets() {
   var libs = gulp.src(env.paths.libs.js, {
       base: '.'
     })
-    .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
+    .pipe(plugins.concat('libs.js'))
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
     })))
@@ -256,9 +256,9 @@ function index() {
   var css = ['./build/css/**/*'];
   var libs = ['./build/libs/*'];
 
-  if (env.isDev) {
-    libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
-  }
+  // if (env.isDev) {
+  //   libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
+  // }
 
   var source = gulp.src([...css, ...libs], {
     read: false

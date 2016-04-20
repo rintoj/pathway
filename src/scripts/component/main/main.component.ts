@@ -1,5 +1,5 @@
 import {Role} from '../../state/user';
-import {authorize} from '../../service/authorization-service';
+import {authorize} from '../../service/authorization.service';
 import {HeaderComponent} from '../header/header.component';
 import {Component, View} from 'angular2/core';
 import {ProjectlogComponent} from '../projectlog/projectlog.component';

@@ -1,5 +1,6 @@
 import {Page} from '../state/pagination';
 import {Response} from 'angular2/http';
+import {DataStore} from './data.store';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Projectlog}  from '../state/projectlog';
@@ -9,33 +10,33 @@ import {RestServiceWithOAuth2} from '../service/oauth2-rest.service';
 import {FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../state/action';
 
 @Injectable()
-export class ProjectlogStore {
+export class ProjectlogStore extends DataStore<Projectlog> {
 
-  // private url: string = 'projectlog';
+  // protected url: string = 'projectlog';
 
-  constructor(@Inject('DataService') private dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
-    this.subscribeToDispatcher(dispatcher);
+  constructor(@Inject('DataService') protected dataService: RestServiceWithOAuth2, dispatcher: Dispatcher) {
+    super(dispatcher);
   }
 
-  private subscribeToDispatcher(dispatcher: Dispatcher) {
+  protected subscribeToDispatcher(dispatcher: Dispatcher) {
     dispatcher.subscribe([new FetchProjectlogAction(null)], this.fetchProjectlog.bind(this));
     dispatcher.subscribe([new CreateProjectlogAction(null)], this.createProjectlog.bind(this));
     dispatcher.subscribe([new DeleteProjectlogAction(null)], this.deleteProjectlog.bind(this));
   }
 
-  private createProjectlog(state: ApplicationState, action: CreateProjectlogAction): ApplicationState {
+  protected createProjectlog(state: ApplicationState, action: CreateProjectlogAction): ApplicationState {
     console.log('createProjectlogAction', state, action);
     state.ui.syncing = true;
     return state;
   }
 
-  private deleteProjectlog(state: ApplicationState, action: DeleteProjectlogAction): ApplicationState {
+  protected deleteProjectlog(state: ApplicationState, action: DeleteProjectlogAction): ApplicationState {
     console.log('deleteProjectlogAction', state, action);
     state.ui.syncing = false;
     return state;
   }
 
-  private fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
+  protected fetchProjectlog(state: ApplicationState, action: FetchProjectlogAction): Observable<ApplicationState> {
     // return this.dataService.get(`${this.url}/_search`, action.page.currentIndex(), action.page.filters)
     //   .map((response: Response): ApplicationState => this.mapResponse(response, action.page))
     //   .map((s: ApplicationState) => {

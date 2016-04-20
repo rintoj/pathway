@@ -2,78 +2,47 @@
 <html lang="en">
 
 <head>
-	<base href="/">
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="shortcut icon" type="image/png" href="images/logo.png" />
+  <base href="/">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/png" href="images/logo.png" />
 
-	<title>..:: Pathway ::..</title>
+  <title>..:: Pathway ::..</title>
 
-	<!-- inject:js -->
-	<!-- endinject -->
-
-	<!-- inject:css -->
-	<!-- endinject -->
 
 </head>
 
 <body>
 
-	<pw-app>
-		<div class="splash">
-			<div class="sk-circle" style="margin-top: 100px">
-				<div class="sk-circle1 sk-child"></div>
-				<div class="sk-circle2 sk-child"></div>
-				<div class="sk-circle3 sk-child"></div>
-				<div class="sk-circle4 sk-child"></div>
-				<div class="sk-circle5 sk-child"></div>
-				<div class="sk-circle6 sk-child"></div>
-				<div class="sk-circle7 sk-child"></div>
-				<div class="sk-circle8 sk-child"></div>
-				<div class="sk-circle9 sk-child"></div>
-				<div class="sk-circle10 sk-child"></div>
-				<div class="sk-circle11 sk-child"></div>
-				<div class="sk-circle12 sk-child"></div>
-			</div>
-		</div>
-	</pw-app>
+  <pw-app>
+    <div class="splash">
+      <div class="sk-circle" style="margin-top: 100px">
+        <div class="sk-circle1 sk-child"></div>
+        <div class="sk-circle2 sk-child"></div>
+        <div class="sk-circle3 sk-child"></div>
+        <div class="sk-circle4 sk-child"></div>
+        <div class="sk-circle5 sk-child"></div>
+        <div class="sk-circle6 sk-child"></div>
+        <div class="sk-circle7 sk-child"></div>
+        <div class="sk-circle8 sk-child"></div>
+        <div class="sk-circle9 sk-child"></div>
+        <div class="sk-circle10 sk-child"></div>
+        <div class="sk-circle11 sk-child"></div>
+        <div class="sk-circle12 sk-child"></div>
+      </div>
+    </div>
+  </pw-app>
 
-	<script>
-		<!-- @if isDev -->
-		/**
-		 * The package name `js` matches the folder structure inside `/build`.
-		 * And the `main` property points to the app entry file - `bootstrap.js`.
-		 */
-		System.config({
-			packages: {
-				'js': {
-					main: 'bootstrap.js'
-				},
-				'lib': {
-					format: 'register',
-					defaultExtension: 'js'
-				}
-			}
-		});
 
-		System.import('js').catch(console.error.bind(console));
-		<!-- @endif -->
+  <!-- inject:js -->
+  <!-- endinject -->
 
-		<!-- @if isProd -->
-		/**
-		 * The bundle name `js/app.js` matches the file under the `/build` folder.
-		 * It also maps the entry dependecy module - `bootstrap`.
-		 */
-		System.config({
-			bundles: {
-				'js/app.js': ['bootstrap']
-			}
-		});
+  <!-- inject:css -->
+  <!-- endinject -->
 
-		System.import('bootstrap').catch(console.error.bind(console));
-		<!-- @endif -->
-	</script>
+  <!-- startup script -->
+  <script src="js/startup.js"></script>
 
 </body>
 

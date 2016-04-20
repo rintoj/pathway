@@ -27,7 +27,7 @@ export interface AuthInfo {
 @Injectable()
 export class RestServiceWithOAuth2 extends BaseRestService {
 
-  constructor(protected http: Http, @Inject('DataServiceOptions') protected options: RestServiceWithOAuth2Options) {
+  constructor(protected http: Http, @Inject('RestServiceOptions') protected options: RestServiceWithOAuth2Options) {
     super(http, new BaseRequestOptions(), options.baseUrl, options.cacheRequest);
 
     if (!options.cacheRequest) {
