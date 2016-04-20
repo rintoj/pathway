@@ -8,7 +8,7 @@ import {ROUTER_DIRECTIVES, CanActivate, ComponentInstruction} from 'angular2/rou
 @Component({
   selector: 'pw-main'
 })
-@CanActivate((next: ComponentInstruction, prev: ComponentInstruction) => authorize(next, prev, [Role.ADMIN]))
+@CanActivate((next: ComponentInstruction, prev: ComponentInstruction) => authorize(next, prev, [Role.USER]))
 @View({
   directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
   template: `

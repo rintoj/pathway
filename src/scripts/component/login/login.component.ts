@@ -70,8 +70,8 @@ export class LoginComponent implements OnActivate {
   ) { }
 
   ngOnInit() {
-    this.userId = new Control('superuser@pathway.com', Validators.compose([Validators.required, this.validEmail]));
-    this.password = new Control('sysadmin@123', Validators.required);
+    this.userId = new Control('', Validators.compose([Validators.required, this.validEmail]));
+    this.password = new Control('', Validators.required);
 
     this.loginForm = this.builder.group({
       userId: this.userId,
