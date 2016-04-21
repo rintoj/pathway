@@ -39,7 +39,6 @@ var spawn = require('child_process').spawn;
 var merge = require('merge-stream');
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
-var webdriver = require('gulp-protractor').webdriver_update;
 
 // environment setup
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
