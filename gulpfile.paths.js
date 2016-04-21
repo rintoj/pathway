@@ -7,9 +7,7 @@ let baseLibs = [
   'node_modules/angular2/bundles/angular2-polyfills.js',
   'node_modules/angular2/bundles/angular2.dev.js',
   'node_modules/angular2/bundles/router.dev.js',
-  'node_modules/angular2/bundles/http.dev.js',
-  'node_modules/lodash/index.js',
-  'node_modules/immutable/dist/immutable.js'
+  'node_modules/angular2/bundles/http.dev.js'  
 ];
 
 module.exports = {
@@ -18,9 +16,11 @@ module.exports = {
     'typings/main.d.ts'
   ],
 
-  map: [
-
-  ],
+  globalLibs: {
+    lodash: 'node_modules/lodash/index.js',
+    immutable: 'node_modules/immutable/dist/immutable.js',
+    dexie: 'node_modules/dexie/dist/dexie.js'
+  },
 
   dev: {
     libs: {

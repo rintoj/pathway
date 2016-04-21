@@ -22,12 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import Immutable from 'immutable';
+import _ from 'lodash';
+import Dexie from 'dexie';
+
 import {Observer} from 'rxjs/Observer';
-import {Immutable} from '../extlibs';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {Action, StatelessAction} from './action';
 import {ApplicationState, ApplicationStateObservable} from './application-state';
+
+console.log(_, Dexie);
 
 /**
  * Defines a function that can perform an action

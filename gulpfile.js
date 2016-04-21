@@ -36,13 +36,13 @@ var path = require('path');
 var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
-var karma = require('karma');
+// var karma = require('karma');
 var merge = require('merge-stream');
 // var strip = require('gulp-strip-comments')
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 var webdriver = require('gulp-protractor').webdriver_update;
-var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
+// var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 
 process.env.NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
 process.env.PORT = process.env.PORT ? process.env.PORT : '8081';
@@ -162,6 +162,21 @@ function typedoc() {
     }));
 }
 
+function preprocessGlobalLibs() {
+  var replacements = [];
+  for (var lib in paths.globalLibs) {
+    replacements.push([new RegExp('import (.+) from \'(' + lib + ')\'', 'g'), function(match, variableName) {
+      return 'declare var ' + variableName + ': any';
+    }]);
+  }
+
+  return gulp.src(['src/scripts/**/*.ts'])
+    .pipe(plugins.batchReplace(replacements))
+    .pipe(gulp.dest('build/'));
+};
+
+gulp.task('testnow', preprocessGlobalLibs);
+
 function ts(filesRoot, filesGlob, filesDest, project) {
   var title = arguments.callee.caller.name;
 
@@ -170,11 +185,7 @@ function ts(filesRoot, filesGlob, filesDest, project) {
   var filesGlobal = gulp.src(filesGlob)
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
-    .pipe(plugins.replace(/\/\/ @precompile[^]*\/\/ @endprecompile/g, ''))
-    .pipe(plugins.replace(/\/\/ @uncomment /g, ''));
-    // .pipe(gulp.dest(filesDest));
-
-  // return filesGlobal;
+    .pipe(preprocessGlobalLibs());
 
   var tsFiles = merge(filesGlobal, gulp.src([...paths.typings]))
     .pipe(plugins.preprocess({
