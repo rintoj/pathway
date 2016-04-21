@@ -1,44 +1,22 @@
 {
   "version": "0.2.0",
   "configurations": [{
-    "name": "gulp build serve",
+    "name": "dev-build",
     "type": "node",
     "program": "/usr/local/bin/gulp",
     "request": "launch",
-    "args": ["build", "serve"],
+    "args": ["start"],
     "cwd": "${workspaceRoot}",
     "runtimeExecutable": null,
     "env": {
       "NODE_ENV": "development"
     }
   }, {
-    "name": "gulp build-prod serve",
+    "name": "prod-build",
     "type": "node",
     "program": "/usr/local/bin/gulp",
     "request": "launch",
-    "args": ["build", "serve"],
-    "cwd": "${workspaceRoot}",
-    "runtimeExecutable": null,
-    "env": {
-      "NODE_ENV": "production"
-    }
-  }, {
-    "name": "gulp assets",
-    "type": "node",
-    "program": "/usr/local/bin/gulp",
-    "request": "launch",
-    "args": ["assets"],
-    "cwd": "${workspaceRoot}",
-    "runtimeExecutable": null,
-    "env": {
-      "NODE_ENV": "production"
-    }
-  }, {
-    "name": "gulp apiServer",
-    "type": "node",
-    "program": "/usr/local/bin/gulp",
-    "request": "launch",
-    "args": ["apiServer"],
+    "args": ["start"],
     "cwd": "${workspaceRoot}",
     "runtimeExecutable": null,
     "env": {

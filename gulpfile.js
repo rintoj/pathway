@@ -28,15 +28,36 @@
  * `$ NODE_ENV=<development/production> PORT=<port> gulp <task>`
  */
 
+function usage() {
+  console.log('');
+  console.log('QUICK START: (start mongodb and execute the following command*)');
+  console.log('   gulp start');
+  console.log('');
+  console.log('USAGE: ');
+  console.log('   gulp start    - start development (combines  "build", "serve" and "server" tasks)');
+  console.log('   gulp build    - create dev/production build (combines  "clean", "compile", "assets" and "index" tasks)');
+  console.log('   gulp serve    - startup the server accessible at http://localhost:' + env.PORT);
+  console.log('   gulp compile  - compile typescript files');
+  console.log('   gulp index    - inject library files and css into index.html');
+  console.log('   gulp assets   - sync assets such as images, data, css and library files with build directory');
+  console.log('   gulp server   - startup the api server (make sure to start "mongodb" before executing this command)');
+  console.log('   gulp clean    - clean build directory');
+  console.log('   gulp doc      - generate documentation');
+  console.log('   gulp help     - show this message');
+  console.log('');
+  console.log('SWITCH ENVIRONMENT AND PORT: (default NODE_ENV is "development" and PORT is "8081")');
+  console.log('   NODE_ENV=<development/production> PORT=<port> gulp <task>');
+  console.log('');
+}
+
 // imports
 var del = require('del');
 var gulp = require('gulp');
 var path = require('path');
-var exec = require('child_process').exec;
-var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
 var merge = require('merge-stream');
+var config = require('./gulpfile.config.js');
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 
@@ -54,7 +75,7 @@ var env = {
     return this.NODE_ENV === 'production';
   },
   get paths() {
-    return this.isDev ? paths.dev : paths.prod;
+    return this.isDev ? config.dev : config.prod;
   }
 };
 
@@ -100,7 +121,7 @@ function scss() {
 }
 
 function typedoc() {
-  return gulp.src(['src/scripts/**/*.ts', ...paths.typings])
+  return gulp.src(['src/scripts/**/*.ts', ...config.typings])
     .pipe(plugins.typedoc({
       module: 'commonjs',
       target: 'es5',
@@ -110,22 +131,21 @@ function typedoc() {
 }
 
 function preprocessGlobalLibs() {
-  return plugins.batchReplace(Object.keys(paths.globalLibs).map(function(lib) {
+  return plugins.batchReplace(Object.keys(config.globalLibs).map(function(lib) {
     return [new RegExp('import (.+) from \'(' + lib + ')\'', 'g'), function(match, variableName) {
-      return 'declare var ' + variableName;
+      return 'declare const ' + variableName;
     }];
   }));
 };
 
-function ts(filesRoot, filesGlob, filesDest, project) {
-  var title = arguments.callee.caller.name;
+function compile() {
 
-  var filesGlobal = gulp.src(filesGlob)
+  var filesGlobal = gulp.src(['src/scripts/**/*.ts'])
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
     .pipe(preprocessGlobalLibs());
 
-  return merge(filesGlobal, gulp.src([...paths.typings]))
+  return merge(filesGlobal, gulp.src(config.typings))
     .pipe(plugins.preprocess({
       context: env
     }))
@@ -133,40 +153,22 @@ function ts(filesRoot, filesGlob, filesDest, project) {
       useRelativePaths: true
     }))
     .pipe(plugins.if(env.isDev, plugins.sourcemaps.init()))
-    .pipe(plugins.typescript(project)).js
+    .pipe(plugins.typescript(typescriptProject)).js
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
     })))
     .pipe(plugins.if(env.isDev, plugins.sourcemaps.write({
-      sourceRoot: path.join(__dirname, '/', filesRoot)
+      sourceRoot: path.join(__dirname, '/', 'src/scripts')
     })))
     .pipe(plugins.size({
-      title
+      title: 'typescript'
     }))
-    .pipe(gulp.dest(filesDest))
+    .pipe(gulp.dest('build/js'))
     .pipe(plugins.connect.reload());
 }
 
-function compile() {
-  var filesRoot = 'src/scripts';
-  var filesDest = 'build/js';
-  var filesGlob = [
-    `${filesRoot}/**/*.ts`
-  ];
-
-  return ts(filesRoot, filesGlob, filesDest, typescriptProject);
-}
-
 function server(cb) {
-  execute('npm', ['start'], '/server');
-}
-
-function mongoDB(cb) {
-  exec('mongod --dbpath ./server/data', function(err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+  execute('node', ['app.js'], '/server');
 }
 
 function execute(command, arguments, dir) {
@@ -193,8 +195,8 @@ function execute(command, arguments, dir) {
 }
 
 function libraryFiles() {
-  return env.paths.libs.js.concat(Object.keys(paths.globalLibs).map(function(key) {
-    return paths.globalLibs[key];
+  return env.paths.libs.js.concat(Object.keys(config.globalLibs).map(function(key) {
+    return config.globalLibs[key];
   }));
 }
 
@@ -222,9 +224,9 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  var libs = merge(gulp.src([...libraryFiles()], {
+  var libs = gulp.src(libraryFiles(), {
       base: '.'
-    }))
+    })
     .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
@@ -238,8 +240,8 @@ function assets() {
 }
 
 function index() {
-  var css = ['./build/css/**/*'];
-  var libs = ['./build/libs/**/*'];
+  var css = ['build/css/**/*'];
+  var libs = ['build/libs/**/*'];
 
   if (env.isDev) {
     libs = libraryFiles().map(lib => path.join('build/libs/', lib));
@@ -287,9 +289,6 @@ gulp.task(index);
 gulp.task(assets);
 gulp.task(compile);
 gulp.task(server);
-gulp.task('default', function() {
-    console.log('********* GULP BUILD SYSTEM *********');
-    console.log('Usage: ');
-    console.log('       gulp build - creates dev/production build');
-    console.log('       gulp serve - starts up the server accessible at http://localhost:' + env.PORT);
-});
+gulp.task('start', gulp.parallel('build', 'serve', 'server'));
+gulp.task('help', usage);
+gulp.task('default', usage);

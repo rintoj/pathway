@@ -14,8 +14,6 @@ export interface DataServiceOptions {
   };
 }
 
-// class Dexie { }
-
 export class DataService extends Dexie {
 
   protected url: string;
@@ -27,5 +25,9 @@ export class DataService extends Dexie {
 
     // Create stores
     this.version(1).stores(options.stores);
+  }
+
+  version(version: number): any {
+    return super.version(version);
   }
 }
