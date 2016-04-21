@@ -28,86 +28,42 @@
  * `$ NODE_ENV=<development/production> PORT=<port> gulp <task>`
  */
 
+// imports
 var del = require('del');
 var gulp = require('gulp');
-// var wrap = require("gulp-wrap");
-var exec = require('child_process').exec;
 var path = require('path');
+var exec = require('child_process').exec;
 var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
-// var karma = require('karma');
 var merge = require('merge-stream');
-// var strip = require('gulp-strip-comments')
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 var webdriver = require('gulp-protractor').webdriver_update;
-// var remapIstanbul = require('remap-istanbul/lib/gulpRemapIstanbul');
 
-process.env.NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
-process.env.PORT = process.env.PORT ? process.env.PORT : '8081';
+// environment setup
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.PORT = process.env.PORT || '8081';
 
 var env = {
   NODE_ENV: process.env.NODE_ENV,
   PORT: process.env.PORT,
-
   get isDev() {
     return this.NODE_ENV === 'development';
   },
   get isProd() {
     return this.NODE_ENV === 'production';
   },
-  get isGlobalRef() {
-    return false;
-  },
   get paths() {
     return this.isDev ? paths.dev : paths.prod;
   }
 };
 
-/**
- * Public Tasks
- */
-
-gulp.task(clean);
-
-gulp.task('build', gulp.series(
-  clean,
-  gulp.parallel(scss, css, tsSrc),
-  assets,
-  index
-));
-
-gulp.task("builddoc", gulp.series(
-  cleandocs,
-  typedoc
-));
-
-gulp.task('serve', gulp.series(
-  gulp.parallel(watch, livereload)
-));
-
-gulp.task('unit', gulp.series(
-  karmaClean,
-  karmaTsSrc,
-  karmaTsSpec,
-  karmaRun,
-  karmaRemapCoverage,
-  karmaClean
-));
-
-gulp.task('e2e', gulp.series(
-  protractorClean,
-  protractorTsSpec,
-  protractorUpdate,
-  protractorRun,
-  protractorClean
-));
-
-gulp.task('index', index);
-gulp.task('assets', assets);
-gulp.task('tsSrc', tsSrc);
-gulp.task('apiServer', apiServer);
+// typescript project setup
+var typescriptProject = plugins.typescript.createProject('tsconfig.json', {
+  typescript: require('typescript'),
+  outFile: env.isProd ? 'app.js' : undefined
+});
 
 /**
  * Definitions
@@ -144,14 +100,6 @@ function scss() {
     .pipe(plugins.connect.reload());
 }
 
-function css() {
-  return gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', {
-      base: 'src/css'
-    })
-    .pipe(gulp.dest('build/css'))
-    .pipe(plugins.connect.reload());
-}
-
 function typedoc() {
   return gulp.src(['src/scripts/**/*.ts', ...paths.typings])
     .pipe(plugins.typedoc({
@@ -173,14 +121,12 @@ function preprocessGlobalLibs() {
 function ts(filesRoot, filesGlob, filesDest, project) {
   var title = arguments.callee.caller.name;
 
-  // var result = gulp.src([...filesGlob, ...paths.typings])
-
   var filesGlobal = gulp.src(filesGlob)
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
     .pipe(preprocessGlobalLibs());
 
-  var tsFiles = merge(filesGlobal, gulp.src([...paths.typings]))
+  return merge(filesGlobal, gulp.src([...paths.typings]))
     .pipe(plugins.preprocess({
       context: env
     }))
@@ -200,54 +146,19 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     }))
     .pipe(gulp.dest(filesDest))
     .pipe(plugins.connect.reload());
-
-
-  // var maps = paths.map.map(function(file) {
-  //   var fileName = path.basename(file).split('.').slice(0, -1).join('.');
-  //   var fileNameInUpperCase = fileName.substr(0, 1).toUpperCase() + fileName.substr(1);
-  //   return gulp.src(file, {
-  //       base: '.'
-  //     })
-  //     .pipe(strip())
-  //     .pipe(wrap('export var <%= data.fileName %> = <%= data.contents %>', {
-  //       fileName: fileNameInUpperCase
-  //     }, {
-  //       variable: 'data'
-  //     }))
-  //     .pipe(plugins.rename({
-  //       dirname: '',
-  //       extname: '.ts'
-  //     }))
-  //     .pipe(plugins.size({
-  //       title: 'libs'
-  //     }))
-  //     .pipe(plugins.typescript(plugins.typescript.createProject('tsconfig.json', {
-  //       typescript: require('typescript'),
-  //       isolatedModules: true
-  //     }))).js
-  //     .pipe(gulp.dest('build/libs/map'));
-  // });
-
-
-  return tsFiles;
 }
 
-var tsProject = plugins.typescript.createProject('tsconfig.json', {
-  typescript: require('typescript'),
-  outFile: env.isProd ? 'app.js' : undefined
-});
-
-function tsSrc() {
+function compile() {
   var filesRoot = 'src/scripts';
   var filesDest = 'build/js';
   var filesGlob = [
     `${filesRoot}/**/*.ts`
   ];
 
-  return ts(filesRoot, filesGlob, filesDest, tsProject);
+  return ts(filesRoot, filesGlob, filesDest, typescriptProject);
 }
 
-function apiServer(cb) {
+function server(cb) {
   execute('npm', ['start'], '/server');
 }
 
@@ -261,7 +172,6 @@ function mongoDB(cb) {
 
 function execute(command, arguments, dir) {
 
-  // Finally execute your script below - here "ls -lA"
   var child = spawn(command, arguments || [], {
     cwd: process.cwd() + dir
   });
@@ -296,6 +206,11 @@ function assets() {
     }))
     .pipe(gulp.dest('build/images'));
 
+  var css = gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', {
+      base: 'src/css'
+    })
+    .pipe(gulp.dest('build/css'));
+
   var fonts = gulp.src('src/fonts/**/*.{eot,ttf,otf,woff}')
     .pipe(plugins.size({
       title: 'fonts'
@@ -320,12 +235,12 @@ function assets() {
     }))
     .pipe(gulp.dest('build/libs'));
 
-  return merge(images, fonts, data, libs);
+  return merge(images, css, fonts, data, libs);
 }
 
 function index() {
   var css = ['./build/css/**/*'];
-  var libs = ['./build/libs/**/*', './build/libs/!map/**/*'];
+  var libs = ['./build/libs/**/*'];
 
   if (env.isDev) {
     libs = libraryFiles().map(lib => path.join('build/libs/', lib));
@@ -348,88 +263,11 @@ function index() {
     .pipe(plugins.connect.reload());
 }
 
-function karmaClean() {
-  return del(['.karma']);
-}
-
-function karmaTs(root) {
-  var project = plugins.typescript.createProject('tsconfig.json', {
-    typescript: require('typescript')
-  });
-
-  var filesRoot = root;
-  var filesDest = `.karma/${root}`;
-  var filesGlob = [
-    `${root}/**/*.ts`
-  ];
-
-  return ts(filesRoot, filesGlob, filesDest, project);
-}
-
-function karmaTsSrc() {
-  return karmaTs('src/scripts');
-}
-
-function karmaTsSpec() {
-  return karmaTs('test/unit');
-}
-
-function karmaRun(done) {
-  return new karma.Server({
-    configFile: __dirname + '/karma.conf.js'
-  }, done).start();
-}
-
-function karmaRemapCoverage() {
-  return gulp.src('coverage/json/coverage-js.json')
-    .pipe(remapIstanbul({
-      reports: {
-        json: 'coverage/json/coverage-ts.json',
-        html: 'coverage/html-report'
-      }
-    }));
-}
-
-function protractorClean() {
-  return del(['.protractor']);
-}
-
-var protractorTsProject = plugins.typescript.createProject('tsconfig.json', {
-  typescript: require('typescript'),
-  module: 'commonjs'
-});
-
-function protractorTsSpec() {
-  var filesRoot = 'test/e2e';
-  var filesDest = `.protractor/${filesRoot}`;
-  var filesGlob = [
-    `${filesRoot}/**/*.ts`
-  ];
-
-  return ts(filesRoot, filesGlob, filesDest, protractorTsProject);
-}
-
-function protractorUpdate(done) {
-  webdriver({}, done);
-}
-
-function protractorRun() {
-  return gulp.src('.protractor/test/e2e/**/*.spec.js')
-    .pipe(plugins.protractor.protractor({
-      configFile: 'protractor.conf.js'
-    }))
-    .on('error', e => {
-      throw e
-    })
-}
-
 function watch() {
-  gulp.watch('src/scripts/**/*.{ts,css,html}', tsSrc); // gulp.series(tsSrc, 'unit'));
+  gulp.watch('src/scripts/**/*.{ts,css,html}', compile);
   gulp.watch('src/**/*.scss', scss);
-  gulp.watch('src/**/*.css', css);
   gulp.watch('src/index.html', index);
-  gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,js}', gulp.series(assets, index));
-  // gulp.watch('test/unit/**/*.ts', gulp.series('unit'));
+  gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,js,css}', gulp.series(assets, index));
 }
 
 function livereload() {
@@ -440,3 +278,19 @@ function livereload() {
     middleware: (connect, opt) => [history()]
   });
 }
+
+// gulp tasks
+gulp.task(clean);
+gulp.task('build', gulp.series(clean, assets, gulp.parallel(scss, compile), index));
+gulp.task('serve', gulp.parallel(watch, livereload));
+gulp.task("doc", gulp.series(cleandocs, typedoc));
+gulp.task(index);
+gulp.task(assets);
+gulp.task(compile);
+gulp.task(server);
+gulp.task('default', function() {
+    console.log('********* GULP BUILD SYSTEM *********');
+    console.log('Usage: ');
+    console.log('       gulp build - creates dev/production build');
+    console.log('       gulp serve - starts up the server accessible at http://localhost:' + env.PORT);
+});
