@@ -30,16 +30,15 @@
 
 var del = require('del');
 var gulp = require('gulp');
-var path = require('path');
 // var wrap = require("gulp-wrap");
 var exec = require('child_process').exec;
+var path = require('path');
 var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
 var karma = require('karma');
 var merge = require('merge-stream');
 // var strip = require('gulp-strip-comments')
-// var filter = require('gulp-filter');
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 var webdriver = require('gulp-protractor').webdriver_update;
@@ -167,9 +166,15 @@ function ts(filesRoot, filesGlob, filesDest, project) {
   var title = arguments.callee.caller.name;
 
   // var result = gulp.src([...filesGlob, ...paths.typings])
-  var filesGlobal = gulp.src([...filesGlob])
+
+  var filesGlobal = gulp.src(filesGlob)
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
+    .pipe(plugins.replace(/\/\/ @precompile[^]*\/\/ @endprecompile/g, ''))
+    .pipe(plugins.replace(/\/\/ @uncomment /g, ''));
+    // .pipe(gulp.dest(filesDest));
+
+  // return filesGlobal;
 
   var tsFiles = merge(filesGlobal, gulp.src([...paths.typings]))
     .pipe(plugins.preprocess({

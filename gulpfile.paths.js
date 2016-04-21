@@ -8,7 +8,8 @@ let baseLibs = [
   'node_modules/angular2/bundles/angular2.dev.js',
   'node_modules/angular2/bundles/router.dev.js',
   'node_modules/angular2/bundles/http.dev.js',
-  'node_modules/lodash/index.js'
+  'node_modules/lodash/index.js',
+  'node_modules/immutable/dist/immutable.js'
 ];
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
   ],
 
   map: [
-   
+
   ],
 
   dev: {
