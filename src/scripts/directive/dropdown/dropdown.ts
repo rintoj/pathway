@@ -39,12 +39,12 @@ export class Dropdown {
         };
     }
 
-    toggleDropdown() {
+    toggleDropdown(): void {
         this.showDropdown = !this.showDropdown;
     }
 
-    selectItem(item: DropdownOption) {
-        let changed = this.selectedItem !== item;
+    selectItem(item: DropdownOption): void {
+        let changed: boolean = this.selectedItem !== item;
 
         this.selectedItem = item;
         this.hide();
@@ -53,8 +53,7 @@ export class Dropdown {
         }
     }
 
-    hide() {
+    hide(): void {
         this.showDropdown = false;
-        // this.change.next(this.options);
     }
 }

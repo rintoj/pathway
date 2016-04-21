@@ -46,7 +46,7 @@ import {AppStateStore} from './store/app-state.store';
 import {ProjectlogStore} from './store/projectlog.store';
 import {UserStore} from './store/user.store';
 
-import {DataService} from './service/data.service';
+// import {DataService} from './service/data.service';
 
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/map';
@@ -103,7 +103,7 @@ bootstrap(AppComponent, [
   provide('RestServiceOptions', { useValue: Config.REST_SERVICE_OPTIONS }),
   provide('DataServiceOptions', { useValue: Config.DATA_SERVICE_OPTIONS }),
   provide('DataService', { useClass: RestServiceWithOAuth2 }),
-  provide('OfflineDataService', { useClass: DataService }),
+  // provide('OfflineDataService', { useClass: DataService }),
   provide(LocationStrategy, { useClass: HashLocationStrategy }),
   provide(Dispatcher, { useValue: new Dispatcher(Config.INITIAL_STATE) }),
   provide(ApplicationStateObservable, { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })

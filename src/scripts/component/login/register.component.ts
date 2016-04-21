@@ -98,7 +98,7 @@ export class RegisterComponent {
 
   constructor(private builder: FormBuilder, private dispatcher: Dispatcher, private stateObservable: ApplicationStateObservable) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
     this.name = new Control('Rinto Jose', Validators.compose([Validators.required, this.isValidName]));
     this.userId = new Control('rintoj@gmail.com', Validators.compose([Validators.required, this.isValidEmail]),
@@ -119,7 +119,7 @@ export class RegisterComponent {
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.loading = true;
     this.dispatcher.next(new CreateUserAction({
       name: this.name.value,
@@ -180,7 +180,7 @@ export class RegisterComponent {
     return null;
   }
 
-  private checkIfEqual(group: ControlGroup) {
+  private checkIfEqual(group: ControlGroup): any {
     if (!this.password || !this.confirmation) {
       return null;
     }

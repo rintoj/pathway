@@ -94,11 +94,11 @@ export class ProjectlogItemComponent {
 
     @Output() statusUpdate: EventEmitter<Projectlog> = new EventEmitter<Projectlog>();
 
-    private fireStatusUpdate() {
+    private fireStatusUpdate(): void {
         this.statusUpdate.next(this.item);
     }
 
-    get item() {
+    get item(): Projectlog {
         return this._item;
     }
 
@@ -111,7 +111,7 @@ export class ProjectlogItemComponent {
         };
     }
 
-    get statusItem() {
+    get statusItem(): any {
         for (var item of this.statusOptions) {
             if (item.text === this.item.status) {
                 return item;
@@ -119,7 +119,7 @@ export class ProjectlogItemComponent {
         }
     }
 
-    toggleOpen(event: any) {
+    toggleOpen(event: any): void {
         event.stopPropagation();
         if (!this.item.uiState.editMode) {
             this.item.uiState.open = !this.item.uiState.open;
@@ -127,13 +127,13 @@ export class ProjectlogItemComponent {
         }
     }
 
-    toggleSelection(event: any) {
+    toggleSelection(event: any): void {
         event.stopPropagation();
         this.item.uiState.selected = !this.item.uiState.selected;
         this.fireStatusUpdate();
     }
 
-    toggleEdit(event: any) {
+    toggleEdit(event: any): void {
         event.stopPropagation();
         if (this.item.uiState.editMode) {
             if (this.changed) {
@@ -152,11 +152,11 @@ export class ProjectlogItemComponent {
         this.item.uiState.editMode = !this.item.uiState.editMode;
     }
 
-    save() {
+    save(): void {
         // this.service.update(this.item).then(function() { console.log('done'); });
     }
 
-    switchToEditMode(event: any) {
+    switchToEditMode(event: any): void {
         event.stopPropagation();
         if (!this.item.uiState.editMode) {
             this.item.uiState.open = true;
@@ -164,11 +164,11 @@ export class ProjectlogItemComponent {
         }
     }
 
-    preventEvent(event: any) {
+    preventEvent(event: any): void {
         event.stopPropagation();
     }
 
-    processKeypress(event: any) {
+    processKeypress(event: any): void {
         console.log(event.which);
         if (event.which === 27) { // escape key
             this.toggleEdit(event);

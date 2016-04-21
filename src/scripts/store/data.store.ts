@@ -12,7 +12,7 @@ export abstract class DataStore<M>  {
     this.registerForActions(dispatcher);
   }
 
-  registerForActions(dispatcher: Dispatcher) {
+  registerForActions(dispatcher: Dispatcher): void {
     // Not implemented
   }
 

@@ -111,31 +111,31 @@ export class HeaderComponent {
     private stateObservable: ApplicationStateObservable
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
   }
 
-  toggleDropdown() {
+  toggleDropdown(): void {
     this.showDropdown = !this.showDropdown;
   }
 
-  toggleMenu() {
+  toggleMenu(): void {
     this.showMenu = !this.showMenu;
   }
 
-  selectProject(event: any) {
+  selectProject(event: any): void {
     this.selectedProject = event.target.innerText;
   }
 
-  logout() {
+  logout(): void {
     this.dispatcher.next(new LogoutAction()).subscribe(() => this.router.navigate(['/Login']));
   }
 
-  toggleUserProfile() {
+  toggleUserProfile(): void {
     this.openUserProfile = !this.openUserProfile;
   }
 
-  get userName() {
+  get userName(): string {
     return this.state && this.state.user && this.state.user.name && this.state.user.name.split(' ')[0];
   }
 

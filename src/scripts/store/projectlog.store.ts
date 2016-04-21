@@ -18,7 +18,7 @@ export class ProjectlogStore extends DataStore<Projectlog> {
     super(dispatcher);
   }
 
-  protected subscribeToDispatcher(dispatcher: Dispatcher) {
+  protected subscribeToDispatcher(dispatcher: Dispatcher): void {
     dispatcher.subscribe([new FetchProjectlogAction(null)], this.fetchProjectlog.bind(this));
     dispatcher.subscribe([new CreateProjectlogAction(null)], this.createProjectlog.bind(this));
     dispatcher.subscribe([new DeleteProjectlogAction(null)], this.deleteProjectlog.bind(this));
@@ -52,7 +52,7 @@ export class ProjectlogStore extends DataStore<Projectlog> {
   }
 
   protected mapResponse(response: Response, page: Page<any>): ApplicationState {
-    var json = response.json();
+    var json: any = response.json();
 
     let nextPage: Page<Projectlog> = page ? page.setTotalItems(json.hits.total) : new Page<Projectlog>(json.hits.total);
     let data: Projectlog[] = json.hits.hits.map((item: any) => {

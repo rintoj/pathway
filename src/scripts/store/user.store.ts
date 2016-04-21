@@ -42,7 +42,7 @@ export class UserStore {
     this.subscribeToDispatcher(dispatcher);
   }
 
-  private subscribeToDispatcher(dispatcher: Dispatcher) {
+  private subscribeToDispatcher(dispatcher: Dispatcher): void {
     dispatcher.subscribe([new LoginAction(null)], this.login.bind(this));
     dispatcher.subscribe([new LogoutAction()], this.logout.bind(this));
     dispatcher.subscribe([new ValidateUserAction()], this.validateUser.bind(this));
@@ -93,7 +93,7 @@ export class UserStore {
 
     return this.dataService.requestWithBasicAuth(`${this.url}/user`, RequestMethod.Get, null, { userId: state.user.userId })
       .map((response: Response): ApplicationState => {
-        var json = response.json()[0];
+        var json: any = response.json()[0];
         state.user = {
           id: json._id,
           name: json.name,

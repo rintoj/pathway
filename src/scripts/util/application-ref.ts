@@ -27,7 +27,7 @@ import {ComponentRef} from 'angular2/core';
 
 let globalApplicationRef: ComponentRef;
 
-export const applicationRef = (appRef: ComponentRef = undefined): ComponentRef => {
+export const applicationRef: Function = (appRef: ComponentRef = undefined): ComponentRef => {
   if (!appRef) {
     return globalApplicationRef;
   }

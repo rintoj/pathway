@@ -27,7 +27,7 @@ export class DialogBox {
     this.show = true;
   }
 
-  hide() {
+  hide(): void {
     this.show = false;
     this.autoHide.next(this.show);
   }

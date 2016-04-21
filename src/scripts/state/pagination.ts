@@ -81,7 +81,7 @@ export class Page<R> {
     return new Page<R>(this.totalItems, this.pageSize, this.currentPage, this.filters);
   }
 
-  merge(nextPage: Page<R>) {
+  merge(nextPage: Page<R>): void {
     if (nextPage.totalItems !== undefined) {
       this.totalItems = nextPage.totalItems;
     }

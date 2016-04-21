@@ -37,12 +37,12 @@ export class RestServiceWithOAuth2 extends BaseRestService {
   }
 
   authenticate(userName: string, password: string): Observable<AuthInfo> {
-    var headers = new Headers();
+    var headers: Headers = new Headers();
     headers.append('Cache-Control', 'no-cache');
     headers.append('Content-Type', 'application/x-www-form-urlencoded');
     headers.append('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
 
-    let options = new RequestOptions({
+    let options: RequestOptions = new RequestOptions({
       method: RequestMethod.Post,
       url: this.options.authUrl || `${this.options.baseUrl}/oauth2/token`,
       body: this.serialize({
@@ -76,10 +76,10 @@ export class RestServiceWithOAuth2 extends BaseRestService {
   }
 
   revokeAuthentication(): Observable<any> {
-    var headers = new Headers();
+    var headers: Headers = new Headers();
     headers.append('Cache-Control', 'no-cache');
     headers.append('Content-Type', 'application/json');
-    let options = new RequestOptions({
+    let options: RequestOptions = new RequestOptions({
       method: RequestMethod.Post,
       url: this.options.revokeAuthUrl || `${this.options.baseUrl}/oauth2/revoke`,
       headers: headers
@@ -121,7 +121,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     })));
   }
 
-  httpRequestWithBasicAuth(options: RequestOptions) {
+  httpRequestWithBasicAuth(options: RequestOptions): Observable<Response> {
     if (this.options.clientId && this.options.clientSecret) {
       options.headers.set('Content-Type', 'application/x-www-form-urlencoded');
       options.headers.set('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
@@ -129,7 +129,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     return this.httpRequest(options);
   }
 
-  httpRequestWithAuth(options: RequestOptions) {
+  httpRequestWithAuth(options: RequestOptions): Observable<Response> {
     if (this.options.accessToken && this.options.accessToken.token) {
       options.headers.set('Authorization', 'Bearer ' + this.options.accessToken.token);
     }

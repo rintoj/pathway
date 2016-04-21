@@ -20,7 +20,7 @@ export class Scroller {
     infiniteScrollDistance: number,
     infiniteScrollParent: any
     ) {
-    let THROTTLE_MILLISECONDS = 300;
+    let THROTTLE_MILLISECONDS: any = 300;
     this.windowElement = $window;
     this.infiniteScrollCallback = infiniteScrollCallback;
     this.$interval = $interval;
@@ -37,17 +37,17 @@ export class Scroller {
     // if (attrs.infiniteScrollImmediateCheck != null) {
     // 	immediateCheck = scope.$eval(attrs.infiniteScrollImmediateCheck);
     // }
-    let _self = this;
+    let _self: any= this;
     this.handleInfiniteScrollDisabled(false);
     this.changeContainer(_self.windowElement);
-    this.checkInterval = setInterval((function() {
+    this.checkInterval = setInterval((function(): any {
       if (_self.immediateCheck) {
         return _self.handler();
       }
     }), 0);
   }
 
-  height(elem: any) {
+  height(elem: any): any {
     // elem = elem.nativeElement;
     if (isNaN(elem.offsetHeight)) {
       return elem.document.documentElement.clientHeight;
@@ -56,7 +56,7 @@ export class Scroller {
     }
   }
 
-  offsetTop(elem: any) {
+  offsetTop(elem: any): any {
     // elem = elem.nativeElement;
     if (!elem.getBoundingClientRect) { // || elem.css('none')) {
       return;
@@ -64,7 +64,7 @@ export class Scroller {
     return elem.getBoundingClientRect().top + this.pageYOffset(elem);
   }
 
-  pageYOffset(elem: any) {
+  pageYOffset(elem: any): any {
     // elem = elem.nativeElement;
     if (isNaN(window.pageYOffset)) {
       return elem.document.documentElement.scrollTop;
@@ -73,8 +73,8 @@ export class Scroller {
     }
   }
 
-  handler() {
-    var containerBottom, containerTopOffset, elementBottom, remaining, shouldScroll;
+  handler(): any {
+    var containerBottom: any, containerTopOffset: any, elementBottom: any, remaining: any, shouldScroll: any;
     if (this.container === this.windowElement) {
       containerBottom = this.height(this.container) + this.pageYOffset(this.container.document.documentElement);
       elementBottom = this.offsetTop(this.$elementRef.nativeElement) + this.height(this.$elementRef.nativeElement);
@@ -111,21 +111,21 @@ export class Scroller {
     }
   }
 
-  throttle(func: any, wait: any) {
-    var later, previous, timeout;
-    var _self = this;
+  throttle(func: any, wait: any): any {
+    var later: any, previous: any, timeout: any;
+    var _self: any = this;
     timeout = null;
     previous = 0;
-    later = function() {
-      var context;
+    later = function(): any {
+      var context: any;
       previous = new Date().getTime();
       clearInterval(timeout);
       timeout = null;
       func.call(_self);
       return context = null;
     };
-    return function() {
-      var now, remaining;
+    return function(): any {
+      var now: any, remaining: any;
       now = new Date().getTime();
       remaining = wait - (now - previous);
       if (remaining <= 0) {
@@ -142,11 +142,11 @@ export class Scroller {
     };
   }
 
-  handleInfiniteScrollDistance(v: any) {
+  handleInfiniteScrollDistance(v: any): any {
     return this.scrollDistance = parseFloat(v) || 0;
   }
 
-  changeContainer(newContainer: any) {
+  changeContainer(newContainer: any): any {
     // if (this.container != null) {
     // this.container.unbind('scroll', this.handler);
     // }
@@ -156,7 +156,7 @@ export class Scroller {
     }
   }
 
-  handleInfiniteScrollDisabled(v: any) {
+  handleInfiniteScrollDisabled(v: any): any {
     this.scrollEnabled = !v;
     // if (this.scrollEnabled && checkWhenEnabled) {
     // 	checkWhenEnabled = false;

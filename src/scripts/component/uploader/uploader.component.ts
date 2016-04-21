@@ -109,14 +109,14 @@ export class UploaderComponent {
   }
 
   private partition(items: Array<any>, size: number): any[] {
-    var p = [];
-    for (var i = Math.floor(items.length / size); i-- > 0;) {
+    var p: any[] = [];
+    for (var i: number = Math.floor(items.length / size); i-- > 0;) {
       p[i] = items.slice(i * size, (i + 1) * size);
     }
     return p;
   }
 
-  upload() {
+  upload(): void {
     this.status = UploadStatus.UPLOADING;
     this.service.fetch(this.sampleDataUrl)
       .map((res: any) => res.json())
@@ -128,19 +128,19 @@ export class UploaderComponent {
       }, () => this.status = UploadStatus.UPLOAD_FAILED);
   }
 
-  clear() {
+  clear(): void {
     this.status = UploadStatus.CLEARING;
     this.service.delete(this.dataEndpoint)
       .subscribe(() => this.status = UploadStatus.CLEARED, () => this.status = UploadStatus.CLEAR_FAILED);
   }
 
-  close() {
+  close(): void {
     this.status = UploadStatus.DEFAULT;
     this.show = false;
     this.autoHide.next(this.show);
   }
 
-  onAutoHide() {
+  onAutoHide(): void {
     this.status = UploadStatus.DEFAULT;
     this.show = false;
     this.autoHide.next(this.show);

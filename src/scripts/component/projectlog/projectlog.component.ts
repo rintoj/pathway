@@ -71,25 +71,25 @@ export class ProjectlogComponent {
     this.loading = false;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.stateObservable.subscribe((state: ApplicationState) => this.state = state);
     // this.fetchPageAction = new Subject<Page<Projectlog>>();
     // this.fetchPageAction.debounceTime(100).subscribe((page: Page<Projectlog>) => this.requestPage(page));
     // this.refresh();
   }
 
-  create() {
+  create(): void {
     console.log('Create is yet to be implemented');
     this.dispatcher.next(new CreateProjectlogAction(null));
   }
 
-  refresh() {
+  refresh(): void {
     this.loading = true;
     this.error = undefined;
     this.fetchPageAction.next(new Page(0).setFilters(this.filters));
   }
 
-  nextPage() {
+  nextPage(): void {
     if (this.loading) {
       return null; // do nothing
     }
@@ -98,7 +98,7 @@ export class ProjectlogComponent {
     this.fetchPageAction.next(this.state.projectlogs.page.next());
   }
 
-  protected requestPage(page: Page<Projectlog>) {
+  protected requestPage(page: Page<Projectlog>): void {
     console.log('request:', page);
 
     this.dispatcher.next(new FetchProjectlogAction(page))
@@ -112,15 +112,15 @@ export class ProjectlogComponent {
       });
   }
 
-  get filters() {
+  get filters(): Object {
     return { sort: { index: { order: this.sortAsc ? 'asc' : 'desc' } } };
   }
 
-  showUploadPopup() {
+  showUploadPopup(): void {
     this.showUploader = true;
   }
 
-  toggleAll() {
+  toggleAll(): void {
     this.selectAllOn = !this.selectAllOn;
     // for (var item of this.logs) {
     // 	item.uiState.selected = this.selectAllOn;
@@ -128,17 +128,17 @@ export class ProjectlogComponent {
     // this.selectedCount = this.selectAllOn ? this.logs.length : 0;
   }
 
-  toggleSort() {
+  toggleSort(): void {
     this.sortAsc = !this.sortAsc;
     this.refresh();
   }
 
-  onItemUpdate(item: Projectlog) {
+  onItemUpdate(item: Projectlog): void {
     this.selectedCount += item.uiState.selected ? 1 : -1;
     // this.selectAllOn = this.selectedCount === this.logs.length;
   }
 
-  deleteSelected() {
+  deleteSelected(): void {
     this.dispatcher.next(new DeleteProjectlogAction(null));
     // this.logs = this.logs.filter((item: Projectlog) => { return item.uiState.selected === false; });
   }

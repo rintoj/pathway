@@ -57,7 +57,7 @@ export class AppStateStore {
    * @private
    * @param {Dispatcher} dispatcher The dispatcher
    */
-  private subscribeToDispatcher(dispatcher: Dispatcher) {
+  private subscribeToDispatcher(dispatcher: Dispatcher): void {
     dispatcher.subscribe([new RestoreAppStateAction()], this.restoreAppState.bind(this));
   }
 
@@ -67,12 +67,12 @@ export class AppStateStore {
    * @protected
    * @param {*} immutableState The state
    */
-  protected saveApplicationState(immutableState: any) {
+  protected saveApplicationState(immutableState: any): void {
     let state: ApplicationState = immutableState.toJS ? immutableState.toJS() : immutableState;
     console.log(state);
     if (state.ui.restorePending === false) {
       console.log('Saving application state', state);
-      let applicationId = btoa(Config.APPLICATION_NAME);
+      let applicationId: string = btoa(Config.APPLICATION_NAME);
       localStorage.setItem(applicationId, btoa(JSON.stringify(state)));
     }
   }
@@ -87,8 +87,8 @@ export class AppStateStore {
    */
   protected restoreAppState(currentState: ApplicationState, action: RestoreAppStateAction): Observable<ApplicationState> {
     return Observable.create((observer: Observer<ApplicationState>) => {
-      let applicationId = btoa(Config.APPLICATION_NAME);
-      let applicationState = localStorage.getItem(applicationId);
+      let applicationId: string = btoa(Config.APPLICATION_NAME);
+      let applicationState: string = localStorage.getItem(applicationId);
 
       if (applicationState) {
         let state: ApplicationState = JSON.parse(atob(applicationState));

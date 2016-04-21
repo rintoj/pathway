@@ -54,9 +54,9 @@ export class BaseRestService implements RestService {
     })));
   }
 
-  httpRequest(options: RequestOptions) {
+httpRequest(options: RequestOptions): Observable<Response> {
 
-    let requestId = JSON.stringify(options);
+    let requestId: string = JSON.stringify(options);
     let request: Observable<Response> = this.requestsInFlight[requestId];
 
     // if a request is in flight ignore this request and return the previous observable
@@ -79,7 +79,7 @@ export class BaseRestService implements RestService {
   }
 
   protected serialize(object: Object): string {
-    var serializedString = [];
+    var serializedString: string[] = [];
     for (let property in object) {
       if (object.hasOwnProperty(property)) {
         serializedString.push(encodeURIComponent(property) + '=' + encodeURIComponent(object[property]));
@@ -89,7 +89,7 @@ export class BaseRestService implements RestService {
     return serializedString.join('&');
   }
 
-  protected processError(response: Response, observer: Observer<any>) {
+  protected processError(response: Response, observer: Observer<any>): Observable<any> {
     try {
       switch (response.status) {
 

@@ -6,6 +6,9 @@ import { Scroller } from './scroller';
 })
 export class InfiniteScroller {
 
+  private scroller: Scroller;
+  private _distance: number;
+
   @Input() set infiniteScrollDistance(distance: number) {
     this._distance = distance;
   }
@@ -14,15 +17,11 @@ export class InfiniteScroller {
 
   constructor(private element: ElementRef) { }
 
-  ngOnInit() {
+  ngOnInit(): any {
     this.scroller = new Scroller(window, setInterval, this.element, this.onScroll.bind(this), this._distance, {});
   }
 
-  private scroller: Scroller;
-
-  private _distance: number;
-
-  onScroll() {
+  onScroll(): any {
     this.scrolled.next({});
   }
 }

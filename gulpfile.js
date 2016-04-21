@@ -31,15 +31,15 @@
 var del = require('del');
 var gulp = require('gulp');
 var path = require('path');
-var wrap = require("gulp-wrap");
+// var wrap = require("gulp-wrap");
 var exec = require('child_process').exec;
 var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
 var karma = require('karma');
 var merge = require('merge-stream');
-var strip = require('gulp-strip-comments')
-var filter = require('gulp-filter');
+// var strip = require('gulp-strip-comments')
+// var filter = require('gulp-filter');
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
 var webdriver = require('gulp-protractor').webdriver_update;
@@ -58,7 +58,7 @@ var env = {
   get isProd() {
     return this.NODE_ENV === 'production';
   },
-  get isCompile() {
+  get isGlobalRef() {
     return false;
   },
   get paths() {
@@ -204,50 +204,34 @@ function ts(filesRoot, filesGlob, filesDest, project) {
   // }))
   // .pipe(f.restore)
 
-  var maps = paths.map.map(function(file) {
-    var fileName = path.basename(file).split('.').slice(0, -1).join('.');
-    var fileNameInUpperCase = fileName.substr(0, 1).toUpperCase() + fileName.substr(1);
-    return gulp.src(file, {
-        base: '.'
-      })
-      .pipe(strip())
-      .pipe(wrap('export var <%= data.fileName %> = <%= data.contents %>', {
-        fileName: fileNameInUpperCase
-      }, {
-        variable: 'data'
-      }))
-      .pipe(plugins.rename({
-        dirname: '',
-        extname: '.ts'
-      }))
-      .pipe(plugins.size({
-        title: 'libs'
-      }))
-      .pipe(plugins.typescript(plugins.typescript.createProject('tsconfig.json', {
-        typescript: require('typescript'),
-        isolatedModules: true
-      }))).js
-      .pipe(gulp.dest('build/libs/map'));
-  });
+  // var maps = paths.map.map(function(file) {
+  //   var fileName = path.basename(file).split('.').slice(0, -1).join('.');
+  //   var fileNameInUpperCase = fileName.substr(0, 1).toUpperCase() + fileName.substr(1);
+  //   return gulp.src(file, {
+  //       base: '.'
+  //     })
+  //     .pipe(strip())
+  //     .pipe(wrap('export var <%= data.fileName %> = <%= data.contents %>', {
+  //       fileName: fileNameInUpperCase
+  //     }, {
+  //       variable: 'data'
+  //     }))
+  //     .pipe(plugins.rename({
+  //       dirname: '',
+  //       extname: '.ts'
+  //     }))
+  //     .pipe(plugins.size({
+  //       title: 'libs'
+  //     }))
+  //     .pipe(plugins.typescript(plugins.typescript.createProject('tsconfig.json', {
+  //       typescript: require('typescript'),
+  //       isolatedModules: true
+  //     }))).js
+  //     .pipe(gulp.dest('build/libs/map'));
+  // });
 
-  var libs = merge(gulp.src(env.paths.libs.js, {
-      base: '.'
-    }))
-    // .pipe(plugins.concat('libs.js'))
-    // .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
-    // .pipe(plugins.if(env.isProd, plugins.uglify({
-    // mangle: false
-    // })))
-    .pipe(plugins.size({
-      title: 'libs'
-    }))
-    .pipe(gulp.dest('build/libs'));
 
-  // .pipe(plugins.if(env.isProd, plugins.uglify({
-  //   mangle: false
-  // })))
-
-  return merge(tsFiles, ...maps);
+  return tsFiles;
 }
 
 var tsProject = plugins.typescript.createProject('tsconfig.json', {
@@ -320,16 +304,29 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  return merge(images, fonts, data);
+  var libs = merge(gulp.src(env.paths.libs.js, {
+      base: '.'
+    }))
+    // .pipe(plugins.concat('libs.js'))
+    .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs'));
+
+  return merge(images, fonts, data, libs);
 }
 
 function index() {
   var css = ['./build/css/**/*'];
   var libs = ['./build/libs/**/*', './build/libs/!map/**/*'];
 
-  // if (env.isDev) {
-  //   libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
-  // }
+  if (env.isDev) {
+    libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
+  }
 
   var source = gulp.src([...css, ...libs], {
     read: false

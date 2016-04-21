@@ -20,7 +20,7 @@ export class BulkRestService {
   constructor(private http: Http) { }
 
   uploadSampleData(dataUrl: string, uploadUrl: string, callback?: Function): Promise<any> {
-    var defer = PromiseWrapper.completer();
+    var defer: any = PromiseWrapper.completer();
 
     this.read(dataUrl)
       .subscribe((data: any) => this.upload(uploadUrl, data).subscribe(defer.resolve, defer.reject), defer.reject);
@@ -52,7 +52,7 @@ export class BulkRestService {
   }
 
   clearData(url: string): Promise<any> {
-    var defer = PromiseWrapper.completer();
+    var defer: any = PromiseWrapper.completer();
 
     this.request(url, RequestMethod.Delete, null, null)
       .map((res: Response) => res.json())
@@ -62,7 +62,7 @@ export class BulkRestService {
   }
 
   private request(path: string, method: RequestMethod, body?: string, search?: Object): Observable<Response> {
-    let options = new RequestOptions(this.restOptions.merge({
+    let options: RequestOptions = new RequestOptions(this.restOptions.merge({
       method: method,
       url: path,
       body: body,
@@ -73,7 +73,7 @@ export class BulkRestService {
   }
 
   private serialize(obj: Object): string {
-    var str = [];
+    var str: string[] = [];
 
     for (let p in obj) {
       if (obj.hasOwnProperty(p)) {

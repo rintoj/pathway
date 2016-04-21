@@ -69,7 +69,7 @@ export class LoginComponent implements OnActivate {
     private dispatcher: Dispatcher
   ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.userId = new Control('', Validators.compose([Validators.required, this.validEmail]));
     this.password = new Control('', Validators.required);
 
@@ -79,7 +79,7 @@ export class LoginComponent implements OnActivate {
     });
   }
 
-  routerOnActivate() {
+  routerOnActivate(): void {
     if (this.routeParams.get('authorized') === 'false') {
       this.errorMessage = 'You are not authorized or session expired! Login again.';
     }
@@ -87,7 +87,7 @@ export class LoginComponent implements OnActivate {
     this.validateAuth(true);
   }
 
-  validateAuth(noError: boolean = false) {
+  validateAuth(noError: boolean = false): void {
     this.dispatcher.next(new ValidateUserAction())
       .finally(() => this.validating = false)
       .subscribe((data: any) => {
@@ -100,7 +100,7 @@ export class LoginComponent implements OnActivate {
       });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     this.loading = true;
     this.errorMessage = undefined;
     this.dispatcher.next(new LoginAction({

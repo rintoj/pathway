@@ -89,7 +89,7 @@ export class Dispatcher {
    * @param {Object} object The object needs to coverted to immutable 
    * @returns The immutable copy of the given object
    */
-  protected makeImmutable(object: Object) {
+  protected makeImmutable(object: Object): Object {
     console.time('makeImmutable');
     let immutable: any = Immutable.fromJS(object, (key: any, value: any) => {
       if (Immutable.Iterable.isIndexed(value)) {
@@ -98,7 +98,7 @@ export class Dispatcher {
 
       // convert every object into a record
       value = value.toObject();
-      let ImmutableObject = Immutable.Record(value);
+      let ImmutableObject: any = Immutable.Record(value);
       return new ImmutableObject(value);
     });
     console.timeEnd('makeImmutable');
@@ -112,7 +112,7 @@ export class Dispatcher {
    * @param {*} object (description)
    * @returns (description)
    */
-  protected makeMutable(object: any) {
+  protected makeMutable(object: any): Object {
     return object && (object.toJS ? object.toJS() : object);
   }
 
@@ -141,7 +141,7 @@ export class Dispatcher {
 	 * @returns {ApplicationState} New merged application state
 	 */
   protected mergeAppState(state: ApplicationState): ApplicationState {
-    let merger = (previous: any, next: any) => {
+    let merger: Function = (previous: any, next: any) => {
       if (Immutable.List.isList(previous) && Immutable.List.isList(next)) {
         return previous.concat(next);
       } else if (previous && previous.mergeWith) {
@@ -159,7 +159,7 @@ export class Dispatcher {
    * @param {Action[]} actions Actions as array
    * @param {ServiceFunction} callback Callback for each action
    */
-  subscribe(actions: Action[], callback: ServiceFunction) {
+  subscribe(actions: Action[], callback: ServiceFunction): void {
     for (let action of actions) {
       let actionIdentity: any = action.constructor;
       if (!this.subscriptions[actionIdentity]) {

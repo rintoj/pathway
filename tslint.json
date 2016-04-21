@@ -13,7 +13,7 @@
 		"eofline": false,
 		"forin": true,
 		"indent": [false, "tabs"],
-		"interface-name": false,
+		"interface-name": [false],
 		"jsdoc-format": true,
 		"label-position": true,
 		"label-undefined": true,
@@ -45,19 +45,20 @@
 		],
 		"quotemark": [true, "single"],
 		"radix": true,
-		"semicolon": true,
+		"semicolon": [true],
 		"triple-equals": [true, "allow-null-check"],
 		"typedef": [true,
-			"callSignature",
-			"indexSignature",
+			"call-signature",
+			"arrow-parameter",
 			"parameter",
-			"propertySignature",
-			"variableDeclarator"
+			"property-declaration",
+			"variable-declaration"
 		],
-		"typedef-whitespace": [true,
-			["callSignature", "noSpace"],
-			["catchClause", "noSpace"],
-			["indexSignature", "space"]
+		"typedef-whitespace": [true, {
+        "callSignature": "noSpace",
+        "callClause": "noSpace",
+        "indexSignature": "noSpace"
+      }
 		],
 		"use-strict": [true,
 			"check-module",

@@ -14,13 +14,11 @@ let baseLibs = [
 module.exports = {
   typings: [
     'node_modules/angular2/typings/browser.d.ts',
-    'node_modules/immutable/dist/immutable.d.ts',
     'typings/main.d.ts'
   ],
 
   map: [
-    'node_modules/immutable/dist/immutable.js',
-    'node_modules/dexie/dist/dexie.js'
+   
   ],
 
   dev: {

@@ -13,8 +13,7 @@ import {Pipe} from 'angular2/core';
 @Pipe({ name: 'truncate' })
 export class TruncatePipe {
 	transform(value: string, args: string[]): any {
-		let length = parseInt(args[0] || '20', 10),
-			suffix = args[1] || '';
+		let length: number = parseInt(args[0] || '20', 10), suffix: string = args[1] || '';
 
 		if (value.length <= length) {
 			return value;

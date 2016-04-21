@@ -37,29 +37,29 @@ export class Content {
         }
     }
 
-    handlePaste(event: any) {
+    handlePaste(event: any): boolean {
         if (!this.plainTextOnly) {
             if (event.keyCode === 13) {
                 return true;
             }
         } else {
             if (event.keyCode === 13 || event.type === 'paste') {
-                setTimeout(function() {
+                setTimeout(function (): void {
                     event.target.innerHTML = event.target.innerText;
                 }, 0);
             }
         }
     }
 
-    publishChange(event: any) {
+    publishChange(event: any): void {
         this.change.next(this.plainTextOnly ? event.target.innerText : event.target.innerHTML);
     }
 
-    publishUpdateEnd(event: any) {
+    publishUpdateEnd(event: any): void {
         this.updateend.next(this.plainTextOnly ? event.target.innerText : event.target.innerHTML);
     }
 
-    switchToEditMode() {
+    switchToEditMode(): void {
         if (this.editOnClick) {
             this.editMode = true;
         }
