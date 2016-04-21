@@ -163,19 +163,12 @@ function typedoc() {
 }
 
 function preprocessGlobalLibs() {
-  var replacements = [];
-  for (var lib in paths.globalLibs) {
-    replacements.push([new RegExp('import (.+) from \'(' + lib + ')\'', 'g'), function(match, variableName) {
-      return 'declare var ' + variableName + ': any';
-    }]);
-  }
-
-  return gulp.src(['src/scripts/**/*.ts'])
-    .pipe(plugins.batchReplace(replacements))
-    .pipe(gulp.dest('build/'));
+  return plugins.batchReplace(Object.keys(paths.globalLibs).map(function(lib) {
+    return [new RegExp('import (.+) from \'(' + lib + ')\'', 'g'), function(match, variableName) {
+      return 'declare var ' + variableName;
+    }];
+  }));
 };
-
-gulp.task('testnow', preprocessGlobalLibs);
 
 function ts(filesRoot, filesGlob, filesDest, project) {
   var title = arguments.callee.caller.name;
@@ -208,17 +201,6 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(gulp.dest(filesDest))
     .pipe(plugins.connect.reload());
 
-  // filter a subset of the files 
-  // .pipe(f)
-  // .pipe(plugins.inject(gulp.src(paths.map), {
-  //   starttag: '// inject:dev-map',
-  //   endtag: '// endinject',
-  //   transform: function(filepath, file, i, length) {
-  //     var fileName = filepath.split('/').splice(-1)[0];
-  //     return '  \'' + fileName.split('.').slice(0, -1).join('.') + '\': \'libs/map/' + fileName + '\'' + (i + 1 < length ? ',' : '');
-  //   }
-  // }))
-  // .pipe(f.restore)
 
   // var maps = paths.map.map(function(file) {
   //   var fileName = path.basename(file).split('.').slice(0, -1).join('.');
@@ -301,6 +283,12 @@ function execute(command, arguments, dir) {
   });
 }
 
+function libraryFiles() {
+  return env.paths.libs.js.concat(Object.keys(paths.globalLibs).map(function(key) {
+    return paths.globalLibs[key];
+  }));
+}
+
 function assets() {
   var images = gulp.src('src/images/**/*.{png,jpg,gif,svg}')
     .pipe(plugins.size({
@@ -320,10 +308,9 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  var libs = merge(gulp.src(env.paths.libs.js, {
+  var libs = merge(gulp.src([...libraryFiles()], {
       base: '.'
     }))
-    // .pipe(plugins.concat('libs.js'))
     .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
@@ -341,7 +328,7 @@ function index() {
   var libs = ['./build/libs/**/*', './build/libs/!map/**/*'];
 
   if (env.isDev) {
-    libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
+    libs = libraryFiles().map(lib => path.join('build/libs/', lib));
   }
 
   var source = gulp.src([...css, ...libs], {
