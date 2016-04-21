@@ -1,5 +1,5 @@
 
-import Dexie from 'dexie';
+import {Dexie} from '../libs/dexie';
 import {Inject} from 'angular2/core';
 // import {RestService} from './rest.service';
 

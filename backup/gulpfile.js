@@ -28,17 +28,15 @@
  * `$ NODE_ENV=<development/production> PORT=<port> gulp <task>`
  */
 
-var del = require('del');
 var gulp = require('gulp');
+var del = require('del');
 var path = require('path');
-var wrap = require("gulp-wrap");
 var exec = require('child_process').exec;
 var paths = require('./gulpfile.paths.js');
 var gutil = require('gulp-util');
 var spawn = require('child_process').spawn;
 var karma = require('karma');
 var merge = require('merge-stream');
-var strip = require('gulp-strip-comments')
 var filter = require('gulp-filter');
 var plugins = require('gulp-load-plugins')();
 var history = require('connect-history-api-fallback');
@@ -107,7 +105,6 @@ gulp.task('e2e', gulp.series(
 
 gulp.task('index', index);
 gulp.task('assets', assets);
-gulp.task('tsSrc', tsSrc);
 gulp.task('apiServer', apiServer);
 
 /**
@@ -171,7 +168,7 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(plugins.tslint())
     .pipe(plugins.tslint.report('verbose'))
 
-  var tsFiles = merge(filesGlobal, gulp.src([...paths.typings]))
+  var result = merge(filesGlobal, gulp.src([...paths.typings]))
     .pipe(plugins.preprocess({
       context: env
     }))
@@ -179,7 +176,13 @@ function ts(filesRoot, filesGlob, filesDest, project) {
       useRelativePaths: true
     }))
     .pipe(plugins.if(env.isDev, plugins.sourcemaps.init()))
-    .pipe(plugins.typescript(project)).js
+    .pipe(plugins.typescript(project));
+
+  const f = filter([`${filesRoot}/startup.js`], {
+    restore: true
+  });
+
+  var tsFiles = result.js
     .pipe(plugins.if(env.isProd, plugins.uglify({
       mangle: false
     })))
@@ -189,65 +192,23 @@ function ts(filesRoot, filesGlob, filesDest, project) {
     .pipe(plugins.size({
       title
     }))
+    
+    // filter a subset of the files 
+    .pipe(f)
+    .pipe(plugins.inject(gulp.src(paths.map), {
+      starttag: '  map: {',
+      endtag: '}',
+      transform: function(filepath, file, i, length) {
+        var fileName = filepath.split('/').splice(-1)[0];
+        return '  \'' + fileName.split('.').slice(0, -1).join('.') + '\': \'libs/map/' + fileName + '\'' + (i + 1 < length ? ',' : '');
+      }
+    }))
+    .pipe(f.restore)
+    
     .pipe(gulp.dest(filesDest))
     .pipe(plugins.connect.reload());
 
-  // filter a subset of the files 
-  // .pipe(f)
-  // .pipe(plugins.inject(gulp.src(paths.map), {
-  //   starttag: '// inject:dev-map',
-  //   endtag: '// endinject',
-  //   transform: function(filepath, file, i, length) {
-  //     var fileName = filepath.split('/').splice(-1)[0];
-  //     return '  \'' + fileName.split('.').slice(0, -1).join('.') + '\': \'libs/map/' + fileName + '\'' + (i + 1 < length ? ',' : '');
-  //   }
-  // }))
-  // .pipe(f.restore)
-
-  var maps = paths.map.map(function(file) {
-    var fileName = path.basename(file).split('.').slice(0, -1).join('.');
-    var fileNameInUpperCase = fileName.substr(0, 1).toUpperCase() + fileName.substr(1);
-    return gulp.src(file, {
-        base: '.'
-      })
-      .pipe(strip())
-      .pipe(wrap('export var <%= data.fileName %> = <%= data.contents %>', {
-        fileName: fileNameInUpperCase
-      }, {
-        variable: 'data'
-      }))
-      .pipe(plugins.rename({
-        dirname: '',
-        extname: '.ts'
-      }))
-      .pipe(plugins.size({
-        title: 'libs'
-      }))
-      .pipe(plugins.typescript(plugins.typescript.createProject('tsconfig.json', {
-        typescript: require('typescript'),
-        isolatedModules: true
-      }))).js
-      .pipe(gulp.dest('build/libs/map'));
-  });
-
-  var libs = merge(gulp.src(env.paths.libs.js, {
-      base: '.'
-    }))
-    // .pipe(plugins.concat('libs.js'))
-    // .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
-    // .pipe(plugins.if(env.isProd, plugins.uglify({
-    // mangle: false
-    // })))
-    .pipe(plugins.size({
-      title: 'libs'
-    }))
-    .pipe(gulp.dest('build/libs'));
-
-  // .pipe(plugins.if(env.isProd, plugins.uglify({
-  //   mangle: false
-  // })))
-
-  return merge(tsFiles, ...maps);
+  return tsFiles;
 }
 
 var tsProject = plugins.typescript.createProject('tsconfig.json', {
@@ -320,16 +281,42 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  return merge(images, fonts, data);
+  var libs = gulp.src(env.paths.libs.js, {
+      base: '.'
+    })
+    .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs'));
+
+  var maps = gulp.src(paths.map, {
+      base: '.'
+    })
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.rename({
+      dirname: ''
+    }))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs/map'));
+
+  return merge(images, fonts, libs, maps, data);
 }
 
 function index() {
   var css = ['./build/css/**/*'];
   var libs = ['./build/libs/**/*', './build/libs/!map/**/*'];
 
-  // if (env.isDev) {
-  //   libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
-  // }
+  if (env.isDev) {
+    libs = env.paths.libs.js.map(lib => path.join('build/libs/', lib))
+  }
 
   var source = gulp.src([...css, ...libs], {
     read: false

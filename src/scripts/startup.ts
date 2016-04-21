@@ -38,6 +38,8 @@ System.config({
     }
   },
   map: {
+    // inject:dev-map
+    // endinject
   }
 });
 
@@ -50,6 +52,8 @@ System.config({
     'js/app.js': ['app']
   },
   map: {
+    // inject:prod-map
+    // endinject
   }
 });
 
