@@ -27,6 +27,15 @@
 var objectPath = require("object-path");
 var PropertiesReader = require('properties-reader');
 
+function processValue (value) {
+  
+  if(/^{.+}$/.test((value + "").trim())) {
+    return JSON.parse(value);
+  }
+  
+  return value;
+}
+
 /**
  * Read properties and product the nested object structure.
  * 
@@ -43,7 +52,7 @@ module.exports = function readProperties(propertiesFile) {
   
   // parse and create object structure
   reader.each(function(key, value) {
-    objectPath.set(properties, key, reader.get(key));
+    objectPath.set(properties, key, processValue(reader.get(key)));
   });
 
   // return the object structure

@@ -108,7 +108,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
     });
   }
 
-  // Create the model for performing authentication. The current implementation is using database models 'users', 'clients' and 'tokens'      
+  /*
+   * Create the model for performing authentication. The current implementation is using 
+   * database models 'users', 'clients' and 'tokens'
+   */
   var model = {
 
     /**
@@ -147,7 +150,10 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
         var refreshToken = {
           refreshToken: item.token,
           clientId: item.clientId,
-          userId: item.userId,
+          user: {
+            id: item.userId,
+            roles: item.roles
+          },
           expires: item.expires
         };
         callback(null, refreshToken);

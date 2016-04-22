@@ -28,6 +28,7 @@ var path = require('path');
 var logger = require('morgan');
 var express = require('express');
 var mongoose = require('mongoose');
+var resources = require('./services/resources');
 var bodyParser = require('body-parser');
 var projectlog = require('./services/projectlog');
 var cookieParser = require('cookie-parser');
@@ -47,6 +48,9 @@ console.log('=================================');
 var apis = {
   '/projectlog': projectlog.router
 };
+
+// parse end point configurations
+resources.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
 
 // connect to the databse, throw error and come out if db is not available
 mongoose.connect(properties.database.url, function(error) {
@@ -85,6 +89,9 @@ if (properties.api.cors.enabled === true) {
 
 // enable authentication module
 if (properties.api.auth && properties.api.auth.enabled === true) {
+  // set api rules
+  properties.api.auth.rules = (properties.api.auth.rules || []).concat(resources.rules);
+  // create auth server
   app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth2', properties.api.auth);
 }
 
@@ -137,4 +144,3 @@ var server = app.listen(app.get('port'), function() {
 
 // export module
 module.exports = app;
-
