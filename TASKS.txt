@@ -1,0 +1,10 @@
+Server Side:
+	☐ Refresh token is not working -- server crashes
+	☐ Implement generic api module through configuration 
+		☐ Setup configuration for generic api models
+		☐ Implement apis 
+	☐ Implement bulk operations 
+	
+Client Side:
+	☐ Implement refresh token logic when access token expires
+	

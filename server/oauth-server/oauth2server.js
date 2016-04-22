@@ -147,7 +147,7 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
         var refreshToken = {
           refreshToken: item.token,
           clientId: item.clientId,
-          user: item.user,
+          userId: item.userId,
           expires: item.expires
         };
         callback(null, refreshToken);
