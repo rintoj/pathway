@@ -248,7 +248,7 @@ function index() {
 
   if (env.isDev) {
     libs = libraryFiles().map(lib => path.join('build/libs/', lib)).concat('build/js/startup.js');
-  } 
+  }
 
   var source = gulp.src([...css, ...libs], {
     read: false
@@ -256,6 +256,19 @@ function index() {
 
   return gulp.src('src/index.html')
     .pipe(plugins.inject(source, {
+      ignorePath: 'build',
+      removeTags: true,
+      addRootSlash: false
+    }))
+    .pipe(plugins.inject(gulp.src(['src/app.splash.html']), {
+      starttag: '<!-- inject:app-splash:html -->',
+      removeTags: true,
+      transform: function(filePath, file) {
+        return file.contents.toString('utf8')
+      }
+    }))
+    .pipe(plugins.inject(gulp.src(['build/css/splash.css']), {
+      starttag: '<!-- inject:app-splash:css -->',
       ignorePath: 'build',
       removeTags: true,
       addRootSlash: false
