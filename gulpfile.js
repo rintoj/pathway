@@ -43,7 +43,7 @@ function usage() {
   console.log('   gulp server   - startup the api server (make sure to start "mongodb" before executing this command)');
   console.log('   gulp clean    - clean build directory');
   console.log('   gulp doc      - generate documentation');
-  console.log('   gulp help     - show this message');
+  console.log('   gulp [help]   - show this message');
   console.log('');
   console.log('SWITCH ENVIRONMENT AND PORT: (default NODE_ENV is "development" and PORT is "8081")');
   console.log('   NODE_ENV=<development/production> PORT=<port> gulp <task>');
@@ -82,13 +82,12 @@ var env = {
 // typescript project setup
 var typescriptProject = plugins.typescript.createProject('tsconfig.json', {
   typescript: require('typescript'),
-  outFile: env.isProd ? 'app.js' : undefined
+  outFile: env.isProd ? `${config.name}-${config.version}.min.js` : undefined
 });
 
 /**
  * Definitions
  */
-
 function clean() {
   return del(['docs', 'coverage', 'build', '.karma', '.protractor']);
 }
@@ -115,7 +114,8 @@ function scss() {
     .pipe(plugins.size({
       title: 'sass'
     }))
-    .pipe(plugins.if(env.isProd, plugins.concat('app.css')))
+    .pipe(plugins.if(env.isProd, plugins.cleanCss()))
+    .pipe(plugins.if(env.isProd, plugins.concat(`${config.name}-${config.version}.min.css`)))
     .pipe(gulp.dest('build/css'))
     .pipe(plugins.connect.reload());
 }
@@ -200,6 +200,20 @@ function libraryFiles() {
   }));
 }
 
+function libs() {
+  return gulp.src(libraryFiles(), {
+      base: '.'
+    })
+    .pipe(plugins.if(env.isProd, plugins.concat(`${config.name}-lib-${config.version}.min.js`)))
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs'));
+}
+
 function assets() {
   var images = gulp.src('src/images/**/*.{png,jpg,gif,svg}')
     .pipe(plugins.size({
@@ -210,6 +224,7 @@ function assets() {
   var css = gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', {
       base: 'src/css'
     })
+    .pipe(plugins.if(env.isProd, plugins.cleanCss()))
     .pipe(gulp.dest('build/css'));
 
   var fonts = gulp.src('src/fonts/**/*.{eot,ttf,otf,woff}')
@@ -224,28 +239,16 @@ function assets() {
     }))
     .pipe(gulp.dest('build/data'));
 
-  var libs = gulp.src(libraryFiles(), {
-      base: '.'
-    })
-    .pipe(plugins.if(env.isProd, plugins.concat('libs.js')))
-    .pipe(plugins.if(env.isProd, plugins.uglify({
-      mangle: false
-    })))
-    .pipe(plugins.size({
-      title: 'libs'
-    }))
-    .pipe(gulp.dest('build/libs'));
-
-  return merge(images, css, fonts, data, libs);
+  return merge(images, css, fonts, data);
 }
 
 function index() {
   var css = ['build/css/**/*'];
-  var libs = ['build/libs/**/*'];
+  var libs = ['build/libs/**/*', 'build/js/**/*'];
 
   if (env.isDev) {
-    libs = libraryFiles().map(lib => path.join('build/libs/', lib));
-  }
+    libs = libraryFiles().map(lib => path.join('build/libs/', lib)).concat('build/js/startup.js');
+  } 
 
   var source = gulp.src([...css, ...libs], {
     read: false
@@ -268,7 +271,7 @@ function watch() {
   gulp.watch('src/scripts/**/*.{ts,css,html}', compile);
   gulp.watch('src/**/*.scss', scss);
   gulp.watch('src/index.html', index);
-  gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,js,css}', gulp.series(assets, index));
+  gulp.watch('src/**/*.{png,jpg,gif,svg,eot,ttf,otf,woff,json,css}', gulp.series(assets, index));
 }
 
 function livereload() {
@@ -282,7 +285,7 @@ function livereload() {
 
 // gulp tasks
 gulp.task(clean);
-gulp.task('build', gulp.series(clean, assets, gulp.parallel(scss, compile), index));
+gulp.task('build', gulp.series(clean, assets, libs, gulp.parallel(scss, compile), index));
 gulp.task('serve', gulp.parallel(watch, livereload));
 gulp.task("doc", gulp.series(cleandocs, typedoc));
 gulp.task(index);

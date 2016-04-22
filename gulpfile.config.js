@@ -36,6 +36,9 @@ var baseLibs = [
 ];
 
 module.exports = {
+  name: 'pathway',
+  version: 'a0.1',
+  
   typings: [
     'node_modules/angular2/typings/browser.d.ts',
     'typings/main.d.ts'
