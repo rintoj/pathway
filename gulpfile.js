@@ -224,7 +224,6 @@ function assets() {
   var css = gulp.src('src/**/*.{css,eot,svg,ttf,woff,woff2}', {
       base: 'src/css'
     })
-    .pipe(plugins.if(env.isProd, plugins.cleanCss()))
     .pipe(gulp.dest('build/css'));
 
   var fonts = gulp.src('src/fonts/**/*.{eot,ttf,otf,woff}')
