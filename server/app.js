@@ -28,11 +28,11 @@ var path = require('path');
 var logger = require('morgan');
 var express = require('express');
 var mongoose = require('mongoose');
-var resources = require('./services/resources');
 var bodyParser = require('body-parser');
-var projectlog = require('./services/projectlog');
+// var projectlog = require('./services/projectlog');
 var cookieParser = require('cookie-parser');
 var OAuth2Server = require('./oauth-server/oauth2server');
+var serviceManager = require('./services/service-manager');
 var propertiesReader = require('./util/propertiesReader');
 
 // read properties.
@@ -44,13 +44,8 @@ console.log('=================================');
 console.log(JSON.stringify(properties, null, 2));
 console.log('=================================');
 
-// api configuration
-var apis = {
-  '/projectlog': projectlog.router
-};
-
 // parse end point configurations
-resources.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
+serviceManager.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
 
 // connect to the databse, throw error and come out if db is not available
 mongoose.connect(properties.database.url, function(error) {
@@ -90,16 +85,13 @@ if (properties.api.cors.enabled === true) {
 // enable authentication module
 if (properties.api.auth && properties.api.auth.enabled === true) {
   // set api rules
-  properties.api.auth.rules = (properties.api.auth.rules || []).concat(resources.rules);
+  properties.api.auth.rules = (properties.api.auth.rules || []).concat(serviceManager.rules);
   // create auth server
   app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth2', properties.api.auth);
 }
 
 // register apis
-for (var api in apis) {
-  app.use(properties.api.baseUrl + api, apis[api]);
-  console.log('registered:', properties.api.baseUrl + api);
-}
+serviceManager.register(app);
 
 // return '404' error if a requested url is not found
 function handle404() {

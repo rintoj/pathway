@@ -517,28 +517,28 @@ var OAuth2Server = function OAuth2Server(app, baseUrl, properties) {
   });
 
   // create service end point for managing clients
-  client = new ServiceEndpoint(Client);
-  client.bind();
-  app.use(baseUrl + '/client', client.router);
+  // client = new ServiceEndpoint(Client);
+  // client.bind();
+  // app.use(baseUrl + '/client', client.router);
 
-  // create service end point for managing clients
-  user = new ServiceEndpoint(User, {
-    // post process each response and remove password from each
-    postprocess: function(requeset, response, error, item) {
-      if (item && item.password) {
-        item.password = undefined;
-        delete item.password;
-      }
-      if (item instanceof Array) {
-        for (var index in item) {
-          item[index].password = undefined;
-          delete item[index].password;
-        }
-      }
-    }
-  });
-  user.bind();
-  app.use(baseUrl + '/user', user.router);
+  // // create service end point for managing clients
+  // user = new ServiceEndpoint(User, {
+  //   // post process each response and remove password from each
+  //   postprocess: function(requeset, response, error, item) {
+  //     if (item && item.password) {
+  //       item.password = undefined;
+  //       delete item.password;
+  //     }
+  //     if (item instanceof Array) {
+  //       for (var index in item) {
+  //         item[index].password = undefined;
+  //         delete item[index].password;
+  //       }
+  //     }
+  //   }
+  // });
+  // user.bind();
+  // app.use(baseUrl + '/user', user.router);
 
   // Overrides default error handler
   app.use(function(error, req, res, next) {

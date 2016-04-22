@@ -23,26 +23,29 @@
  * SOFTWARE.
  */
 
+var ServiceEndpoint = require('./generic-service');
+
 var tab = '         ';
-var rules = [];
 var uris = {};
+var rules = [];
+var services = [];
 
 /**
  * Process schema configuration and convert into models
- * # -------- - ------------------ ----------- ----------- ----------- -----------
- * # index    - column             type        required    unique      default
- * # -------- - ------------------ ----------- ----------- ----------- -----------
- *   schema.0 = index              Number      true        true        0
- *   schema.1 = title              String      true        true        null
- * # -------- - ------------------ ----------- ----------- ----------- -----------
+ * # -------- - ------------------ ----------- ----------- ----------- ----------- -----------
+ * # index    - column             type        required    unique      default     roles
+ * # -------- - ------------------ ----------- ----------- ----------- ----------- -----------
+ *   schema.0 = index              Number      true        true        0           hidden
+ *   schema.1 = title              String      true        true        null        visible    
+ * # -------- - ------------------ ----------- ----------- ----------- ----------- -----------
  * 
  * @param resources An array in the following format
  * [
- *    "index              Number      true        true        0",
- *    "title              String      true        true        null",
- *    "description        String      false       false       null",
- *    "status             String      true        false       new",
- *    "createdDate        Date        true        false       Date.now"
+ *    "index              Number      true        true        0          false",
+ *    "title              String      true        true        null       true",
+ *    "description        String      false       false       null       true",
+ *    "status             String      true        false       new        true",
+ *    "createdDate        Date        true        false       Date.now   true"
  * ] 
  *  
  * @returns A schema object
@@ -75,6 +78,9 @@ function processSchema(resources) {
         }
       }
     }
+
+    // map roles attribute
+    schema.roles = field[5].trim() === "-" ? [] : field[5].trim().split(',');
 
     // add to the master list
     schemas[field[0]] = schema;
@@ -155,15 +161,16 @@ function processPermissions(url, permission) {
 /**
  * Process a uri configuation
  * 
+ * @param name The name of the resource
  * @param url The url of the resource
  * @param config Configuration as an object with two attributes 'schema' and 'permission'
  * {
  *     "schema": [
- *          "index              Number      true        true        0",
- *          "title              String      true        true        null",
- *          "description        String      false       false       null",
- *          "status             String      true        false       new",
- *          "createdDate        Date        true        false       Date.now"
+ *          "index              Number      true        true        0          false",
+ *          "title              String      true        true        null       true",
+ *          "description        String      false       false       null       true",
+ *          "status             String      true        false       new        true",
+ *          "createdDate        Date        true        false       Date.now   true"
  *       ]
  *     },
  *     "permission": {
@@ -174,11 +181,28 @@ function processPermissions(url, permission) {
  * 
  * @returns Returns an object with properites 'url': string, 'schema': object, and 'rules': array
  */
-function processUri(url, config) {
+function processUri(name, url, config) {
   return {
+    name: name,
     url: url,
     schema: processSchema(config.schema),
     rules: processPermissions(config.permission)
+  };
+}
+
+/**
+ * Create a service as per the configuration returned by processUri
+ * 
+ * @param app Referece to application
+ * @param config The resource configuration as object
+ * @returns An object with 'config', 'endpoint' and 'model'
+ */
+function createAndBindService(app, config) {
+  var endpoint = (new ServiceEndpoint(config)).bind();
+  app.use(config.url, endpoint.router);
+  return {
+    config: config,
+    endpoint: endpoint
   };
 }
 
@@ -226,7 +250,7 @@ module.exports = {
     ];
 
     uris = Object.keys(uriConfig).map(function(url) {
-      var config = processUri(baseUrl + '/' + url, uriConfig[url]);
+      var config = processUri(url, baseUrl + '/' + url, uriConfig[url]);
       rules = rules.concat(config.rules);
       return config;
     });
@@ -236,5 +260,17 @@ module.exports = {
     ]);
 
     console.log(JSON.stringify(uris, null, 4), JSON.stringify(rules, null, 4));
+  },
+
+  /**
+   * Register all the resources and it's endpoints
+   * 
+   * @param app Express application reference
+   */
+  register: function(app) {
+    services = uris.map(function(config) {
+      return createAndBindService(app, config);
+    });
+    return services;
   }
 };
