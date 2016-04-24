@@ -26,71 +26,17 @@ var _ = require('lodash');
 var express = require('express');
 var mongoose = require('mongoose');
 
-module.exports = function ServiceEndpoint(config) {
-  if (!config) {
-    throw 'Missing configuration attribute "config"';
+/**
+ * Creates service end point with GET, POST, PUT and DELETE methods
+ * 
+ * @param model Mongoose model to be used by the service
+ */
+module.exports = function ServiceEndpoint(model) {
+  if (!model) {
+    throw '"model" is mandatory for ServiceEndpoint';
   }
 
   this.router = express.Router();
-
-  var autoinc;
-  var apifiable;
-  var fields = [];
-  var required = [];
-
-  // get list of fields
-  fields = Object.keys(config.schema);
-  
-  // get list of required properties
-  required = fields.filter(function(name) {
-    var property = config.schema[name];
-    return property && property.index && property.index.required === true && property.index.default == null;
-  });
-
-  // get list of apifiable properties
-  apifiable = fields.filter(function(name) {
-    var property = config.schema[name];
-    return !property || !property.roles || property.roles.indexOf('hidden') < 0;
-  });
-
-  // process auto increment fields
-  autoinc = fields.filter(function(name) {
-    var property = config.schema[name];
-    var auto = property.roles && property.roles.indexOf('auto') >= 0;
-    if (auto && (property.type === 'String' || property.type === 'Date' || property.type === 'Boolean')) {
-      throw 'ERROR: Non-numeric field "' + config.name + '.' + name + '" is configured for "auto" role!';
-    }
-  });
-
-  // process id field
-  var ids = fields.filter(function(name) {
-    var property = config.schema[name];
-    return property.roles && property.roles.indexOf('id') >= 0;
-  });
-  if (ids.length > 1) {
-    throw 'ERROR: Found duplicate id fields ' + ids.join(', ') + ' for ' + config.name;
-  }
-
-  // create schema
-  this.schema = new mongoose.Schema(config.schema, {
-    toObject: {
-      virtuals: true
-    },
-    toJSON: {
-      virtuals: true
-    }
-  });
-
-  // create virual field
-  if (ids.length > 0) {
-    debugger;
-    this.schema.virtual(ids[0]).get(function() {
-      return this._id;
-    });
-  }
-
-  // create model
-  this.model = mongoose.model(config.name, this.schema);
 
   var send = function send(response, item, status, id) {
     var item = apifiable ? _.pick(item, apifiable) : item;
@@ -111,15 +57,6 @@ module.exports = function ServiceEndpoint(config) {
     response.json(reply);
   }
 
-  var preprocess = function preprocess(type, request, response) {
-    if (override.preprocess) {
-      override.preprocess(request, response);
-    }
-    if (override[type] && override[type].preprocess) {
-      override[type].preprocess(request, response);
-    }
-  }
-
   var validateInvalid = function validateInvalid(item) {
     return _.difference(Object.keys(item), fields);
   }
@@ -130,42 +67,29 @@ module.exports = function ServiceEndpoint(config) {
     });
   }
 
-  var postprocess = function postprocess(type, request, response, error, item) {
-    if (override.postprocess) {
-      override.postprocess(request, response, error, item);
-    }
-    if (override[type] && override[type].postprocess) {
-      override[type].postprocess(request, response, error, item);
-    }
-  }
+
 
   this.create = function create(request, response, next) {
 
-    // preprocess if preprocessor exists
-    preprocess("create", request, response);
-
     // validateRequired for missing fields
-    var missingFields = validateRequired(request.body);
-    if (missingFields.length > 0) {
-      return respond(response, 400, {
-        status: "validation_failed",
-        message: "Missing attribute(s): " + missingFields.join(', ')
-      });
-    }
+    // var missingFields = validateRequired(request.body);
+    // if (missingFields.length > 0) {
+    //   return respond(response, 400, {
+    //     status: "validation_failed",
+    //     message: "Missing attribute(s): " + missingFields.join(', ')
+    //   });
+    // }
 
     // validate for invalid fields
-    var invalidFields = validateInvalid(request.body);
-    if (invalidFields.length > 0) {
-      return respond(response, 400, {
-        status: "validation_failed",
-        message: "Invalid attribute(s): " + invalidFields.join(', ')
-      });
-    }
+    // var invalidFields = validateInvalid(request.body);
+    // if (invalidFields.length > 0) {
+    //   return respond(response, 400, {
+    //     status: "validation_failed",
+    //     message: "Invalid attribute(s): " + invalidFields.join(', ')
+    //   });
+    // }
 
     model.create(request.body, function(error, item) {
-
-      // postprocess if postprocessor exists
-      postprocess("create", request, response, error, item);
 
       // if there is an error 
       if (error) {
@@ -189,45 +113,21 @@ module.exports = function ServiceEndpoint(config) {
   };
 
   this.list = function list(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("list", request, response);
-
     model.find(request.query, function(error, items) {
-
-      // postprocess if postprocessor exists
-      postprocess("list", request, response, error, items);
-
       if (error) return next(error);
       response.json(items);
     });
   }
 
   this.query = function query(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("query", request, response);
-
     model.find(request.body, request.query, function(error, items) {
-
-      // postprocess if postprocessor exists
-      postprocess("query", request, response, error, items);
-
       if (error) return next(error);
       response.json(items);
     });
   };
 
   this.deleteAll = function deleteAll(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("deleteAll", request, response);
-
     model.remove(request.query, function(error, item) {
-
-      // postprocess if postprocessor exists
-      postprocess("deleteAll", request, response, error, item);
-
       if (error) return next(error);
       send(response, {
         status: "deleted",
@@ -237,54 +137,29 @@ module.exports = function ServiceEndpoint(config) {
   };
 
   this.getById = function getById(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("getById", request, response);
-
     model.findById(request.params.id, function(error, item) {
-
-      // postprocess if postprocessor exists
-      postprocess("getById", request, response, error, item);
-
       if (error) return next(error);
       send(response, item, undefined, request.params.id);
     });
   }
 
   this.updateById = function updateById(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("updateById", request, response);
-
     // validate for invalid fields
-    var invalidFields = validateInvalid(request.body);
-    if (invalidFields.length > 0) {
-      return respond(response, 400, {
-        status: "validation_failed",
-        message: "Invalid attribute(s): " + invalidFields.join(', ')
-      });
-    }
-
+    // var invalidFields = validateInvalid(request.body);
+    // if (invalidFields.length > 0) {
+    //   return respond(response, 400, {
+    //     status: "validation_failed",
+    //     message: "Invalid attribute(s): " + invalidFields.join(', ')
+    //   });
+    // }
     model.findByIdAndUpdate(request.params.id, request.body, function(error, item) {
-
-      // postprocess if postprocessor exists
-      postprocess("updateById", request, response, error, item);
-
       if (error) return next(error);
       send(response, item, "updated", request.params.id);
     });
   };
 
   this.deleteById = function deleteById(request, response, next) {
-
-    // preprocess if preprocessor exists
-    preprocess("deleteById", request, response);
-
     model.findByIdAndRemove(request.params.id, request.body, function(error, item) {
-
-      // postprocess if postprocessor exists
-      postprocess("deleteById", request, response, error, item);
-
       if (error) return next(error);
       send(response, item, "deleted", request.params.id);
     });
@@ -318,8 +193,5 @@ module.exports = function ServiceEndpoint(config) {
   }
 
   this.send = send;
-  this.respond = respond;
-  this.preprocess = preprocess;
-  this.postprocess = postprocess;
-
+  this.respond = respond;  
 }

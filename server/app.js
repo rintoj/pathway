@@ -45,7 +45,7 @@ console.log(JSON.stringify(properties, null, 2));
 console.log('=================================');
 
 // parse end point configurations
-serviceManager.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
+// serviceManager.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
 
 // connect to the databse, throw error and come out if db is not available
 mongoose.connect(properties.database.url, function(error) {
@@ -85,13 +85,15 @@ if (properties.api.cors.enabled === true) {
 // enable authentication module
 if (properties.api.auth && properties.api.auth.enabled === true) {
   // set api rules
-  properties.api.auth.rules = (properties.api.auth.rules || []).concat(serviceManager.rules);
+  // properties.api.auth.rules = (properties.api.auth.rules || []).concat(serviceManager.rules);
   // create auth server
   app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth2', properties.api.auth);
 }
 
 // register apis
-serviceManager.register(app);
+// serviceManager.register(app);
+
+// require('./services/sample-service');
 
 // return '404' error if a requested url is not found
 function handle404() {
