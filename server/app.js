@@ -24,15 +24,14 @@
  */
 
 // imports
+var _ = require('lodash');
 var path = require('path');
 var logger = require('morgan');
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-// var projectlog = require('./services/projectlog');
 var cookieParser = require('cookie-parser');
 var OAuth2Server = require('./oauth-server/oauth2server');
-var serviceManager = require('./services/service-manager');
 var propertiesReader = require('./util/propertiesReader');
 
 // read properties.
@@ -43,9 +42,6 @@ console.log('********* CONFIGURATION *********');
 console.log('=================================');
 console.log(JSON.stringify(properties, null, 2));
 console.log('=================================');
-
-// parse end point configurations
-// serviceManager.configure(properties.api.baseUrl, properties.api.resource, properties.api.uri);
 
 // connect to the databse, throw error and come out if db is not available
 mongoose.connect(properties.database.url, function(error) {
@@ -84,27 +80,23 @@ if (properties.api.cors.enabled === true) {
 
 // enable authentication module
 if (properties.api.auth && properties.api.auth.enabled === true) {
-  // set api rules
-  // properties.api.auth.rules = (properties.api.auth.rules || []).concat(serviceManager.rules);
   // create auth server
   app.oauth = new OAuth2Server(app, properties.api.baseUrl + '/oauth2', properties.api.auth);
 }
 
 // register apis
-// serviceManager.register(app);
+properties.api.services.forEach(function(service) {
+  require(service).register(app, properties.api.baseUrl);
+});
 
-// require('./services/sample-service');
-
-// return '404' error if a requested url is not found
-function handle404() {
-  app.use(function(req, res, next) {
-    res.status(404);
-    res.json({
-      status: 404,
-      message: 'Requested URL is invalid!'
-    });
+app.use(function(req, res, next) {
+  // return '404' error if a requested url is not found
+  res.status(404);
+  res.json({
+    status: 404,
+    message: 'Requested URL is invalid!'
   });
-}
+});
 
 // return '500' error any other error that couldn't be sloved to this point
 // development error handler and this will print stacktrace

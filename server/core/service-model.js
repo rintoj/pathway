@@ -26,6 +26,7 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 // var Counter = require('../models/Counter');
 var ServiceEndpoint = require('./generic-service');
+var errorHandlerRegistered = false;
 
 /**
  * Service model creates a service that can serve a collection from mongo db
@@ -42,8 +43,7 @@ var ServiceModel = function ServiceModel(context) {
   }
 
   // create model
-  context.modelSchema = new mongoose.Schema(context.schema);
-  context.model = mongoose.model(context.name, context.modelSchema);
+  context.model = mongoose.model(context.name, new mongoose.Schema(context.schema));
 
   // create generic service for the given schema and model
   context.service = new ServiceEndpoint(context.model);
@@ -54,6 +54,36 @@ var ServiceModel = function ServiceModel(context) {
   }
   // bind all the routes
   context.service.bind();
+
+  this.errorHandler = function(error, req, res, next) {
+    console.log(error);
+
+    if (error && error.errors) {
+      _.keys(error.errors).map(function(key) {
+        error.errors[key] = error.errors[key].message.replace('`', '\'')
+      });
+
+      res.status(error.status || 422);
+      return res.json({
+        message: error.message,
+        error: error.errors
+      });
+    }
+
+    res.status(error.status || 500);
+    res.json({
+      message: error.message,
+      error: error
+    });
+  };
+
+  this.register = function register(app, baseUrl) {
+    app.use(baseUrl + context.url, context.service.router);
+    if (!errorHandlerRegistered) {
+      app.use(this.errorHandler);
+      errorHandlerRegistered = true;
+    }
+  }
 };
 
 /**

@@ -1,27 +1,31 @@
-var ServiceModel = require('./service-model');
-module.exports = ServiceModel.create("Person", {
+var ServiceModel = require('../core/service-model');
+module.exports = ServiceModel.create("Story", {
 
-  url: '/person',
+  url: '/story',
 
-  idField: "name",
+  idField: "index",
   userSpace: true,
 
   schema: {
-    name: {
-      type: String,
-      default: 'hahaha'
-    },
-    age: {
+    index: {
       type: Number,
-      min: 18,
-      index: true
+      required: true,
+      min: 1
     },
-    bio: {
+    title: {
       type: String,
-      match: /[a-z]/
+      required: true
     },
-    date: {
+    description: String,
+    status: {
+      type: String,
+      required: true,
+      default: 'new',
+      enum: ['new', 'progress', 'done', 'hold']
+    },
+    createdDate: {
       type: Date,
+      required: true,
       default: Date.now
     }
   },

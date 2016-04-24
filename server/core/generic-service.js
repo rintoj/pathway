@@ -71,24 +71,6 @@ module.exports = function ServiceEndpoint(model) {
 
   this.create = function create(request, response, next) {
 
-    // validateRequired for missing fields
-    // var missingFields = validateRequired(request.body);
-    // if (missingFields.length > 0) {
-    //   return respond(response, 400, {
-    //     status: "validation_failed",
-    //     message: "Missing attribute(s): " + missingFields.join(', ')
-    //   });
-    // }
-
-    // validate for invalid fields
-    // var invalidFields = validateInvalid(request.body);
-    // if (invalidFields.length > 0) {
-    //   return respond(response, 400, {
-    //     status: "validation_failed",
-    //     message: "Invalid attribute(s): " + invalidFields.join(', ')
-    //   });
-    // }
-
     model.create(request.body, function(error, item) {
 
       // if there is an error 
@@ -144,15 +126,7 @@ module.exports = function ServiceEndpoint(model) {
   }
 
   this.updateById = function updateById(request, response, next) {
-    // validate for invalid fields
-    // var invalidFields = validateInvalid(request.body);
-    // if (invalidFields.length > 0) {
-    //   return respond(response, 400, {
-    //     status: "validation_failed",
-    //     message: "Invalid attribute(s): " + invalidFields.join(', ')
-    //   });
-    // }
-    model.findByIdAndUpdate(request.params.id, request.body, function(error, item) {
+    model.findByIdAndUpdate(request.params.id, request.body, { runValidators: true }, function(error, item) {
       if (error) return next(error);
       send(response, item, "updated", request.params.id);
     });
@@ -164,7 +138,7 @@ module.exports = function ServiceEndpoint(model) {
       send(response, item, "deleted", request.params.id);
     });
   };
-
+  
   this.bind = function bind() {
 
     /* PUT / */

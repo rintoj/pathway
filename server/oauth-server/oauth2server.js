@@ -30,7 +30,7 @@ var Client = require('./client');
 var Base64 = require('../util/Base64');
 var express = require('express');
 var oauthserver = require('oauth2-server');
-var ServiceEndpoint = require('../services/generic-service');
+var ServiceEndpoint = require('../core/generic-service');
 
 /**
  * OAuth2Server enables oAuth 2 security to the given path. This implementation is based on 'npm-oauth2-server' module
