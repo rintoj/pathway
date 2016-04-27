@@ -26,7 +26,10 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 // var Counter = require('../models/Counter');
 var ServiceEndpoint = require('./generic-service');
-var errorHandlerRegistered = false;
+var autoIncrement = require('mongoose-auto-increment');
+
+var autoIncrementRegistered = false;
+var preconfigured = false;
 
 /**
  * Service model creates a service that can serve a collection from mongo db
@@ -35,6 +38,7 @@ var errorHandlerRegistered = false;
  */
 var ServiceModel = function ServiceModel(context) {
 
+  // basic validation
   if (!context.name || context.name === '') {
     throw '"name" is mandatory!';
   }
@@ -42,8 +46,61 @@ var ServiceModel = function ServiceModel(context) {
     throw '"schema" is mandatory!';
   }
 
+  // setting up user specific collection
+  if (context.userSpecific) {
+    var userField = 'user';
+    if (typeof context.userSpecific === 'object' && context.userSpecific.field) {
+      userField = context.userSpecific.field;
+    }
+    context.schema[userField] = {
+      type: String,
+      required: true
+    };
+  }
+
+  // create schema
+  context.modelSchema = new mongoose.Schema(context.schema, {
+    strict: true,
+    timestamps: context.timestamps
+  });
+  context.modelSchema.set('toJSON', {
+    getters: true,
+    virtuals: true
+  });
+
+  // map custom id field
+  if (context.idField) {
+    context.modelSchema.virtual(context.idField).get(function() {
+      return this._id;
+    });
+    context.modelSchema.virtual(context.idField).set(function(id) {
+      this._id = id;
+    });
+  }
+
   // create model
-  context.model = mongoose.model(context.name, new mongoose.Schema(context.schema));
+  context.model = mongoose.model(context.name, context.modelSchema);
+
+  // setup autoincrement feature
+  if (!autoIncrementRegistered) {
+    autoIncrement.initialize(mongoose.connection);
+    autoIncrementRegistered = true;
+  }
+
+  // validate auto increment fields
+  var autoIncrementFields = _.filter(_.keys(context.schema), function(field) {
+    if (context.schema[field].type !== Number && context.schema[field].autoIncrement) {
+      throw `Schema Error: ${context.name}.${field} is not a number field. autoIncrement = true is an invalid configuration!`
+    }
+    if (context.schema[field].autoIncrement) {
+      context.model.schema.plugin(autoIncrement.plugin, {
+        model: context.name,
+        field: field,
+        startAt: Math.max(context.schema[field].startAt || 0, context.schema[field].min || 1),
+        incrementBy: context.schema[field].incrementBy || 1
+      });
+    }
+  });
 
   // create generic service for the given schema and model
   context.service = new ServiceEndpoint(context.model);
@@ -55,33 +112,52 @@ var ServiceModel = function ServiceModel(context) {
   // bind all the routes
   context.service.bind();
 
-  this.errorHandler = function(error, req, res, next) {
-    console.log(error);
+  /**
+   * Register this model as a service
+   * 
+   * @param app Express application instance
+   * @param baseUrl The base url for the api
+   */
+  this.register = function register(app, baseUrl) {
 
-    if (error && error.errors) {
-      _.keys(error.errors).map(function(key) {
-        error.errors[key] = error.errors[key].message.replace('`', '\'')
-      });
-
-      res.status(error.status || 422);
-      return res.json({
-        message: error.message,
-        error: error.errors
+    if (!preconfigured) {
+      app.use(function interceptor(request, response, next) {
+        debugger;
+        console.log("INTERCEPTOR");
+        next();
       });
     }
 
-    res.status(error.status || 500);
-    res.json({
-      message: error.message,
-      error: error
-    });
-  };
+    // register the router
+    app.use(baseUrl + (context.url ? context.url : ""), context.service.router);
 
-  this.register = function register(app, baseUrl) {
-    app.use(baseUrl + context.url, context.service.router);
-    if (!errorHandlerRegistered) {
-      app.use(this.errorHandler);
-      errorHandlerRegistered = true;
+    if (!preconfigured) {
+
+      // register an error hanlder for generic-model if not registered already for this app
+      app.use(function(error, request, response, next) {
+
+        if (error && error.errors) {
+          // normalize errors to readable format
+          _.keys(error.errors).map(function(key) {
+            error.errors[key] = error.errors[key].message.replace('`', '\'')
+          });
+
+          // send status 422 - Unprocessable Entity (validation error)
+          response.status(error.status || 422);
+          return response.json({
+            message: error.message,
+            error: error.errors
+          });
+        }
+
+        // send status 500 - internal server error
+        response.status(error.status || 500);
+        response.json({
+          message: error.message,
+          error: error
+        });
+      });
+      preconfigured = true;
     }
   }
 };
@@ -123,7 +199,32 @@ ServiceModel.createContext = function(name, options) {
  * @param name Name of the service (mandatory)
  * @param options Options as object in the format:
  * {
- *    schema: Object, // mandatory
+ *    schema: {  // mandatory
+ *      field1: {
+ *        type: String | Number | Date
+ * 
+ *        // validations
+ *        required: true,
+ *        required: [true, 'User phone number required']  // custom message
+ *        enum: ['Coffee', 'Tea'],    // only if type = String
+ *        minlength: number,          // only if type = String
+ *        maxlength: number,          // only if type = String
+ *        min: number,                // only if type = Number
+ *        max: number,                // only if type = Number
+ * 
+ *        // custom validation
+ *        validate: {
+ *           validator: function(v) {
+ *             return /\d{3}-\d{3}-\d{4}/.test(v);
+ *           },
+ *           message: '{VALUE} is not a valid phone number!'
+ *        },
+ * 
+ *        autoIncrement: boolean,     // only if type = Number
+ *        startAt: number,            // only if type = Number
+ *        incrementBy: number,        // only if type = Number  
+ *      }
+ *    },
  *    idField: String,
  *    permissions: Object,
  *    configure: Function,

@@ -3,14 +3,21 @@ module.exports = ServiceModel.create("Story", {
 
   url: '/story',
 
-  idField: "index",
-  userSpace: true,
+  idField: "id",
+  userSpecific: {field: "_user" },
+  timestamps: true,
 
   schema: {
     index: {
       type: Number,
       required: true,
-      min: 1
+      min: 1,
+      autoIncrement: true
+    },
+    sampleIndex: {
+      type: Number,
+      required: true,
+      autoIncrement: true
     },
     title: {
       type: String,

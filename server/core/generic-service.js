@@ -32,6 +32,7 @@ var mongoose = require('mongoose');
  * @param model Mongoose model to be used by the service
  */
 module.exports = function ServiceEndpoint(model) {
+  
   if (!model) {
     throw '"model" is mandatory for ServiceEndpoint';
   }
@@ -39,7 +40,7 @@ module.exports = function ServiceEndpoint(model) {
   this.router = express.Router();
 
   var send = function send(response, item, status, id) {
-    var item = apifiable ? _.pick(item, apifiable) : item;
+    // var item = apifiable ? _.pick(item, apifiable) : item;
     if (item) {
       return response.json(status ? {
         status: status,
@@ -67,15 +68,12 @@ module.exports = function ServiceEndpoint(model) {
     });
   }
 
-
-
   this.create = function create(request, response, next) {
 
     model.create(request.body, function(error, item) {
 
       // if there is an error 
       if (error) {
-
         // an error due to duplicate item (index error)
         if (error.code === 11000) {
           return respond(response, 400, {
@@ -126,7 +124,9 @@ module.exports = function ServiceEndpoint(model) {
   }
 
   this.updateById = function updateById(request, response, next) {
-    model.findByIdAndUpdate(request.params.id, request.body, { runValidators: true }, function(error, item) {
+    model.findByIdAndUpdate(request.params.id, request.body, {
+      runValidators: true
+    }, function(error, item) {
       if (error) return next(error);
       send(response, item, "updated", request.params.id);
     });
@@ -138,7 +138,7 @@ module.exports = function ServiceEndpoint(model) {
       send(response, item, "deleted", request.params.id);
     });
   };
-  
+
   this.bind = function bind() {
 
     /* PUT / */
@@ -167,5 +167,5 @@ module.exports = function ServiceEndpoint(model) {
   }
 
   this.send = send;
-  this.respond = respond;  
+  this.respond = respond;
 }
