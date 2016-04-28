@@ -24,7 +24,6 @@
  */
 var _ = require('lodash');
 var mongoose = require('mongoose');
-// var Counter = require('../models/Counter');
 var ServiceEndpoint = require('./generic-service');
 var autoIncrement = require('mongoose-auto-increment');
 
@@ -47,10 +46,11 @@ var ServiceModel = function ServiceModel(context) {
   }
 
   // setting up user specific collection
-  if (context.userSpecific) {
-    var userField = 'user';
-    if (typeof context.userSpecific === 'object' && context.userSpecific.field) {
-      userField = context.userSpecific.field;
+  var userField;
+  if (context.userSpace) {
+    userField = "_user";
+    if (typeof context.userSpace === 'object' && context.userSpace.field) {
+      userField = context.userSpace.field;
     }
     context.schema[userField] = {
       type: String,
@@ -58,25 +58,37 @@ var ServiceModel = function ServiceModel(context) {
     };
   }
 
+  // create projection
+  context.projection = Object.keys(context.schema).filter(function(item) {
+    return item.indexOf("_") === 0;
+  }).concat(["__v"]).map(function(item) {
+    return "-" + item;
+  }).join(" ");
+
+  // Get and validate id field
+  var idField;
+  Object.keys(context.schema).forEach(function(item) {
+    if (typeof context.schema[item] === 'object' && context.schema[item].idField) {
+      if (idField) {
+        throw `Schema Error: more than one id field found in '${context.name}': ` + idField.join(",");
+      }
+      idField = context.schema[item]; // clone
+      idField.name = item;
+    }
+  });
+
+  // create _id as the same type of idField
+  if (idField) {
+    context.schema._id = {
+      type: idField.type
+    }
+  }
+
   // create schema
   context.modelSchema = new mongoose.Schema(context.schema, {
     strict: true,
     timestamps: context.timestamps
   });
-  context.modelSchema.set('toJSON', {
-    getters: true,
-    virtuals: true
-  });
-
-  // map custom id field
-  if (context.idField) {
-    context.modelSchema.virtual(context.idField).get(function() {
-      return this._id;
-    });
-    context.modelSchema.virtual(context.idField).set(function(id) {
-      this._id = id;
-    });
-  }
 
   // create model
   context.model = mongoose.model(context.name, context.modelSchema);
@@ -102,8 +114,33 @@ var ServiceModel = function ServiceModel(context) {
     }
   });
 
+  // map custom id field
+  if (idField) {
+    var mapIdField = function(next) {
+      if (this[idField.name] !== undefined) {
+        this._id = this[idField.name];
+      }
+      next();
+    };
+
+    context.modelSchema.pre("update", mapIdField);
+    context.modelSchema.pre("save", mapIdField);
+
+    context.modelSchema.set("toJSON", {
+      transform: function(doc, ret, options) {
+        // remove the _id of every document before returning the result
+        ret[idField.name] = ret._id;
+        delete ret._id;
+      }
+    });
+  }
+
   // create generic service for the given schema and model
-  context.service = new ServiceEndpoint(context.model);
+  context.service = new ServiceEndpoint(context.model, {
+    userField: userField,
+    idField: idField,
+    projection: context.projection
+  });
 
   // if setup required do so here
   if (typeof context.configure === 'function') {
@@ -120,16 +157,8 @@ var ServiceModel = function ServiceModel(context) {
    */
   this.register = function register(app, baseUrl) {
 
-    if (!preconfigured) {
-      app.use(function interceptor(request, response, next) {
-        debugger;
-        console.log("INTERCEPTOR");
-        next();
-      });
-    }
-
     // register the router
-    app.use(baseUrl + (context.url ? context.url : ""), context.service.router);
+    app.use((baseUrl ? baseUrl : "") + (context.url ? context.url : ""), context.service.router);
 
     if (!preconfigured) {
 
@@ -219,13 +248,14 @@ ServiceModel.createContext = function(name, options) {
  *           },
  *           message: '{VALUE} is not a valid phone number!'
  *        },
- * 
+ *         
+ *        // options 
+ *        idField: boolean,           // one and only one field can be id
  *        autoIncrement: boolean,     // only if type = Number
  *        startAt: number,            // only if type = Number
  *        incrementBy: number,        // only if type = Number  
  *      }
  *    },
- *    idField: String,
  *    permissions: Object,
  *    configure: Function,
  *    url: String,
