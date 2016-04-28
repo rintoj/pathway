@@ -42,6 +42,15 @@ module.exports = function ServiceEndpoint(model, options) {
 
   this.router = express.Router();
 
+  /**
+   * Send response back to client. If item is not found return 404
+   * 
+   * @private 
+   * @param response Http response
+   * @param item Item to be send. If not defined 404 error code will be returned
+   * @param status Any status message to be returned other than the result (item) itself
+   * @param id Id of the item incase 404 is to be sent
+   */
   var send = function send(response, item, status, id) {
     // var item = apifiable ? _.pick(item, apifiable) : item;
     if (item) {
@@ -56,6 +65,16 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   };
 
+  /**
+   /**
+   * Send response back to client after a bulk update request
+   * 
+   * @private 
+   * @param response Http response
+   * @param result As array with first element as the result from create operation and the second
+   *               element as the status from bulk update operation
+   * @param multi Boolean value. True if the bulk operation was performed on more than one item
+   */
   var sendBulkResult = function sendBulkResult(response, result, multi) {
 
     // if multi request do this
@@ -91,26 +110,37 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   }
 
+  /**
+   * Respond to the client with given status code and reply
+   * 
+   * @private
+   * @param response Http response object
+   * @param statusCode Http status code
+   * @param reply The object to be returned as the body
+   */
   var respond = function respond(response, statusCode, reply) {
     response.status(statusCode);
     response.json(reply);
   };
 
-  var validateInvalid = function validateInvalid(item) {
-    return _.difference(Object.keys(item), fields);
-  };
-
-  var validateRequired = function validateRequired(item) {
-    return required.filter(function(field) {
-      return item[field] === undefined || item[field] === null;
-    });
-  };
-
-  var idField = function() {
+  /**
+   * Identify and return id field
+   * 
+   * @private
+   * @returns Returns name of the id field as string
+   */
+  var idField = function idField() {
     return options.idField ? options.idField.name : "_id";
   }
 
-  var segregateExisting = function(items) {
+  /**
+   * Identify existing items from the given set of items
+   * 
+   * @private
+   * @param items Array of items (objects)
+   * @returns Returns an object with 'new', 'existing' and 'existingIds' attributes as arrays
+   */
+  var segregateExisting = function segregateExisting(items) {
 
     var promise = new Promise();
 
@@ -154,6 +184,15 @@ module.exports = function ServiceEndpoint(model, options) {
     return promise;
   };
 
+  /**
+   * Perform a bulk create operation.
+   * 
+   * TODO: Improve the performance by calling model.collection.insert
+   * 
+   * @private
+   * @param items Items to be bulk inserted. The items must be pre-validated for its non-existance
+   * @returns Returns a Promise
+   */
   var bulkCreate = function bulkCreate(items) {
     var promise = new Promise();
     if (items.length === 0) {
@@ -167,6 +206,13 @@ module.exports = function ServiceEndpoint(model, options) {
     return promise;
   };
 
+  /**
+   * Perform a bulk update operation.
+   * 
+   * @private
+   * @param items Items to be bulk inserted. The items must be pre-validated for its existance
+   * @returns Returns a Promise
+   */
   var bulkUpdate = function bulkUpdate(items) {
     var promise = new Promise();
 
@@ -196,6 +242,13 @@ module.exports = function ServiceEndpoint(model, options) {
     return promise;
   }
 
+  /**
+   * Return any projection from request or from options
+   * 
+   * @private
+   * @param request Http request. Looks for request.query.fields
+   * @returns Returns projection as string
+   */
   var projection = function projection(request) {
     // set projection
     if (request.query.fields) {
@@ -207,7 +260,15 @@ module.exports = function ServiceEndpoint(model, options) {
     return undefined;
   };
 
-  var createQuery = function(request, multi) {
+  /**
+   * Create query from http request
+   * 
+   * @private
+   * @param request Http request
+   * @param multi True for muliselect query
+   * @returns Returns an instance of query
+   */
+  var createQuery = function createQuery(request, multi) {
     var query;
 
     // create query
@@ -243,6 +304,13 @@ module.exports = function ServiceEndpoint(model, options) {
     return query;
   }
 
+  /**
+   * List all items from the model as defined by http request
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.list = function list(request, response, next) {
     createQuery(request, true).exec(function(error, items) {
       if (error) return next(error);
@@ -250,6 +318,13 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   }
 
+  /**
+   * Query and return items from the model as defined by http request
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.query = function query(request, response, next) {
     createQuery(request, true).exec(function(error, items) {
       if (error) return next(error);
@@ -257,6 +332,13 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   };
 
+  /**
+   * Return an item from the model as defined by http request
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.getById = function getById(request, response, next) {
     request.body = {
       _id: request.params.id
@@ -267,6 +349,14 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   }
 
+  /**
+   * Save one or more items. The existing items will be updated and the new
+   * items will be created.
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.save = function save(request, response, next) {
     var multi = request.body instanceof Array;
     var items = multi ? request.body : [request.body];
@@ -296,6 +386,13 @@ module.exports = function ServiceEndpoint(model, options) {
 
   };
 
+  /**
+   * Select and delete items from the model as defined by http request
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.deleteAll = function deleteAll(request, response, next) {
     model.remove(request.query, function(error, item) {
       if (error) return next(error);
@@ -306,6 +403,13 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   };
 
+  /**
+   * Select and update an item as defined by http request
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.updateById = function updateById(request, response, next) {
     model.findByIdAndUpdate(request.params.id, request.body, {
       runValidators: true
@@ -315,6 +419,13 @@ module.exports = function ServiceEndpoint(model, options) {
     });
   };
 
+  /**
+   * Delete an item identified by the given id
+   * 
+   * @param request  Http request as object
+   * @param response Http response as object
+   * @param next Next hook as function
+   */
   this.deleteById = function deleteById(request, response, next) {
     model.findByIdAndRemove(request.params.id, request.body, function(error, item) {
       if (error) return next(error);
