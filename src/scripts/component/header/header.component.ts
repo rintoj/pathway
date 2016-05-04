@@ -47,24 +47,23 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 
 			<span class="menu right visible-lg" [class.open]="showMenu">
                 
-                <dropdown class="project-list" [options]="projectList"></dropdown>
+        <dropdown class="project-list" [options]="projectList"></dropdown>
 
 				<span class="icons">
 					<a class="sync-state fa fa-cloud" [class.syncing]="state.ui.syncing"
 					   [attr.tooltip]="state.ui.syncing ? 'Syncing...' : 'Synced'" (click)="state.ui.syncing = !state.ui.syncing"></a>
 					<a class="fa fa-cog"></a>
-                    
-                    <span class="user-profile" [class.open]="openUserProfile" (click)="toggleUserProfile()">
-                        <div class="profile-details">
-                            <div class="user-name">
-                                <span class="name">{{userName}}</span>
-                                <span class="email">{{state.user?.userId}}</span>
-                            </div>
-                            <button class="btn btn-pill btn-primary" (click)="logout()">Logout</button>
-                            <button class="btn btn-pill" disabled>Switch User</button>
-                        </div>
-                        <a class="avatar small"></a>
-                    </span>
+            <span class="user-profile" [class.open]="openUserProfile" (click)="toggleUserProfile()">
+                <div class="profile-details">
+                    <div class="user-name">
+                        <span class="name">{{userName}}</span>
+                        <span class="email">{{state.user?.userId}}</span>
+                    </div>
+                    <button class="btn btn-pill btn-primary" (click)="logout()">Logout</button>
+                    <button class="btn btn-pill" disabled>Switch User</button>
+                </div>
+                <a class="avatar small"></a>
+            </span>
 				</span>
 			</span>
         </div>
