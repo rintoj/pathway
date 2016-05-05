@@ -1,9 +1,7 @@
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 @Component({
-  selector: 'dialog-box'
-})
-@View({
+  selector: 'dialog-box',
   template: `
 		<div class="dialog" [class.open]="show" [class.no-title]="!showTitle">
 			<div class="overlay" (click)="hide()"></div>

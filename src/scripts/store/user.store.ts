@@ -28,8 +28,8 @@ import {Observer} from 'rxjs/Observer';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {ApplicationState} from '../state/application-state';
-import {Inject, Injectable} from 'angular2/core';
-import {Response, RequestMethod} from 'angular2/http';
+import {Inject, Injectable} from '@angular/core';
+import {Response, RequestMethod} from '@angular/http';
 import {AuthInfo, RestServiceWithOAuth2} from '../service/oauth2-rest.service';
 import {LoginAction, LogoutAction, ValidateUserAction, CreateUserAction, CheckUserAction, AuthorizeAction} from '../state/action';
 
@@ -91,7 +91,7 @@ export class UserStore {
       }).share();
     }
 
-    return this.dataService.requestWithBasicAuth(`${this.url}/user`, RequestMethod.Get, null, { userId: state.user.userId })
+    return this.dataService.requestWithBasicAuth(`${this.url}/user/${state.user.userId}`, RequestMethod.Get)
       .map((response: Response): ApplicationState => {
         var json: any = response.json()[0];
         state.user = {
@@ -106,14 +106,14 @@ export class UserStore {
   }
 
   protected createUser(state: ApplicationState, action: CreateUserAction): Observable<ApplicationState> {
-    return this.dataService.put(`${this.url}/register`, action.user)
+    return this.dataService.put(`${this.url}/user`, action.user)
       .map((response: Response): ApplicationState => {
         return state;
       });
   }
 
   protected checkUser(state: ApplicationState, action: CheckUserAction): Observable<any> {
-    return this.dataService.requestWithBasicAuth(`${this.url}/user`, RequestMethod.Get, null, { userId: action.userId })
+    return this.dataService.requestWithBasicAuth(`${this.url}/user/${action.userId}`, RequestMethod.Get)
       .map((response: Response): any => response.json());
   }
 }

@@ -1,15 +1,15 @@
 import {Config} from '../../state/config';
 import {Dispatcher} from '../../state/dispatcher';
 import {LoginAction, ValidateUserAction} from '../../state/action';
-import {Component, View} from 'angular2/core';
+import {Component} from '@angular/core';
 import {LoaderComponent} from '../loader/loader.component';
-import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
-import {ROUTER_DIRECTIVES, Router, RouteParams, OnActivate} from 'angular2/router';
+import {Control, Validators, FormBuilder, ControlGroup} from '@angular/common';
+// import {ROUTER_DIRECTIVES, Router, RouteParams, OnActivate} from '@angular/router';
+
+import {ROUTER_DIRECTIVES, Router, OnActivate} from '@angular/router';
 
 @Component({
-  selector: 'pw-login'
-})
-@View({
+  selector: 'pw-login',
   directives: [
     LoaderComponent,
     ROUTER_DIRECTIVES
@@ -43,7 +43,7 @@ import {ROUTER_DIRECTIVES, Router, RouteParams, OnActivate} from 'angular2/route
                     [disabled]="!loginForm.valid || loading || validating">Login</button>
             </div>
             <div class="signup-btn">
-                <a [routerLink]="['Register']">Create account</a> | <a>Help</a>
+                <a [routerLink]="['/register']">Create account</a> | <a>Help</a>
             </div>
             <footer>
 			    <span>Pathway™ - Powered by Angular 2.</span> <span>© 2016 Copyright rintoj (Rinto Jose).</span>
@@ -64,7 +64,7 @@ export class LoginComponent implements OnActivate {
 
   constructor(
     private router: Router,
-    private routeParams: RouteParams,
+    // private routeParams: RouteParams,
     private builder: FormBuilder,
     private dispatcher: Dispatcher
   ) { }
@@ -80,9 +80,9 @@ export class LoginComponent implements OnActivate {
   }
 
   routerOnActivate(): void {
-    if (this.routeParams.get('authorized') === 'false') {
-      this.errorMessage = 'You are not authorized or session expired! Login again.';
-    }
+    // if (this.routeParams.get('authorized') === 'false') {
+    //   this.errorMessage = 'You are not authorized or session expired! Login again.';
+    // }
 
     this.validateAuth(true);
   }
@@ -91,7 +91,7 @@ export class LoginComponent implements OnActivate {
     this.dispatcher.next(new ValidateUserAction())
       .finally(() => this.validating = false)
       .subscribe((data: any) => {
-        this.router.navigate([this.routeParams.get('callback') || '/Home']);
+        // this.router.navigate([this.routeParams.get('callback') || '/Home']);
       }, (error: any) => {
         this.loading = false;
         if (!noError) {

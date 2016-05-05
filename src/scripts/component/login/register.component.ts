@@ -3,21 +3,19 @@ import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {Dispatcher} from '../../state/dispatcher';
 import {LoaderComponent} from '../loader/loader.component';
-import {Component, View} from 'angular2/core';
+import {Component} from '@angular/core';
 import {CreateUserAction} from '../../state/action';
 import {CheckUserAction} from '../../state/action';
-import {ROUTER_DIRECTIVES} from 'angular2/router';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
-import {Control, Validators, FormBuilder, ControlGroup} from 'angular2/common';
+import {Control, Validators, FormBuilder, ControlGroup} from '@angular/common';
 
 interface ValidationResult {
   [key: string]: boolean;
 }
 
 @Component({
-  selector: 'pw-register'
-})
-@View({
+  selector: 'pw-register',
   directives: [
     ROUTER_DIRECTIVES,
     LoaderComponent
@@ -73,7 +71,7 @@ interface ValidationResult {
                     [disabled]="!loginForm.valid">Create User</button>
             </div>
             <div class="signup-btn">
-                <a [routerLink]="['Login']">Login</a> | <a>Help</a>
+                <a [routerLink]="['/login']">Login</a> | <a>Help</a>
             </div>
             <footer>
 			    <span>Pathway™ - Powered by Angular 2.</span> <span>© 2016 Copyright rintoj (Rinto Jose).</span>

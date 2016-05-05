@@ -1,6 +1,5 @@
 
-import {Inject} from 'angular2/core';
-// import {RestService} from './rest.service';
+import {Inject} from '@angular/core';
 
 // const Promise = Dexie.Promise; // KEEP! (or loose transaction safety in await calls!)
 // const all = Promise.all;

@@ -1,16 +1,14 @@
-import {Role} from '../../state/user';
-import {authorize} from '../../service/authorization.service';
+// import {Role} from '../../state/user';
+// import {authorize} from '../../service/authorization.service';
 import {HeaderComponent} from '../header/header.component';
-import {Component, View} from 'angular2/core';
+import {Component} from '@angular/core';
 import {ProjectlogComponent} from '../projectlog/projectlog.component';
-import {ROUTER_DIRECTIVES, CanActivate, ComponentInstruction} from 'angular2/router';
+// import {ROUTER_DIRECTIVES, CanActivate, ComponentInstruction} from '@angular/router';
 
+// @CanActivate((next: ComponentInstruction, prev: ComponentInstruction) => authorize(next, prev, [Role.USER]))
 @Component({
-  selector: 'pw-main'
-})
-@CanActivate((next: ComponentInstruction, prev: ComponentInstruction) => authorize(next, prev, [Role.USER]))
-@View({
-  directives: [HeaderComponent, ProjectlogComponent, ROUTER_DIRECTIVES],
+  selector: 'pw-main',
+  directives: [HeaderComponent, ProjectlogComponent],
   template: `
 		<pw-header></pw-header>
 		<main>

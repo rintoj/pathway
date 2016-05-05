@@ -1,7 +1,7 @@
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
-import { Injectable} from 'angular2/core';
-import {Http, Request, Response, RequestMethod, RequestOptions} from 'angular2/http';
+import { Injectable} from '@angular/core';
+import {Http, Request, Response, RequestMethod, RequestOptions} from '@angular/http';
 
 export interface RestService {
   get(url: string, search?: Object): Observable<Response>;

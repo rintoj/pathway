@@ -1,9 +1,7 @@
-import {Component, Input, View} from 'angular2/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
-    selector: 'pw-loader'
-})
-@View({
+    selector: 'pw-loader',
     template: `
 		<div class="sk-circle" [class.show]="show">
 			<div class="sk-circle1 sk-child"></div>

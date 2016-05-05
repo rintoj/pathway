@@ -1,8 +1,8 @@
 import 'rxjs/add/operator/map';
 
 import {Observable} from 'rxjs';
-import {Injectable} from 'angular2/core';
-import {Promise, PromiseWrapper} from 'angular2/src/facade/promise';
+import {Injectable} from '@angular/core';
+import {Promise, PromiseWrapper} from '@angular/src/facade/promise';
 import {Http, Request, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
 
 export class BulkRestOptions extends BaseRequestOptions {

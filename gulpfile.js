@@ -39,6 +39,7 @@ function usage() {
   console.log('   gulp serve    - startup the server accessible at http://localhost:' + env.PORT);
   console.log('   gulp compile  - compile typescript files');
   console.log('   gulp index    - inject library files and css into index.html');
+  console.log('   gulp assets   - build / rebuild library files');
   console.log('   gulp assets   - sync assets such as images, data, css and library files with build directory');
   console.log('   gulp server   - startup the api server (make sure to start "mongodb" before executing this command)');
   console.log('   gulp clean    - clean build directory');
@@ -194,14 +195,18 @@ function execute(command, arguments, dir) {
   });
 }
 
-function libraryFiles() {
+function libraryFiles(compileOnly) {
+  if (compileOnly) {
+    return env.paths.libs.compileOnly;
+  }
   return env.paths.libs.js.concat(Object.keys(config.globalLibs).map(function(key) {
     return config.globalLibs[key];
   }));
 }
 
 function libs() {
-  return gulp.src(libraryFiles(), {
+
+  var jsLibs = gulp.src(libraryFiles(), {
       base: '.'
     })
     .pipe(plugins.if(env.isProd, plugins.concat(`${config.name}-lib-${config.version}.min.js`)))
@@ -212,6 +217,20 @@ function libs() {
       title: 'libs'
     }))
     .pipe(gulp.dest('build/libs'));
+
+  var compileOnlyLibs = gulp.src(libraryFiles(true), {
+      base: '.'
+    })
+    .pipe(plugins.if(env.isProd, plugins.concat(`${config.name}-lib-${config.version}.min.js`)))
+    .pipe(plugins.if(env.isProd, plugins.uglify({
+      mangle: false
+    })))
+    .pipe(plugins.size({
+      title: 'libs'
+    }))
+    .pipe(gulp.dest('build/libs'));
+
+  return merge(jsLibs, compileOnlyLibs);
 }
 
 function assets() {
@@ -302,6 +321,7 @@ gulp.task('serve', gulp.parallel(watch, livereload));
 gulp.task("doc", gulp.series(cleandocs, typedoc));
 gulp.task(index);
 gulp.task(assets);
+gulp.task(libs);
 gulp.task(compile);
 gulp.task(server);
 gulp.task('start', gulp.parallel('build', 'serve', 'server'));

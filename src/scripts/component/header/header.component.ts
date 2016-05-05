@@ -22,17 +22,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {Router} from 'angular2/router';
+import {Router} from '@angular/router';
 import {Dispatcher} from '../../state/dispatcher';
 import {LogoutAction} from '../../state/action';
-import {Component, View} from 'angular2/core';
+import {Component} from '@angular/core';
 import {Dropdown, DropdownOption} from '../../directive/dropdown/dropdown';
 import {ApplicationState, ApplicationStateObservable} from '../../state/application-state';
 
 @Component({
-  selector: 'pw-header'
-})
-@View({
+  selector: 'pw-header',
   directives: [Dropdown],
   template: `
 		<div class="nav-wrapper" [class.open]="showMenu">

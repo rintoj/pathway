@@ -26,21 +26,23 @@
 'use strict';
 
 var baseLibs = [
-  'node_modules/systemjs/dist/system.js',
-  'node_modules/es6-shim/es6-shim.js',
-  'node_modules/rxjs/bundles/Rx.js',
-  'node_modules/angular2/bundles/angular2-polyfills.js',
-  'node_modules/angular2/bundles/angular2.dev.js',
-  'node_modules/angular2/bundles/router.dev.js',
-  'node_modules/angular2/bundles/http.dev.js'  
+  "node_modules/es6-shim/es6-shim.min.js",
+  "node_modules/zone.js/dist/zone.js",
+  "node_modules/reflect-metadata/Reflect.js",
+  "node_modules/systemjs/dist/system.src.js"
+];
+
+var compileOnly = [
+  "node_modules/@angular/**/*.js",
+  "node_modules/rxjs/**/*.js"
 ];
 
 module.exports = {
   name: 'pathway',
   version: 'a0.1',
-  
+
   typings: [
-    'node_modules/angular2/typings/browser.d.ts',
+    // 'node_modules/@angular/typings/browser.d.ts'
     'typings/main.d.ts'
   ],
 
@@ -55,6 +57,9 @@ module.exports = {
       js: [
         ...baseLibs
         // Add dev only libs here - eg 'node_modules/debug-lib/index.js'
+      ],
+      compileOnly: [
+        ...compileOnly
       ]
     }
   },
@@ -64,6 +69,9 @@ module.exports = {
       js: [
         ...baseLibs
         // Add prod only libs here - eg 'node_modules/analytics-lib/index.js'
+      ],
+      compileOnly: [
+        ...compileOnly
       ]
     }
   }

@@ -1,4 +1,4 @@
-import {Component, View, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 
 @Component({
     selector: 'content',
@@ -9,9 +9,7 @@ import {Component, View, Input, Output, EventEmitter, ElementRef} from 'angular2
         '(keyup)': 'publishChange($event)',
         '(focusout)': 'publishUpdateEnd($event)',
         '(click)': 'switchToEditMode()'
-    }
-})
-@View({
+    },
     template: `<ng-content></ng-content>`
 })
 export class Content {

@@ -1,14 +1,12 @@
 import {Config} from '../../state/config';
 import {DialogBox} from '../../directive/dialog/dialog-box';
 import {LoaderComponent} from '../loader/loader.component';
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 enum UploadStatus { UPLOADING, UPLOADED, UPLOAD_FAILED, CLEARING, CLEARED, CLEAR_FAILED, DEFAULT };
 
 @Component({
-  selector: 'pw-uploader'
-})
-@View({
+  selector: 'pw-uploader',
   directives: [DialogBox, LoaderComponent],
   template: `
 		<dialog-box [title]="'Data Setup Wizard'" [showTitle]="true" [show]="show" (autoHide)="onAutoHide()">

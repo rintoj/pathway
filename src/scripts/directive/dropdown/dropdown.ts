@@ -1,4 +1,4 @@
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 export interface DropdownOption {
     text: string;
@@ -8,9 +8,7 @@ export interface DropdownOption {
 }
 
 @Component({
-    selector: 'dropdown'
-})
-@View({
+    selector: 'dropdown',
     template: `
     <div class="dd-item-list" [class.open]="showDropdown">
         <div class="dd-item" *ngFor="#item of options" (click)="selectItem(item)"> 

@@ -27,7 +27,7 @@ import {Config} from '../state/config';
 import {Observer} from 'rxjs/Observer';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 import {RestoreAppStateAction} from '../state/action';
 import {ApplicationState, ApplicationStateObservable} from '../state/application-state';
 

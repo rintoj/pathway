@@ -2,7 +2,7 @@ import {Page} from '../../state/pagination';
 import {Subject} from 'rxjs/Subject';
 import {Dispatcher} from '../../state/dispatcher';
 import {Projectlog} from '../../state/projectlog';
-import {Component, View} from 'angular2/core';
+import {Component} from '@angular/core';
 import {LoaderComponent} from '../loader/loader.component';
 import {InfiniteScroller} from '../../directive/scroller/infinite-scroller';
 import {UploaderComponent} from '../uploader/uploader.component';
@@ -11,9 +11,7 @@ import {ApplicationState, ApplicationStateObservable} from '../../state/applicat
 import {FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../../state/action';
 
 @Component({
-  selector: 'pw-projectlog'
-})
-@View({
+  selector: 'pw-projectlog',
   directives: [
     ProjectlogItemComponent,
     LoaderComponent,

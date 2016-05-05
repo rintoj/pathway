@@ -25,21 +25,20 @@
 
 // import all required libraries
 import {Config} from './state/config';
-import {bootstrap} from 'angular2/platform/browser';
+import {bootstrap} from '@angular/platform-browser-dynamic';
 import {Dispatcher} from './state/dispatcher';
 import {MainComponent} from './component/main/main.component';
-import {HTTP_PROVIDERS} from 'angular2/http';
+import {HTTP_PROVIDERS} from '@angular/http';
 import {applicationRef} from './util/application-ref';
 import {LoginComponent} from './component/login/login.component';
-import {Component, View} from 'angular2/core';
-import {ROUTER_PROVIDERS} from 'angular2/router';
+import {Component} from '@angular/core';
 import {RegisterComponent} from './component/login/register.component';
 import {RestoreAppStateAction} from './state/action';
 import {RestServiceWithOAuth2} from './service/oauth2-rest.service';
 import {ApplicationStateObservable} from './state/application-state';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
-import {LocationStrategy, HashLocationStrategy} from 'angular2/router';
-import {enableProdMode, provide, Inject, ComponentRef} from 'angular2/core';
+import {Router, Routes, ROUTER_PROVIDERS, ROUTER_DIRECTIVES} from '@angular/router';
+// import {LocationStrategy, HashLocationStrategy} from '@angular/router';
+import {enableProdMode, provide, Inject, ComponentRef} from '@angular/core';
 
 // import stores
 import {AppStateStore} from './store/app-state.store';
@@ -48,31 +47,27 @@ import {UserStore} from './store/user.store';
 
 import {DataService} from './service/data.service';
 
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/merge';
+// import 'rxjs/add/operator/share';
+// import 'rxjs/add/operator/map';
+// import 'rxjs/add/operator/merge';
 
 // @if isProd
 enableProdMode();
 // @endif
 
-// setup main view
-@View({
-  directives: [ROUTER_DIRECTIVES],
-  template: `<router-outlet></router-outlet>`
-})
-
 // setup router configuration
-@RouteConfig([
-  { path: '/home', name: 'Home', component: MainComponent, useAsDefault: true },
-  { path: '/login', name: 'Login', component: LoginComponent },
-  { path: '/register', name: 'Register', component: RegisterComponent },
-  { path: '/**', redirectTo: ['Home'] }
+@Routes([
+  { path: '/home', component: MainComponent },
+  { path: '/login', component: LoginComponent },
+  { path: '/register', component: RegisterComponent },
+  { path: '*', component: MainComponent }
 ])
 
 // setup root level component
 @Component({
+  directives: [ROUTER_DIRECTIVES],
   selector: 'pw-app',
+  template: `<router-outlet></router-outlet>`,
   providers: [
     AppStateStore,
     ProjectlogStore,
@@ -86,6 +81,9 @@ export class AppComponent {
     // instantiate dispatcher
     private dispatcher: Dispatcher,
 
+    // router
+    private router: Router,
+
     // instantiate all stores
     private userStore: UserStore,
     private appStateStore: AppStateStore,
@@ -93,6 +91,10 @@ export class AppComponent {
   ) {
     console.log('Application created!');
     this.dispatcher.next(new RestoreAppStateAction()).subscribe();
+  }
+
+  ngOnInit(): any {
+    this.router.navigate(['/login']);
   }
 }
 
@@ -104,8 +106,8 @@ bootstrap(AppComponent, [
   provide('DataServiceOptions', { useValue: Config.DATA_SERVICE_OPTIONS }),
   provide('DataService', { useClass: RestServiceWithOAuth2 }),
   provide('OfflineDataService', { useClass: DataService }),
-  provide(LocationStrategy, { useClass: HashLocationStrategy }),
+  // provide(LocationStrategy, { useClass: HashLocationStrategy }),
   provide(Dispatcher, { useValue: new Dispatcher(Config.INITIAL_STATE) }),
   provide(ApplicationStateObservable, { useFactory: Dispatcher.stateFactory, deps: [new Inject(Dispatcher)] })
-]).then((appRef: ComponentRef): void => { applicationRef(appRef); });
+]).then((appRef: ComponentRef<any>): void => { applicationRef(appRef); });
 

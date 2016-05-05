@@ -1,11 +1,11 @@
 import {Page} from '../state/pagination';
-import {Response} from 'angular2/http';
+import {Response} from '@angular/http';
 import {DataStore} from './data.store';
 import {Dispatcher} from '../state/dispatcher';
 import {Observable} from 'rxjs/Observable';
 import {Projectlog}  from '../state/projectlog';
 import {ApplicationState} from '../state/application-state';
-import {Injectable, Inject} from 'angular2/core';
+import {Injectable, Inject} from '@angular/core';
 import {RestServiceWithOAuth2} from '../service/oauth2-rest.service';
 import {FetchProjectlogAction, CreateProjectlogAction, DeleteProjectlogAction} from '../state/action';
 

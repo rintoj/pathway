@@ -24,13 +24,12 @@
  */
 
 import {Role} from '../state/user';
-import {Router} from 'angular2/router';
 import {Dispatcher} from '../state/dispatcher';
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
 import {applicationRef} from '../util/application-ref';
 import {AuthorizeAction} from '../state/action';
-import {ComponentInstruction} from 'angular2/router';
+import {Router, ComponentInstruction} from '@angular/router-deprecated';
 
 export function authorize(next: ComponentInstruction, previous: ComponentInstruction, roles: Role[]): boolean {
 

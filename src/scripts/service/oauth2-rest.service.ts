@@ -1,9 +1,9 @@
 
 import {Observer} from 'rxjs/Observer';
 import {Observable} from 'rxjs/Observable';
-import {Inject, Injectable} from 'angular2/core';
+import {Inject, Injectable} from '@angular/core';
 import {BaseRestService, RestServiceOptions} from './rest.service';
-import {Http, Headers, Response, RequestMethod, RequestOptions, BaseRequestOptions} from 'angular2/http';
+import {Http, Headers, Response, RequestMethod, RequestOptions, BaseRequestOptions} from '@angular/http';
 
 export interface Token {
   token: string;
@@ -54,7 +54,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
     });
 
     return Observable.create((observer: Observer<AuthInfo>) => {
-      this.httpRequest(options).map((response: Response) => response.json())
+      this.httpRequest(options).map((response: Response, index: number): any => response.json())
         .subscribe((data: any) => {
           this.options.accessToken = {
             token: data.access_token,
@@ -123,7 +123,7 @@ export class RestServiceWithOAuth2 extends BaseRestService {
 
   httpRequestWithBasicAuth(options: RequestOptions): Observable<Response> {
     if (this.options.clientId && this.options.clientSecret) {
-      options.headers.set('Content-Type', 'application/x-www-form-urlencoded');
+      // options.headers.set('Content-Type', 'application/x-www-form-urlencoded');
       options.headers.set('Authorization', 'Basic ' + btoa(`${this.options.clientId}:${this.options.clientSecret}`));
     }
     return this.httpRequest(options);

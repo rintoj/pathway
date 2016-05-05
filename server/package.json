@@ -13,7 +13,7 @@
   "author": "Rinto Jose (rintoj)",
   "license": "ISC",
   "dependencies": {
-    "mongo-restifier": "^1.0.2"
+    "mongo-restifier": "^1.0.3"
   },
   "devDependencies": {
     "mocha": "^2.4.5",

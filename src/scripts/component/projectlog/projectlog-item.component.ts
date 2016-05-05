@@ -1,8 +1,7 @@
 import {Content} from '../../directive/content/content';
 import {Dropdown, DropdownOption} from '../../directive/dropdown/dropdown';
 import {Projectlog} from '../../state/projectlog';
-import {Component, View, Input, Output, EventEmitter} from 'angular2/core';
-
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 interface BeforeChange {
     title: string;
@@ -10,9 +9,7 @@ interface BeforeChange {
 }
 
 @Component({
-    selector: 'pw-projectlog-item'
-})
-@View({
+    selector: 'pw-projectlog-item',
     directives: [Content, Dropdown],
     template: `
 		<div class="list-item" 

@@ -23,11 +23,11 @@
  * SOFTWARE.
  */
 
-import {ComponentRef} from 'angular2/core';
+import {ComponentRef} from '@angular/core';
 
-let globalApplicationRef: ComponentRef;
+let globalApplicationRef: ComponentRef<any>;
 
-export const applicationRef: Function = (appRef: ComponentRef = undefined): ComponentRef => {
+export const applicationRef: Function = (appRef: ComponentRef<any> = undefined): ComponentRef<any> => {
   if (!appRef) {
     return globalApplicationRef;
   }

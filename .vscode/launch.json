@@ -1,17 +1,6 @@
 {
   "version": "0.2.0",
   "configurations": [{
-    "name": "dev-build",
-    "type": "node",
-    "program": "/usr/local/bin/gulp",
-    "request": "launch",
-    "args": ["start"],
-    "cwd": "${workspaceRoot}",
-    "runtimeExecutable": null,
-    "env": {
-      "NODE_ENV": "development"
-    }
-  }, {
     "name": "dev-ui-build",
     "type": "node",
     "program": "/usr/local/bin/gulp",
@@ -23,7 +12,7 @@
       "NODE_ENV": "development"
     }
   }, {
-    "name": "prod-build",
+    "name": "dev-build",
     "type": "node",
     "program": "/usr/local/bin/gulp",
     "request": "launch",
@@ -31,7 +20,7 @@
     "cwd": "${workspaceRoot}",
     "runtimeExecutable": null,
     "env": {
-      "NODE_ENV": "production"
+      "NODE_ENV": "development"
     }
   }, {
     "name": "prod-ui-build",
@@ -39,6 +28,17 @@
     "program": "/usr/local/bin/gulp",
     "request": "launch",
     "args": ["build", "serve"],
+    "cwd": "${workspaceRoot}",
+    "runtimeExecutable": null,
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }, {
+    "name": "prod-build",
+    "type": "node",
+    "program": "/usr/local/bin/gulp",
+    "request": "launch",
+    "args": ["start"],
     "cwd": "${workspaceRoot}",
     "runtimeExecutable": null,
     "env": {
