@@ -24,9 +24,9 @@
  */
 
 import {Role} from '../state/user';
-import {Observer} from 'rxjs/Observer';
+import {Observer} from 'rxjs/Rx';
 import {Dispatcher} from '../state/dispatcher';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
 import {ApplicationState} from '../state/application-state';
 import {Inject, Injectable} from '@angular/core';
 import {Response, RequestMethod} from '@angular/http';

@@ -1,5 +1,5 @@
 import {Page} from '../../state/pagination';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs/Rx';
 import {Dispatcher} from '../../state/dispatcher';
 import {Projectlog} from '../../state/projectlog';
 import {Component} from '@angular/core';

@@ -26,8 +26,8 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 import Dexie from 'dexie';
 
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 import {BehaviorSubject} from 'rxjs/Rx';
 import {Action, StatelessAction} from './action';
 import {ApplicationState, ApplicationStateObservable} from './application-state';

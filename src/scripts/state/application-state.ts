@@ -1,7 +1,7 @@
 import {User} from './user';
 import {UIState} from './ui-state';
 import {Projectlog} from './projectlog';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
 import {PaginatableList} from './pagination';
 
 export interface ApplicationState {

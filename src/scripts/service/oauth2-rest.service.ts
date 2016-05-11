@@ -1,6 +1,6 @@
 
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 import {Inject, Injectable} from '@angular/core';
 import {BaseRestService, RestServiceOptions} from './rest.service';
 import {Http, Headers, Response, RequestMethod, RequestOptions, BaseRequestOptions} from '@angular/http';

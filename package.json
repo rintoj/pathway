@@ -66,12 +66,16 @@
     "gulp-util": "^3.0.7",
     "merge-stream": "1.0.0",
     "tslint": "3.2.0-dev.1",
-    "typescript": "1.8.0-dev.20151204",
+    "typescript": "^1.8.10",
     "validate-commit-msg": "1.0.0"
   },
   "config": {
     "ghooks": {
-      "commit-msg": "validate-commit-msg"
-    }
+		"commit-msg": "validate-commit-msg"
+    },
+	"validate-commit-msg": {
+		"types": ["code", "fix", "docs", "style", "refactor", "test", "revert"],
+		"subjectPattern": ".+-.+"
+	}
   }
 }

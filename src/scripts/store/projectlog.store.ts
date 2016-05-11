@@ -2,7 +2,7 @@ import {Page} from '../state/pagination';
 import {Response} from '@angular/http';
 import {DataStore} from './data.store';
 import {Dispatcher} from '../state/dispatcher';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Rx';
 import {Projectlog}  from '../state/projectlog';
 import {ApplicationState} from '../state/application-state';
 import {Injectable, Inject} from '@angular/core';

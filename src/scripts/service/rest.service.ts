@@ -1,5 +1,5 @@
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 import { Injectable} from '@angular/core';
 import {Http, Request, Response, RequestMethod, RequestOptions} from '@angular/http';
 

@@ -47,9 +47,11 @@ import {UserStore} from './store/user.store';
 
 import {DataService} from './service/data.service';
 
-// import 'rxjs/add/operator/share';
-// import 'rxjs/add/operator/map';
-// import 'rxjs/add/operator/merge';
+import 'rxjs/add/operator/share';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/merge';
+import 'rxjs/add/operator/catch';
+
 
 // @if isProd
 enableProdMode();

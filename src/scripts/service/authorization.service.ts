@@ -25,8 +25,8 @@
 
 import {Role} from '../state/user';
 import {Dispatcher} from '../state/dispatcher';
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 import {applicationRef} from '../util/application-ref';
 import {AuthorizeAction} from '../state/action';
 import {Router, ComponentInstruction} from '@angular/router-deprecated';

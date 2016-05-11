@@ -91,7 +91,7 @@ export class LoginComponent implements OnActivate {
     this.dispatcher.next(new ValidateUserAction())
       .finally(() => this.validating = false)
       .subscribe((data: any) => {
-        // this.router.navigate([this.routeParams.get('callback') || '/Home']);
+        this.router.navigate(['/home']);
       }, (error: any) => {
         this.loading = false;
         if (!noError) {

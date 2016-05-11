@@ -42,7 +42,7 @@ module.exports = {
   version: 'a0.1',
 
   typings: [
-    // 'node_modules/@angular/typings/browser.d.ts'
+    // 'node_modules/@angular/typings/browser.d.ts',
     'typings/main.d.ts'
   ],
 

@@ -1,5 +1,5 @@
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 
 export class ObservableUtil {
 

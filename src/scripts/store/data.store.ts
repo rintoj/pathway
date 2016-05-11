@@ -1,7 +1,7 @@
 
 import {Page} from '../state/pagination';
-import {Observer} from 'rxjs/Observer';
-import {Observable} from 'rxjs/Observable';
+import {Observer} from 'rxjs/Rx';
+import {Observable} from 'rxjs/Rx';
 import {Dispatcher} from '../state/dispatcher';
 
 export abstract class DataStore<M>  {

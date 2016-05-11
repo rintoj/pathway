@@ -7,3 +7,4 @@ typings/
 server/node_modules/
 server/npm-debug.log*
 server/data
+npm-debug.log
